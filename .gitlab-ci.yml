@@ -1,0 +1,22 @@
+
+stages:          
+  - build
+  - test
+
+build:
+  stage: build
+  only:
+    - main
+    - merge_requests
+  script:
+    - echo "Building project"
+    - mvn clean compile
+
+test:
+  stage: test
+  only:
+    - master
+    - merge_requests
+  script:
+    - echo "Running tests"
+    - mvn clean test
