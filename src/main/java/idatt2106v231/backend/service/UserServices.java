@@ -48,6 +48,4 @@ public class UserServices {
 
         return userOptional;
     }
-
-
 }

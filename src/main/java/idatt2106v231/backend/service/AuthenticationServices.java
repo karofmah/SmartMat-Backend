@@ -1,12 +1,12 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.auth.AuthenticationResponse;
+import idatt2106v231.backend.config.JwtService;
+import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.repository.UserRepository;
+import idatt2106v231.backend.model.User;
 import lombok.RequiredArgsConstructor;
-import ntnu.idatt2105.fullstackproject.auth.AuthenticationResponse;
-import ntnu.idatt2105.fullstackproject.config.JwtService;
-import ntnu.idatt2105.fullstackproject.dto.user.UserCreationDto;
-import ntnu.idatt2105.fullstackproject.model.Role;
-import ntnu.idatt2105.fullstackproject.model.User;
-import ntnu.idatt2105.fullstackproject.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,12 +31,18 @@ public class AuthenticationServices {
      * @return a token which authenticates the user
      */
     public AuthenticationResponse register(UserCreationDto request) {
-        if(repository.findDistinctByEmail(request.getEmail()) != null) {
+        if(repository.findById(request.getEmail()).isPresent()) {
             return null;
         }
         var user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .age(request.getAge())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .phoneNumber(request.getPhoneNumber())
+                .age(request.getAge())
+                .household(request.getHousehold())
                 .role(Role.USER)
                 .build();
         repository.save(user);

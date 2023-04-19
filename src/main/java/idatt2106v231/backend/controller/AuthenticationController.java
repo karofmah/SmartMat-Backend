@@ -1,12 +1,12 @@
 package idatt2106v231.backend.controller;
 
+import idatt2106v231.backend.auth.AuthenticationResponse;
+import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.service.AuthenticationServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import ntnu.idatt2105.fullstackproject.auth.AuthenticationResponse;
-import ntnu.idatt2105.fullstackproject.dto.user.UserCreationDto;
-import ntnu.idatt2105.fullstackproject.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService service;
+    private final AuthenticationServices service;
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @PostMapping("/register")
