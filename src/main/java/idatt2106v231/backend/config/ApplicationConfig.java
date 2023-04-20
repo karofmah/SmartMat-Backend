@@ -1,6 +1,7 @@
 package idatt2106v231.backend.config;
 
 import idatt2106v231.backend.repository.UserRepository;
+import idatt2106v231.backend.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +24,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return repository::findDistinctByEmail;
+        return new CustomUserDetailsService(repository);
     }
 
     @Bean
