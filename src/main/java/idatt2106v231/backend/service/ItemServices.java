@@ -26,8 +26,15 @@ public class ItemServices {
      *
      * @param item the new item
      */
-    public void saveItem(ItemDto item) {
-
+    public boolean saveItem(ItemDto item) {
+        try {
+            Item it = mapper.map(item, Item.class);
+            it.setCategory(categoryRepository.findById(item.getCategory()).get());
+            itemRepository.save(it);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -67,5 +74,12 @@ public class ItemServices {
      * @param itemId the items id
      */
     public void getAmountOfRefrigeratorsContainingItem(int itemId){
+    }
+
+    public boolean checkIfItemExists(String name){
+        return itemRepository.findByName(name).isPresent();
+    }
+    public boolean checkIfItemExists(int itemId){
+        return itemRepository.existsById(itemId);
     }
 }
