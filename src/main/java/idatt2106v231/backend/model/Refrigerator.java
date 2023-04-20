@@ -24,9 +24,10 @@ public class Refrigerator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int refrigeratorId;
 
-    @Column
+
     @NotNull
-    private String user;
+    @OneToOne(mappedBy = "refrigerator")
+    private User user;
 
     @OneToMany(mappedBy = "refrigerator")
     private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>(); //??

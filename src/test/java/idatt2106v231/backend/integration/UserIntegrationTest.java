@@ -93,7 +93,7 @@ public class UserIntegrationTest {
         @WithMockUser(username = "USER")
         @DisplayName("Test getting valid user")
         public void getValidUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/users/login/user?email=test@ntnu.no")
+            MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=test@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
@@ -109,7 +109,7 @@ public class UserIntegrationTest {
         @WithMockUser(username = "USER")
         @DisplayName("Test getting invalid user")
         public void getInvalidUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/users/login/user?email=invalid@ntnu.no")
+            MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=invalid@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();

@@ -19,7 +19,7 @@ public class UserController {
         this.userServices=userServices;
     }
 
-    @GetMapping("/login/user")
+    @GetMapping("/login/getUser")
     public ResponseEntity<Object> getUser(@RequestParam String email){
         try{
             UserCreationDto user=userServices.getUser(email);
