@@ -87,7 +87,7 @@ public class ItemController {
         return null;
     }
 
-    @GetMapping("/getItem")
+    @GetMapping("/getItem/{id}")
     @Operation(summary = "Get item")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Return the item"),
