@@ -68,9 +68,12 @@ public class ItemController {
         if (dto.getName().isEmpty() || dto.getCategory() == -1){
             return new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
         }
-        if (categoryServices.categoryExist(dto.getCategory())){
+
+       /* if (categoryServices.categoryExist(dto.getCategory())){
             return new ResponseEntity<>("Category does not exist", HttpStatus.BAD_REQUEST);
-        }
+        }*/
+
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -90,7 +93,7 @@ public class ItemController {
             @ApiResponse(responseCode = "200", description = "Return the item"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
-    public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
+    public ResponseEntity<Object> getItemById(@RequestParam Integer id) {
         return null;
     }
 

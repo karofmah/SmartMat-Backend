@@ -11,5 +11,5 @@ public interface CategoryRepository extends CrudRepository<Category, Integer> {
 
     Category findDistinctByDescription(String description);
 
-    List<Category> findAll();
+
 }

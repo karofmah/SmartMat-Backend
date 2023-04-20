@@ -64,7 +64,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Refrigerator refrigerator;
 
     /**

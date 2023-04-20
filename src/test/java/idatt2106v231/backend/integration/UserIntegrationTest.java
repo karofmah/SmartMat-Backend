@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.controller.UserController;
+import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.model.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
@@ -49,34 +50,19 @@ public class UserIntegrationTest {
 
         userRepository.deleteAll();
 
-        User user1=new User("test@ntnu.no","123",
-                "First name",
-                "Last mame",
-                21948391,
-                20,
-                4,
-                Role.USER);
+        User user1=new User();
 
-        User user2=new User("test2@ntnu.no",
-                "123",
-                "First name 2",
-                "Last name 2",
-                21948391,
-                20,
-                4,
-                Role.USER);
-        User user3=new User("test3@ntnu.no",
-                "123",
-                "First name 3",
-                "Last name 3",
-                21948391,
-                20,
-                4,
-                Role.USER);
+        user1.setEmail("test@ntnu.no");
+        user1.setFirstName("First name");
+        user1.setLastName("Last name");
+        user1.setPhoneNumber(29185929);
+        user1.setAge(20);
+        user1.setPassword("123");
+        user1.setHousehold(4);
+
 
         userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
+
     }
 
     @DisplayName("Teardown of userRepository")

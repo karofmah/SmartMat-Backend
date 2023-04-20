@@ -52,6 +52,9 @@ public class UserServices {
             return null;
         }
     }
+    public boolean checkIfUserExists(User user){
+        return userRepository.findById(user.getEmail()).isPresent();
+    }
 }
 
 

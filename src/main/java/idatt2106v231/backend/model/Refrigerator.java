@@ -26,7 +26,8 @@ public class Refrigerator {
 
 
     @NotNull
-    @OneToOne(mappedBy = "refrigerator")
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_email", referencedColumnName = "email")
     private User user;
 
     @OneToMany(mappedBy = "refrigerator")

@@ -2,7 +2,9 @@ package idatt2106v231.backend.service;
 
 
 import idatt2106v231.backend.dto.RefrigeratorDto;
+import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.Refrigerator;
+import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -39,36 +41,29 @@ public class RefrigeratorServices {
         this.userRepository = userRepository;
     }
 
-    /*
+
     /**
      * Method to save a new refrigerator to database
      *
-     * @param refrigeratorDto the new refrigerator
+     * @param refrigerator the new refrigerator
      */
-    /*
-    public void saveRefrigerator(RefrigeratorDto refrigerator) {
+
+    public boolean saveRefrigerator(RefrigeratorDto refrigerator) {
         try {
-            Refrigerator ref=mapper.map(refrigerator,Refrigerator.class);
-            ref.setUser(userRepository.findDistinctByEmail(refrigerator.getUser()));
-            List<RefrigeratorDto> refrigerators = new ArrayList<>(refrigeratorRepository.findAll());
-
-            for (RefrigeratorDto r : refrigerators) {
-                if (Objects.equals(r.getUser(), refrigeratorDto.getUser())) {
-                    _logger.info("Refrigerator already exists");
-                    return null;
-                }
-            }
-
-            user.setRole(Role.NORMAL_USER);
-
-            _logger.info("User registered successfully");
-            return userRepository.save(user);
+            Refrigerator ref = mapper.map(refrigerator, Refrigerator.class);
+            refrigerator.setUser(userRepository.findDistinctByEmail(refrigerator.getUser().getEmail()));
+            refrigeratorRepository.save(ref);
+            return true;
         } catch (Exception e) {
-            _logger.info("Error occurred while registering user: " + e.getMessage());
-            return null;
+            return false;
         }
     }
-*/
+
+    public boolean checkIfRefrigeratorExists(User user){
+        return refrigeratorRepository.findByUserEmail(user.getEmail()).isPresent();
+    }
+
+
     /**
      * Method to delete a refrigerator from database
      *
