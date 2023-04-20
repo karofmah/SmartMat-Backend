@@ -30,9 +30,9 @@ public class Item {
     private String name;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "item_category_id", referencedColumnName = "itemCategoryId")
+    @JoinColumn(name = "category_id", referencedColumnName = "categoryId")
     @NotNull
-    private ItemCategory category;
+    private Category category;
 
     @OneToMany(mappedBy = "item")
     private List<ItemRefrigerator> itemInRefrigerators = new ArrayList<>(); //??

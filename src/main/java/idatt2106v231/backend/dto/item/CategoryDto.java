@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemCategoryDto {
+public class CategoryDto {
 
     private String description;
 }

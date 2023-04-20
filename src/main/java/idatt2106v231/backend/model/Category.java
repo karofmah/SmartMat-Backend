@@ -15,13 +15,13 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemCategory {
+public class Category {
 
     @Id
     @Column
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int itemCategoryId;
+    private int categoryId;
 
     @Column
     @NotNull
