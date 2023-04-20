@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.controller.UserController;
-import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.model.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
@@ -19,10 +18,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static  org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
@@ -59,6 +56,7 @@ public class UserIntegrationTest {
         user1.setAge(20);
         user1.setPassword("123");
         user1.setHousehold(4);
+        user1.setRole(Role.USER);
 
 
         userRepository.save(user1);
