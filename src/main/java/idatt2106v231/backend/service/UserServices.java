@@ -39,7 +39,7 @@ public class UserServices {
      */
     public UserCreationDto getUser(String email) {
         try{
-            User user=userRepository.findDistinctByEmail(email);
+            User user=userRepository.findDistinctByEmail(email).get();
             if(user!=null) {
                 _logger.info("User was retrieved successfully!");
                 return mapper.map(user, UserCreationDto.class);
