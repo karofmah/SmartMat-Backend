@@ -1,7 +1,9 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ public class UserServices {
     private static final Logger _logger =
             LoggerFactory.getLogger(UserServices.class);
     private UserRepository userRepository;
+
+    private final ModelMapper mapper = new ModelMapper();
 
     /**
      * Sets the user repository to use for database access.
@@ -33,19 +37,21 @@ public class UserServices {
      * @param email the email address of the user to retrieve.
      * @return an Optional object containing the user with the specified email address, or an empty Optional object if the user does not exist in the database.
      */
-    public Optional<User> getUser(String email) {
-        Optional<User> userOptional = userRepository.findAll()
-                .stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst()
-                .or(Optional::empty);
-
-        if (userOptional.isPresent()) {
-            _logger.info("Successfully retrieved user with email: " + email);
-        } else {
-            _logger.info("Could not find user with email: " + email);
+    public UserCreationDto getUser(String email) {
+        try{
+            User user=userRepository.findDistinctByEmail(email);
+            if(user!=null) {
+                _logger.info("User was retrieved successfully!");
+                return mapper.map(user, UserCreationDto.class);
+            }
+            else{
+                throw new IllegalArgumentException();
+            }
+        }catch (IllegalArgumentException e){
+            _logger.error("Failed to get user for email " + email,e);
+            return null;
         }
-
-        return userOptional;
     }
 }
+
+
