@@ -25,6 +25,7 @@ public class ApplicationConfig {
 
     //TODO legge inn riktig query her
     public UserDetailsService userDetailsService() {
+
         return repository::findDistinctByEmail;
     }
 

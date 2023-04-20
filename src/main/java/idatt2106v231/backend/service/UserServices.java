@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserServices {
 
@@ -38,15 +40,17 @@ public class UserServices {
     public UserCreationDto getUser(String email) {
         try{
             User user=userRepository.findDistinctByEmail(email);
-
-            _logger.info("User was retrieved successfully!");
-            return mapper.map(user, UserCreationDto.class);
-
+            if(user!=null) {
+                _logger.info("User was retrieved successfully!");
+                return mapper.map(user, UserCreationDto.class);
+            }
+            else{
+                throw new IllegalArgumentException();
+            }
         }catch (IllegalArgumentException e){
             _logger.error("Failed to get user for email " + email,e);
             return null;
         }
-
     }
 }
 
