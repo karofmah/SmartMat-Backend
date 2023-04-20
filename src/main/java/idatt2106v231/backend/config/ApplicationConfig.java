@@ -22,8 +22,6 @@ public class ApplicationConfig {
     private final UserRepository repository;
 
     @Bean
-
-    //TODO legge inn riktig query her
     public UserDetailsService userDetailsService() {
         return repository::findDistinctByEmail;
     }

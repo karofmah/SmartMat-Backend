@@ -2,6 +2,7 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.auth.AuthenticationResponse;
 import idatt2106v231.backend.config.JwtService;
+import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Role;
 import idatt2106v231.backend.repository.UserRepository;
@@ -52,20 +53,27 @@ public class AuthenticationServices {
                 .build();
     }
 
+    public boolean emailIsUsed(String email) {
+        if(repository.findDistinctByEmail(email).isPresent()) {
+            return true;
+        }
+        return false;
+    }
     /**
      * Authenticate a user, used in login.
      *
      * @param request email and password for the user
      * @return a token which authenticates the user if the password is correct
      */
-    public AuthenticationResponse authenticate(UserCreationDto request) {
+    public AuthenticationResponse authenticate(UserAuthenticationDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        var user = repository.findDistinctByEmail(request.getEmail());
+        var optionalUser = repository.findDistinctByEmail(request.getEmail());
+        User user = optionalUser.get();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
