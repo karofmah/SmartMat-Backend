@@ -1,6 +1,6 @@
 package idatt2106v231.backend.model;
 
-import idatt2106v231.backend.Measurement;
+import idatt2106v231.backend.enums.Measurement;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,7 @@ public class ItemRefrigerator {
     private int amount;
 
     @Column
-    private Measurement measurement;
+    private Measurement measurementType;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id", referencedColumnName = "itemId")
