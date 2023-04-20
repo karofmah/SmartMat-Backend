@@ -1,6 +1,5 @@
 package idatt2106v231.backend.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,20 +13,21 @@ import java.util.List;
 @Data
 @Builder
 @Entity
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
-public class Refrigerator {
+public class Category {
 
     @Id
     @Column
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int refrigeratorId;
+    private int categoryId;
 
     @Column
     @NotNull
-    private String user;
+    private String description;
 
-    @OneToMany(mappedBy = "refrigerator")
-    private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>(); //??
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item> items = new ArrayList<>();
 }
