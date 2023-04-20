@@ -1,4 +1,4 @@
-package idatt2106v231.backend.service;
+package idatt2106v231.backend.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,6 +10,7 @@ import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
+import idatt2106v231.backend.service.AuthenticationServices;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -71,34 +72,7 @@ public class AuthenticationServicesTest {
                 .role(Role.USER)
                 .build();
 
-        var user2 = User.builder()
-                .email("test2@ntnu.no")
-                .password(passwordEncoder.encode("password"))
-                .age(2)
-                .firstName("firstName2")
-                .lastName("lastName2")
-                .phoneNumber(2345)
-                .age(22)
-                .household(2)
-                .role(Role.USER)
-                .build();
-
-        var user3 = User.builder()
-                .email("test3@ntnu.no")
-                .password(passwordEncoder.encode("password"))
-                .age(3)
-                .firstName("firstName3")
-                .lastName("lastName3")
-                .phoneNumber(3456)
-                .age(33)
-                .household(3)
-                .role(Role.USER)
-                .build();
-
         userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);
-        System.out.println("hei");
     }
 
     @DisplayName("Teardown of userRepository")
