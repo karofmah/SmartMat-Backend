@@ -35,12 +35,9 @@ public class UserIntegrationTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    UserController userController;
-    @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    UserServices userServices;
+
 
 
     @BeforeEach
