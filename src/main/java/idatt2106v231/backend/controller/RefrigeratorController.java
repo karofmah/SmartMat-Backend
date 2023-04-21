@@ -6,6 +6,8 @@ import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.service.RefrigeratorServices;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,10 @@ public class RefrigeratorController {
 
     @PostMapping("/saveRefrigerator")
     @Operation(summary = "Save new refrigerator")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Refrigerator is saved to database"),
+            @ApiResponse(responseCode = "404", description = "User does not exist in database")
+    })
     public ResponseEntity<Object> saveRefrigerator(@RequestBody RefrigeratorDto refrigerator) {
         if (refrigeratorServices.checkIfRefrigeratorExists(refrigerator.getUser())){
             return new ResponseEntity<>("Refrigerator already exists", HttpStatus.IM_USED);
@@ -49,6 +55,22 @@ public class RefrigeratorController {
             }
         }
         return response;
+    }
+
+    @DeleteMapping("/deleteRefrigerator/{refrigeratorId}")
+    @Operation(summary = "Delete Refrigerator")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Refrigerator is removed from database"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator does not exist in database")
+    })
+    public ResponseEntity<Object> deleteRefrigerator(@PathVariable int refrigeratorId) {
+        if (!refrigeratorServices.checkIfRefrigeratorExists(refrigeratorId)) {
+            return new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
+        } else if (refrigeratorServices.deleteRefrigerator(refrigeratorId)) {
+            return new ResponseEntity<>("Refrigerator removed from database", HttpStatus.OK);
+
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Object> validateRefrigeratorDto(RefrigeratorDto refrigeratorDto){

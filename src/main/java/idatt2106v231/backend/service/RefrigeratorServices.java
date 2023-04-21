@@ -65,6 +65,9 @@ public class RefrigeratorServices {
     public boolean checkIfRefrigeratorExists(User user){
         return refrigeratorRepository.findByUserEmail(user.getEmail()).isPresent();
     }
+    public boolean checkIfRefrigeratorExists(int refrigeratorId){
+        return refrigeratorRepository.findById(refrigeratorId).isPresent();
+    }
 
 
     /**
@@ -72,7 +75,14 @@ public class RefrigeratorServices {
      *
      * @param refrigeratorId the refrigerators id
      */
-    public void deleteRefrigerator(int refrigeratorId) {
+    public boolean deleteRefrigerator(int refrigeratorId) {
+        try{
+            refrigeratorRepository.deleteById(refrigeratorId);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+
     }
 
     /**
@@ -102,6 +112,16 @@ public class RefrigeratorServices {
      * Method to get all items in refrigerator
      *
      */
+    public void getItemInRefrigerator(int id) {
+
+    }
+
+    /**
+     * Method to get all items in refrigerator
+     *
+     */
     public void getItemsInRefrigerator(int id) {
+
+
     }
 }
