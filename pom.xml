@@ -30,7 +30,11 @@
             <scope>test</scope>
         </dependency>
 
+<<<<<<< HEAD
          <dependency>
+=======
+        <dependency>
+>>>>>>> 3aa5be2549529d52066dfb5b421730be39931ad7
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
@@ -101,7 +105,10 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3aa5be2549529d52066dfb5b421730be39931ad7
         </dependency>
 
         <!-- Model mapper -->
