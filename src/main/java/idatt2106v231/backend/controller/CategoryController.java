@@ -48,7 +48,7 @@ public class CategoryController {
         return response;
     }
 
-    @PostMapping("/deleteCategory")
+    @DeleteMapping("/deleteCategory")
     @Operation(summary = "Delete category")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category is removed from database"),

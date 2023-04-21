@@ -74,8 +74,10 @@ public class ItemController {
         return response;
     }
 
-    @GetMapping("/getItem/{name}")
-    @Operation(summary = "Get item by name")
+
+    @GetMapping("/getItem")
+    @Operation(summary = "Get item")
+
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieved the item"),
             @ApiResponse(responseCode = "404", description = "Item not found"),
@@ -99,6 +101,7 @@ public class ItemController {
             @ApiResponse(responseCode = "404", description = "Item not found"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve item")
     })
+
     public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
         ResponseEntity<Object> response;
         if (!services.checkIfItemExists(id)){
@@ -110,18 +113,18 @@ public class ItemController {
         return response;
     }
 
-    private ResponseEntity<Object> getItem(ItemDto item){
+    private ResponseEntity<Object> getItem(ItemDto item) {
         ResponseEntity<Object> response;
-        if (item == null){
+        if (item == null) {
             response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
-        }
-        else {
+        } else {
             response = new ResponseEntity<>(item, HttpStatus.OK);
             logger.info("Item retrieved");
         }
         return response;
     }
+
 
     @GetMapping("/getAllItems")
     @Operation(summary = "Get all items")

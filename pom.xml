@@ -30,11 +30,8 @@
             <scope>test</scope>
         </dependency>
 
-<<<<<<< HEAD
-         <dependency>
-=======
+
         <dependency>
->>>>>>> 3aa5be2549529d52066dfb5b421730be39931ad7
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
@@ -44,7 +41,21 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Security -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>6.0.6</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JSON processing library -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.2</version>
+        </dependency>
+
+        <!-- security -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -105,10 +116,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-<<<<<<< HEAD
 
-=======
->>>>>>> 3aa5be2549529d52066dfb5b421730be39931ad7
         </dependency>
 
         <!-- Model mapper -->

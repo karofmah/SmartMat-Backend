@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @Entity
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemRefrigerator {

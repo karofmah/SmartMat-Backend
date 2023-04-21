@@ -15,6 +15,7 @@ import java.util.Objects;
 @Data
 @Builder
 @Entity
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
 public class Item {
