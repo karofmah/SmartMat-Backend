@@ -53,22 +53,16 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category is removed from database"),
             @ApiResponse(responseCode = "404", description = "Category does not exists"),
-            @ApiResponse(responseCode = "500", description = "Failed to delete category to database")
     })
     public ResponseEntity<Object> deleteCategory(@RequestParam int categoryId) {
         ResponseEntity<Object> response;
-        if (!categoryServices.categoryExist(categoryId)){
-            response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
-        }
-        else if(categoryServices.deleteCategory(categoryId)){
+        if (categoryServices.deleteCategory(categoryId)){
             response = new ResponseEntity<>("Category removed from database", HttpStatus.OK);
-            logger.info(response.getBody() + "");
         }
-        else{
-            response = new ResponseEntity<>("Failed to delete category", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
-            logger.info(response.getBody() + "");
+        else {
+            response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
         }
+        logger.info(response.getBody() + "");
         return response;
     }
 
