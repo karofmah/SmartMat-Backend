@@ -43,7 +43,7 @@ public class ItemController {
             if (services.saveItem(item)){
                 response = new ResponseEntity<>("Item is saved to database", HttpStatus.OK);
             }else{
-                response =  new ResponseEntity<>("Data is not valid", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
+                response =  new ResponseEntity<>("Data is not valid", HttpStatus.INTERNAL_SERVER_ERROR);
                 logger.info(response.getBody() + "");
             }
         }

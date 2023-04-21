@@ -7,7 +7,9 @@ import java.util.Optional;
 
 public interface SubUserRepository extends JpaRepository<SubUser, String> {
 
-    Optional<SubUser> findDistinctBySubUserId(int subUserId);
+    Optional<SubUser> findDistinctByName(String name);
 
     Optional<SubUser> findAllByMasterUserEmail(String email);
+
+    Optional<SubUser> findDistinctByNameAndMasterUserEmail(String name, String email);
 }

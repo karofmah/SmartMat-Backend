@@ -1,7 +1,9 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.repository.SubUserRepository;
+import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -9,19 +11,52 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class SubUserServices {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubUserServices.class);
-
     @Autowired
     private SubUserRepository subUserRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private final ModelMapper mapper = new ModelMapper();
 
-    public Optional<SubUser> getSubUsersByMaster(String email) {
-        return subUserRepository.findAllByMasterUserEmail(email);
+    public List<SubUserDto> getSubUsersByMaster(String email) {
+        Optional<SubUser> subUsers = subUserRepository.findAllByMasterUserEmail(email);
+        List<SubUserDto> list = new ArrayList<>();
+        subUsers.ifPresent(obj -> list.add(mapper.map(obj, SubUserDto.class)));
+        return list;
+    }
+
+    public SubUserDto getSubUserByMasterAndName(String email, String name) {
+        Optional<SubUser> subUser = subUserRepository.findDistinctByNameAndMasterUserEmail(name, email);
+        return mapper.map(subUser, SubUserDto.class);
+    }
+
+    public boolean saveSubUser(SubUserDto subUserDto) {
+        try {
+            SubUser subUser = mapper.map(subUserDto, SubUser.class);
+            subUser.setMasterUser(userRepository.findDistinctByEmail(subUserDto.getMasterUser()).get());
+            subUserRepository.save(subUser);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean deleteSubUser(SubUserDto subUser) {
+        try {
+            subUserRepository.delete(subUserRepository.findDistinctByNameAndMasterUserEmail(subUser.getName(), subUser.getMasterUser()).get());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    public boolean subUserExists(String name, String email) {
+        return subUserRepository.findDistinctByNameAndMasterUserEmail(name, email).isPresent();
     }
 }

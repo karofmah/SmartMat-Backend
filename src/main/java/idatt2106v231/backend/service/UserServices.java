@@ -52,6 +52,10 @@ public class UserServices {
             return null;
         }
     }
+
+    public boolean userExists(String email) {
+        return userRepository.findDistinctByEmail(email).isPresent();
+    }
 }
 
 
