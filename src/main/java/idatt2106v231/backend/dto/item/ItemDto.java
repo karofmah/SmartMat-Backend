@@ -10,9 +10,9 @@ import lombok.Data;
 public class ItemDto {
 
     private String name;
-    private int category;
+    private int categoryId;
 
     public ItemDto(){
-        category = -1; //default value
+        categoryId = -1; //default value
     }
 }

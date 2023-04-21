@@ -14,10 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/items")
 @CrossOrigin("*")
-@Tag(name = "Item API", description = "API for managing Items")
+@Tag(name = "Item API", description = "API for managing items")
 public class ItemController {
 
     @Autowired
@@ -30,23 +32,22 @@ public class ItemController {
     @Operation(summary = "Save new item")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Item is added to database"),
-            @ApiResponse(responseCode = "500", description = "Item was not added to the database")
+            @ApiResponse(responseCode = "226", description = "Item already exists"),
+            @ApiResponse(responseCode = "400", description = "Data is not specified"),
+            @ApiResponse(responseCode = "404", description = "Category does not exist"),
+            @ApiResponse(responseCode = "500", description = "Failed to save item")
     })
     public ResponseEntity<Object> saveItem(@RequestBody ItemDto item) {
-        if (services.checkIfItemExists(item.getName())){
-            return new ResponseEntity<>("Item already exists", HttpStatus.IM_USED);
-        }
-
         ResponseEntity<Object> response = validateItemDto(item);
 
-        if (response.getStatusCode().equals(HttpStatus.OK)){
+        if(response.getStatusCode().equals(HttpStatus.OK)){
             if (services.saveItem(item)){
-                response = new ResponseEntity<>("Item is saved to database", HttpStatus.OK);
+                response = new ResponseEntity<>("Item saved to database", HttpStatus.OK);
             }else{
-                response =  new ResponseEntity<>("Data is not valid", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
-                logger.info(response.getBody() + "");
+                response =  new ResponseEntity<>("Failed to save item", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
             }
         }
+        logger.info(response.getBody() + "");
         return response;
     }
 
@@ -54,58 +55,143 @@ public class ItemController {
     @Operation(summary = "Delete item")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Item is removed from database"),
-            @ApiResponse(responseCode = "404", description = "Item does not exist in database")
+            @ApiResponse(responseCode = "404", description = "Item does not exist in database"),
+            @ApiResponse(responseCode = "500", description = "Failed to delete item")
     })
-    public ResponseEntity<Object> deleteItem(@RequestBody int itemId) {
+    public ResponseEntity<Object> deleteItem(@RequestParam int itemId) {
+        ResponseEntity<Object> response;
+
         if (!services.checkIfItemExists(itemId)){
-            return new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
         }
-        services.deleteItem(itemId);
-        return new ResponseEntity<>("Item removed from database", HttpStatus.OK);
+        else if (services.deleteItem(itemId)){
+            response = new ResponseEntity<>("Item removed from database", HttpStatus.OK);
+        }
+        else{
+            response =  new ResponseEntity<>("Failed to delete item", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        logger.info(response.getBody() + "");
+        return response;
     }
 
-    private ResponseEntity<Object> validateItemDto(ItemDto dto){
-        if (dto.getName().isEmpty() || dto.getCategory() == -1){
-            return new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
-        }
-        if (categoryServices.categoryExist(dto.getCategory())){
-            return new ResponseEntity<>("Category does not exist", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/getItem")
-    @Operation(summary = "Get item")
+    @GetMapping("/getItem/{name}")
+    @Operation(summary = "Get item by name")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Return the item"),
-            @ApiResponse(responseCode = "404", description = "Item not found")
+            @ApiResponse(responseCode = "200", description = "Retrieved the item"),
+            @ApiResponse(responseCode = "404", description = "Item not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve item")
     })
-    public ResponseEntity<Object> getItem(@RequestParam String name) {
-        return null;
+    public ResponseEntity<Object> getItemByName(@PathVariable("name") String name) {
+        ResponseEntity<Object> response;
+        if (!services.checkIfItemExists(name)){
+            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+        }else {
+            response = getItem(services.getItemByName(name));
+        }
+        return response;
     }
 
     @GetMapping("/getItem/{id}")
-    @Operation(summary = "Get item")
+    @Operation(summary = "Get item by id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Return the item"),
-            @ApiResponse(responseCode = "404", description = "Item not found")
+            @ApiResponse(responseCode = "200", description = "Retrieved the item"),
+            @ApiResponse(responseCode = "404", description = "Item not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve item")
     })
     public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
-        return null;
+        ResponseEntity<Object> response;
+        if (!services.checkIfItemExists(id)){
+            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+        }else {
+            response = getItem(services.getItemById(id));
+        }
+        return response;
+    }
+
+    private ResponseEntity<Object> getItem(ItemDto item){
+        ResponseEntity<Object> response;
+        if (item == null){
+            response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+        }
+        else {
+            response = new ResponseEntity<>(item, HttpStatus.OK);
+            logger.info("Item retrieved");
+        }
+        return response;
     }
 
     @GetMapping("/getAllItems")
-    public ResponseEntity<Object> getAllItem(@RequestParam String name) {
-        return null;
+    @Operation(summary = "Get all items")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Retrieved the items"),
+            @ApiResponse(responseCode = "204", description = "No content in database"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve items")
+    })
+    public ResponseEntity<Object> getAllItems() {
+        ResponseEntity<Object> response;
+        List<ItemDto> items = services.getAllItems();
+        if (items == null){
+            response = new ResponseEntity<>("Failed to retrieve items", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info(response.getBody() + "");
+        }
+        else if (items.isEmpty()){
+            response = new ResponseEntity<>("There are no items registered in the database", HttpStatus.NO_CONTENT);
+            logger.info(response.getBody() + "");
+        }
+        else {
+            response = new ResponseEntity<>(items, HttpStatus.OK);
+            logger.info("Items retrieved");
+        }
+        return response;
     }
 
     @GetMapping("/getAllItemsByCategory")
-    public ResponseEntity<Object> getAllItemsByCategory(@RequestParam String name) {
-        return null;
+    @Operation(summary = "Get all items by category")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Retrieved the items"),
+            @ApiResponse(responseCode = "204", description = "No content in database"),
+            @ApiResponse(responseCode = "400", description = "Category does not exist"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve items")
+    })
+    public ResponseEntity<Object> getAllItemsByCategory(@RequestParam int categoryId) {
+        ResponseEntity<Object> response;
+        if(!categoryServices.categoryExist(categoryId)){
+            response = new ResponseEntity<>("Category does not exist", HttpStatus.BAD_REQUEST);
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
+        List<ItemDto> items = services.getAllItemsByCategory(categoryId);
+        if (items == null){
+            response = new ResponseEntity<>("Failed to retrieve items", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info(response.getBody() + "");
+        }
+        else if (items.isEmpty()){
+            response = new ResponseEntity<>("There are no items registered under this category", HttpStatus.NO_CONTENT);
+            logger.info(response.getBody() + "");
+        }
+        else {
+            response = new ResponseEntity<>(items, HttpStatus.OK);
+            logger.info("Items retrieved");
+        }
+        return response;
     }
 
-    @GetMapping("/getAllItemsInRefrigerator")
-    public ResponseEntity<Object> getAllItemsInRefrigerator(@RequestParam int refrigeratorId) {
-        return null;
+    private ResponseEntity<Object> validateItemDto(ItemDto dto){
+        ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
+
+        if (dto.getName().isEmpty() || dto.getCategoryId() == -1){
+            response =  new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
+        }
+        else if (services.checkIfItemExists(dto.getName())){
+            response = new ResponseEntity<>("Item already exists", HttpStatus.IM_USED);
+        }
+        else if (categoryServices.categoryExist(dto.getCategoryId())){
+            response =  new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
+        }
+        return response;
     }
 }
