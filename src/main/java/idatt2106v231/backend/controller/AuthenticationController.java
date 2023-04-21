@@ -1,6 +1,7 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.auth.AuthenticationResponse;
+import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.service.AuthenticationServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,15 +27,29 @@ public class AuthenticationController {
     @Operation(summary = "Regsiter a new user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User created"),
-            @ApiResponse(responseCode = "226", description = "User already exists")
+            @ApiResponse(responseCode = "226", description = "User already exists"),
+            @ApiResponse(responseCode = "400", description = "One or more fields are missing")
     })
     public ResponseEntity<Object> register(
             @RequestBody UserCreationDto request
     ) {
-        AuthenticationResponse response = service.register(request);
-        if(response == null) {
+        if(request.getEmail() == null ||
+                request.getPassword() == null ||
+                request.getFirstName() == null ||
+                request.getLastName() == null ||
+                request.getAge() == 0 ||
+                request.getPhoneNumber() == 0 ||
+                request.getHousehold() == 0) {
+            logger.info("One or more fields are missing");
+            return new ResponseEntity<>("One or more fields are missing", HttpStatus.BAD_REQUEST);
+        }
+        if(service.emailIsUsed(request.getEmail())) {
+            logger.info("Email is already in use");
             return new ResponseEntity<>("User already exists", HttpStatus.IM_USED);
         }
+
+        AuthenticationResponse response = service.register(request);
+
         logger.info("Creating user with token");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -45,10 +60,15 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = "User authenticated"),
             @ApiResponse(responseCode = "403", description = "Wrong username or password")
     })
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody UserCreationDto request
+    public ResponseEntity<Object> authenticate(
+            @RequestBody UserAuthenticationDto request
     ) {
         logger.info("Attempting to log in with user " + request.getEmail());
-        return ResponseEntity.ok(service.authenticate(request));
+        AuthenticationResponse response = service.authenticate(request);
+
+        if(response.getToken() == null) {
+            return new ResponseEntity<>("Wrong username or password", HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

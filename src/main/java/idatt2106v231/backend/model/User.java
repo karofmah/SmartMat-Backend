@@ -64,6 +64,8 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Refrigerator refrigerator;
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
