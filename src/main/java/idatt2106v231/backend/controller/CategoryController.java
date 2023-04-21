@@ -21,9 +21,15 @@ import java.util.List;
 @Tag(name = "Category API", description = "API for managing categories")
 public class CategoryController {
 
-    @Autowired
+
     private CategoryServices categoryServices;
-    private final Logger logger = LoggerFactory.getLogger(ItemController.class);
+
+    @Autowired
+    public void setCategoryServices(CategoryServices categoryServices) {
+        this.categoryServices = categoryServices;
+    }
+
+    private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
     @PostMapping("/saveCategory")
     @Operation(summary = "Save new category")

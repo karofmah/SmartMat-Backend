@@ -28,5 +28,5 @@ public class Refrigerator {
     private String user;
 
     @OneToMany(mappedBy = "refrigerator")
-    private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>(); //??
+    private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>();
 }
