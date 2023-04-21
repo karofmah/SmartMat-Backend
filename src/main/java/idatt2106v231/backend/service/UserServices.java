@@ -53,9 +53,8 @@ public class UserServices {
             return null;
         }
     }
-    public boolean checkIfUserExists(User user){
-        System.out.println(userRepository.findByEmail(user.getEmail()));
-        return userRepository.findById(user.getEmail()).isPresent();
+    public boolean checkIfUserExists(String email){
+        return userRepository.findById(email).isPresent();
     }
 }
 

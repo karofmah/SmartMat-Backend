@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RefrigeratorDto {
 
-    private User user;
+    private String userEmail;
 }

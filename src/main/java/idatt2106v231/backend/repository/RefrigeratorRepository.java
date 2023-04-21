@@ -14,7 +14,5 @@ public interface RefrigeratorRepository extends CrudRepository<Refrigerator, Int
 
     Optional<Refrigerator> findByUserEmail(String email);
 
-
-
-
+    void deleteByUserEmail(String email);
 }

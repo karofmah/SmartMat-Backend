@@ -16,12 +16,21 @@ import java.util.List;
 public class CategoryServices {
 
 
+    @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    public void setCategoryRepository(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+
+    /**
+     * Method to assert a category exists
+     *
+     * @param categoryId the categorys id
+     */
+    /*
+    public boolean categoryExist(int categoryId){
+
+        return categoryRepository.findById(categoryId).isPresent();
     }
+*/
 
     private final ModelMapper mapper = new ModelMapper();
 

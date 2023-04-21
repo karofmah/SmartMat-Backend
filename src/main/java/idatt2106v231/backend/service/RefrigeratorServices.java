@@ -2,6 +2,7 @@ package idatt2106v231.backend.service;
 
 
 import idatt2106v231.backend.dto.RefrigeratorDto;
+import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.model.User;
@@ -24,8 +25,6 @@ import java.util.Optional;
 @Service
 public class RefrigeratorServices {
 
-    private static final Logger _logger =
-            LoggerFactory.getLogger(UserServices.class);
     private RefrigeratorRepository refrigeratorRepository;
 
     private UserRepository userRepository;
@@ -42,7 +41,6 @@ public class RefrigeratorServices {
         this.userRepository = userRepository;
     }
 
-
     /**
      * Method to save a new refrigerator to database
      *
@@ -52,38 +50,41 @@ public class RefrigeratorServices {
     public boolean saveRefrigerator(RefrigeratorDto refrigerator) {
         try {
             Refrigerator ref = mapper.map(refrigerator, Refrigerator.class);
-            Optional<User> userOptional=userRepository.findByEmail(refrigerator.getUser().getEmail());
-            userOptional.ifPresent(refrigerator::setUser);
+            ref.setUser(userRepository.findByEmail(refrigerator.getUserEmail()).get());
             refrigeratorRepository.save(ref);
             return true;
-
         } catch (Exception e) {
             return false;
         }
     }
 
-    public boolean checkIfRefrigeratorExists(User user){
-        return refrigeratorRepository.findByUserEmail(user.getEmail()).isPresent();
-    }
-    public boolean checkIfRefrigeratorExists(int refrigeratorId){
-        return refrigeratorRepository.findById(refrigeratorId).isPresent();
-    }
-
-
     /**
      * Method to delete a refrigerator from database
      *
-     * @param refrigeratorId the refrigerators id
+     * @param refrigeratorId user of refrigerator
      */
+
     public boolean deleteRefrigerator(int refrigeratorId) {
-        try{
+        try {
             refrigeratorRepository.deleteById(refrigeratorId);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
-
     }
+
+    /*
+
+    public boolean deleteRefrigerator(int id) {
+        if (refrigeratorExists(id)){
+            System.out.println("hei");
+            refrigeratorRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }*/
+
+
 
     /**
      * Method to get a refrigerator by id
@@ -124,4 +125,12 @@ public class RefrigeratorServices {
 
 
     }
+
+    public boolean refrigeratorExists(String email){
+        return refrigeratorRepository.findByUserEmail(email).isPresent();
+    }
+    public boolean refrigeratorExists(int refrigeratorId){
+        return refrigeratorRepository.findById(refrigeratorId).isPresent();
+    }
+
 }
