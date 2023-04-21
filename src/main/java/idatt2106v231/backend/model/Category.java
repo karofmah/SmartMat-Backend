@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 @Builder
 @Entity
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category {

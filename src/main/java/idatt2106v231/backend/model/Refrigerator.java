@@ -1,5 +1,6 @@
 package idatt2106v231.backend.model;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,9 +24,11 @@ public class Refrigerator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int refrigeratorId;
 
-    @Column
+
     @NotNull
-    private String user;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_email", referencedColumnName = "email")
+    private User user;
 
     @OneToMany(mappedBy = "refrigerator")
     private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>();

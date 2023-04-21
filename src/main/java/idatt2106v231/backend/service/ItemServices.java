@@ -2,6 +2,8 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.model.Item;
+
+
 import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.modelmapper.ModelMapper;
@@ -16,10 +18,13 @@ import java.util.List;
 @Service
 public class ItemServices {
 
+
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+
+
 
     private final ModelMapper mapper = new ModelMapper();
 

@@ -1,6 +1,5 @@
-package idatt2106v231.backend.dto;
+package idatt2106v231.backend.auth;
 
-import idatt2106v231.backend.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RefrigeratorDto {
-
-    private String userEmail;
+public class AuthenticationResponse {
+    private String token;
 }
