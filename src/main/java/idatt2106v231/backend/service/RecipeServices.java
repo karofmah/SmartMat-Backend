@@ -24,10 +24,10 @@ public class RecipeServices {
     }
 
     /**
-     * This method retrieves a user with a specified email address from the database.
+     * This method generates a random recipe based on items in a refrigerator.
      *
      * @param refrigeratorId the id of the refrigerator to generate a recipe from.
-     * @return an Optional object containing the user with the specified email address, or an empty Optional object if the user does not exist in the database.
+     * @return A String containing the generated recipe.
      */
     public String generateRecipe(int refrigeratorId) {
         try {
@@ -35,9 +35,7 @@ public class RecipeServices {
 
             String query = "I need a random recipe";
 
-            String result = aiServices.getChatCompletion(query);
-
-            return result;
+            return aiServices.getChatCompletion(query);
         } catch (IllegalArgumentException e){
             _logger.error("Failed to generate recipe", e);
             return null;

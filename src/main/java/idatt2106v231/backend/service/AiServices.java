@@ -38,6 +38,7 @@ public class AiServices {
 
             Duration timeout = Duration.ofSeconds(30);
 
+
             OkHttpClient client = defaultClient(token, timeout)
                     .newBuilder()
                     .build();
@@ -67,7 +68,7 @@ public class AiServices {
 
     /**
      * Gets the OpenAi API key
-     * @return
+     * @return the key
      */
     public String getOpenAiApiKey() {
         try {
