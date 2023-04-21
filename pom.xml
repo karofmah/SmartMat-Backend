@@ -30,7 +30,7 @@
             <scope>test</scope>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
@@ -54,7 +54,7 @@
             <version>2.14.2</version>
         </dependency>
 
-        <!-- security -->
+        <!-- Security -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -73,7 +73,7 @@
             <version>0.11.5</version>
         </dependency>
 
-          <dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
@@ -115,7 +115,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-
         </dependency>
 
         <!-- Model mapper -->
