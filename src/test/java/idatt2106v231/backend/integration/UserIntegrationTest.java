@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+//import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -56,7 +56,7 @@ public class UserIntegrationTest {
         user1.setAge(20);
         user1.setPassword("123");
         user1.setHousehold(4);
-        user1.setRole(Role.USER);
+
 
 
         userRepository.save(user1);
@@ -74,7 +74,7 @@ public class UserIntegrationTest {
     class TestGetUsers{
 
         @Test
-        @WithMockUser(username = "USER")
+       // @WithMockUser(username = "USER")
         @DisplayName("Test getting valid user")
         public void getValidUser() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=test@ntnu.no")
@@ -90,7 +90,7 @@ public class UserIntegrationTest {
 
         }
         @Test
-        @WithMockUser(username = "USER")
+        //@WithMockUser(username = "USER")
         @DisplayName("Test getting invalid user")
         public void getInvalidUser() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=invalid@ntnu.no")

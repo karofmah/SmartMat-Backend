@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Class to handle Refrigerator objects
@@ -51,9 +52,11 @@ public class RefrigeratorServices {
     public boolean saveRefrigerator(RefrigeratorDto refrigerator) {
         try {
             Refrigerator ref = mapper.map(refrigerator, Refrigerator.class);
-            refrigerator.setUser(userRepository.findDistinctByEmail(refrigerator.getUser().getEmail()));
+            Optional<User> userOptional=userRepository.findByEmail(refrigerator.getUser().getEmail());
+            userOptional.ifPresent(refrigerator::setUser);
             refrigeratorRepository.save(ref);
             return true;
+
         } catch (Exception e) {
             return false;
         }

@@ -54,7 +54,7 @@ public class AuthenticationServices {
     }
 
     public boolean emailIsUsed(String email) {
-        if(repository.findDistinctByEmail(email).isPresent()) {
+        if(repository.findByEmail(email).isPresent()) {
             return true;
         }
         return false;
@@ -72,7 +72,7 @@ public class AuthenticationServices {
                         request.getPassword()
                 )
         );
-        var optionalUser = repository.findDistinctByEmail(request.getEmail());
+        var optionalUser = repository.findByEmail(request.getEmail());
         User user = optionalUser.get();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
