@@ -3,17 +3,13 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.controller.UserController;
-import idatt2106v231.backend.model.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
-import idatt2106v231.backend.service.UserServices;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-//import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,8 +38,6 @@ public class UserIntegrationTest {
     @BeforeEach
     @DisplayName("Setting up mock data for tests")
     public void setup() {
-
-        userRepository.deleteAll();
 
         User user1=new User();
 
@@ -88,7 +82,7 @@ public class UserIntegrationTest {
 
         }
         @Test
-        //@WithMockUser(username = "USER")
+        @WithMockUser(username = "USER")
         @DisplayName("Test getting invalid user")
         public void getInvalidUser() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=invalid@ntnu.no")

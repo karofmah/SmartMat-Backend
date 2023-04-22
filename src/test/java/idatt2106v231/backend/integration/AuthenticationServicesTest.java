@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@TestPropertySource(locations = "classpath:application-william.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 
 public class AuthenticationServicesTest {
 
@@ -95,7 +95,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+            mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -138,10 +138,10 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(userJson))
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andReturn();
         }
 
@@ -159,7 +159,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+             mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
@@ -179,7 +179,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())

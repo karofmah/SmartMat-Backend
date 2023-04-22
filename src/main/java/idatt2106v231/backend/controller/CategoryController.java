@@ -38,10 +38,10 @@ public class CategoryController {
             response = new ResponseEntity<>("Category already exists", HttpStatus.IM_USED);
         }
         else if (categoryServices.saveCategory(categoryDto)){
-            response = new ResponseEntity<>("Category is saved to database", HttpStatus.OK);
+            response = new ResponseEntity<>("Category is saved to database", HttpStatus.CREATED);
         }
         else{
-            response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
+            response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         logger.info(response.getBody() + "");
@@ -96,7 +96,7 @@ public class CategoryController {
         ResponseEntity<Object> response;
         List<CategoryDto> categories = categoryServices.getAllCategories();
         if (categories.isEmpty()){
-            response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NO_CONTENT);
+            response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
         }
         else {

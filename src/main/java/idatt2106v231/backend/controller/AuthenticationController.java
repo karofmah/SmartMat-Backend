@@ -51,7 +51,7 @@ public class AuthenticationController {
         AuthenticationResponse response = service.register(request);
 
         logger.info("Creating user with token");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/authenticate")
