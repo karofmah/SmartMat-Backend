@@ -27,6 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class CategoryIntegrationTest {
 
     @Autowired
@@ -39,10 +41,9 @@ public class CategoryIntegrationTest {
     private CategoryRepository categoryRepository;
 
 
-    @BeforeEach
+    @BeforeAll
     @DisplayName("Setting up mock data for tests")
     public void setup() {
-
 
         Category category1=Category.builder().description("test").build();
         Category category2=Category.builder().description("test2").build();
@@ -53,11 +54,6 @@ public class CategoryIntegrationTest {
         categoryRepository.save(category3);
     }
 
-    @DisplayName("Teardown of category repository")
-    @AfterEach
-    public void teardown(){
-       categoryRepository.deleteAll();
-    }
 
 
     @Nested
@@ -75,7 +71,7 @@ public class CategoryIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
             ObjectMapper mapper = new ObjectMapper();
-            List<Category> actualCategories = mapper.readValue(responseString, new TypeReference<>() {
+            List<CategoryDto> actualCategories = mapper.readValue(responseString, new TypeReference<>() {
             });
 
             Assertions.assertEquals(categoryRepository.findAll().size(), actualCategories.size());
@@ -149,7 +145,7 @@ public class CategoryIntegrationTest {
     }
 
     //Change endpoint either to find by name or by an alternative solution for id
-/*
+
     @Test
     @WithMockUser(username = "USER")
     @DisplayName("Test getting valid category")
@@ -177,7 +173,7 @@ public class CategoryIntegrationTest {
     @WithMockUser(username = "USER")
     @DisplayName("Test getting invalid category")
     public void getInvalidCategory() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/categories/getCategory/1")
+        MvcResult result = mockMvc.perform(get("/api/categories/getCategory/4")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -190,6 +186,6 @@ public class CategoryIntegrationTest {
 
     }
 
- */
+
 }
 

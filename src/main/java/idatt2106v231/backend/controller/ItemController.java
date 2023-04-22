@@ -141,7 +141,7 @@ public class ItemController {
             logger.info(response.getBody() + "");
         }
         else if (items.isEmpty()){
-            response = new ResponseEntity<>("There are no items registered in the database", HttpStatus.NO_CONTENT);
+            response = new ResponseEntity<>("There are no items registered in the database", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
         }
         else {

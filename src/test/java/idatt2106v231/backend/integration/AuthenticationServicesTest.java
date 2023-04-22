@@ -1,7 +1,5 @@
 package idatt2106v231.backend.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.controller.AuthenticationController;
@@ -18,23 +16,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 public class AuthenticationServicesTest {
 
@@ -56,7 +46,7 @@ public class AuthenticationServicesTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @BeforeEach
+    @BeforeAll
     @DisplayName("Setting up mock data for tests")
     public void setup() {
 
@@ -75,17 +65,12 @@ public class AuthenticationServicesTest {
         userRepository.save(user1);
     }
 
-    @DisplayName("Teardown of userRepository")
-    @AfterEach
-    public void teardown(){
-        userRepository.deleteAll();
-    }
 
     @Nested
     class TestAuthenticatingUsers{
 
         @Test
-        //@WithMockUser(username = "USER")
+        @WithMockUser(username = "USER")
         @DisplayName("Logging in a user with correct credentials")
         public void authenticateUserWithCorrectCredentials() throws Exception {
 
@@ -103,7 +88,7 @@ public class AuthenticationServicesTest {
         }
 
         @Test
-        //@WithMockUser(username = "USER")
+        @WithMockUser(username = "USER")
         @DisplayName("Logging in a user with wrong credentials")
         public void authenticateUserWithWrongCredentials() throws Exception {
 
@@ -113,7 +98,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+             mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isForbidden())

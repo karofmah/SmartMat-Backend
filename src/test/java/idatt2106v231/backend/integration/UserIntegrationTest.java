@@ -21,6 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class UserIntegrationTest {
 
     @Autowired
@@ -35,7 +37,7 @@ public class UserIntegrationTest {
 
 
 
-    @BeforeEach
+    @BeforeAll
     @DisplayName("Setting up mock data for tests")
     public void setup() {
 
@@ -55,11 +57,6 @@ public class UserIntegrationTest {
 
     }
 
-    @DisplayName("Teardown of userRepository")
-    @AfterEach
-    public void teardown(){
-        userRepository.deleteAll();
-    }
 
 
     @Nested
