@@ -8,9 +8,6 @@ import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,10 +19,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -66,12 +61,12 @@ public class ItemIntegrationTest {
 
 
     @Nested
-    class TestGetItems {
+    class GetItems {
 
         @Test
         @WithMockUser(username = "ADMIN")
         @DisplayName("Testing the endpoint for retrieving all items")
-        public void getItems() throws Exception {
+        public void getItemsIsOk() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/items/getAllItems")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -92,7 +87,7 @@ public class ItemIntegrationTest {
         @Transactional
         @WithMockUser(username = "ADMIN")
         @DisplayName("Testing the endpoint for retrieving all items when no items are in database")
-        public void getItemsEmpty() throws Exception {
+        public void getItemsIsNotFound() throws Exception {
 
             itemRepository.deleteAll();
             MvcResult result = mockMvc.perform(get("/api/items/getAllItems")
@@ -107,13 +102,15 @@ public class ItemIntegrationTest {
 
         }
     }
+
+
 /* Endpoints returns 404
     @Nested
-    class TestSaveItem {
+    class SaveItem {
         @Test
         @Transactional
-        @DisplayName("Testing the endpoint for saving a Item to database")
-        public void saveItem() throws Exception {
+        @DisplayName("Testing the endpoint for saving an Item to database")
+        public void saveItemIsCreated() throws Exception {
 
             Category category=Category.builder().description("category1").build();
 
@@ -143,8 +140,8 @@ public class ItemIntegrationTest {
         }
 
         @Test
-        @DisplayName("Testing the endpoint for saving a item to database when it already exists")
-        public void saveExistingItem() throws Exception {
+        @DisplayName("Testing the endpoint for saving an item to database when it already exists")
+        public void saveItemIsImUsed() throws Exception {
 
             ItemDto existingItemDto = ItemDto.builder().name("test").categoryId(1).build();
 

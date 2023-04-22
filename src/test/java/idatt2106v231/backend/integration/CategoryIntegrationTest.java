@@ -8,13 +8,10 @@ import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.repository.CategoryRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -57,12 +54,12 @@ public class CategoryIntegrationTest {
 
 
     @Nested
-    class TestGetCategories {
+    class GetCategories {
 
         @Test
         @WithMockUser(username = "ADMIN")
         @DisplayName("Testing the endpoint for retrieving all categories")
-        public void getCategories() throws Exception {
+        public void getCategoriesIsOk() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/categories/getAllCategories")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -81,7 +78,7 @@ public class CategoryIntegrationTest {
         @Test
         @WithMockUser(username = "ADMIN")
         @DisplayName("Testing the endpoint for retrieving all categories")
-        public void getCategoriesEmpty() throws Exception {
+        public void getCategoriesNotFound() throws Exception {
 
             categoryRepository.deleteAll();
             MvcResult result = mockMvc.perform(get("/api/categories/getAllCategories")
@@ -98,10 +95,10 @@ public class CategoryIntegrationTest {
     }
 
     @Nested
-    class TestSaveCategory{
+    class SaveCategory{
         @Test
         @DisplayName("Testing the endpoint for saving a category to database")
-        public void saveCategory() throws Exception {
+        public void saveCategoryIsCreated() throws Exception {
             CategoryDto newCategoryDto=CategoryDto.builder().description("newTest").build();
 
             String newCategoryJson=objectMapper.writeValueAsString(newCategoryDto);
@@ -125,7 +122,7 @@ public class CategoryIntegrationTest {
         }
         @Test
         @DisplayName("Testing the endpoint for saving a category to database when it already exists")
-        public void saveExistingCategory() throws Exception {
+        public void saveCategoryIsImUsed() throws Exception {
             CategoryDto existingCategoryDto=CategoryDto.builder().description("test").build();
 
             String existingCategoryJson=objectMapper.writeValueAsString(existingCategoryDto);
@@ -144,45 +141,46 @@ public class CategoryIntegrationTest {
         }
     }
 
-    //Change endpoint either to find by name or by an alternative solution for id
 
-    @Test
-    @WithMockUser(username = "USER")
-    @DisplayName("Test getting valid category")
+    @Nested
+    class GetItem{
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test getting valid category")
 
-    public void getValidCategory() throws Exception {
-
-
-        MvcResult result = mockMvc.perform(get("/api/categories/getCategory/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String responseString = result.getResponse().getContentAsString();
-        Category retrievedCategory= objectMapper.readValue(responseString, new TypeReference<>() {
-        });
-        System.out.println("Category: " + retrievedCategory);
-        Assertions.assertEquals("test",retrievedCategory.getDescription());
+        public void getCategoryIsOk() throws Exception {
 
 
-    }
+            MvcResult result = mockMvc.perform(get("/api/categories/getCategory/1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Category retrievedCategory= objectMapper.readValue(responseString, new TypeReference<>() {
+            });
+            System.out.println("Category: " + retrievedCategory);
+            Assertions.assertEquals("test",retrievedCategory.getDescription());
 
 
-    //Change endpoint either to find by name or by an alternative solution for id
-    @Test
-    @WithMockUser(username = "USER")
-    @DisplayName("Test getting invalid category")
-    public void getInvalidCategory() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/categories/getCategory/4")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andReturn();
+        }
 
-        String responseString = result.getResponse().getContentAsString();
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test getting invalid category")
+        public void getCategoryIsNotFound() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/categories/getCategory/4")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
 
-        System.out.println("Category: " + responseString);
-        Assertions.assertEquals("Category is not registered in the database",responseString);
+            String responseString = result.getResponse().getContentAsString();
 
+            System.out.println("Category: " + responseString);
+            Assertions.assertEquals("Category is not registered in the database",responseString);
+
+
+        }
 
     }
 

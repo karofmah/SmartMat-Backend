@@ -22,10 +22,22 @@ import java.util.List;
 @Tag(name = "Item API", description = "API for managing items")
 public class ItemController {
 
-    @Autowired
+
     private ItemServices services;
+
     @Autowired
+    public void setServices(ItemServices services) {
+        this.services = services;
+    }
+
+
     private CategoryServices categoryServices;
+
+    @Autowired
+    public void setCategoryServices(CategoryServices categoryServices) {
+        this.categoryServices = categoryServices;
+    }
+
     private final Logger logger = LoggerFactory.getLogger(ItemController.class);
 
     @PostMapping("/saveItem")
@@ -44,10 +56,11 @@ public class ItemController {
             if (services.saveItem(item)){
                 response = new ResponseEntity<>("Item saved to database", HttpStatus.OK);
             }else{
-                response =  new ResponseEntity<>("Failed to save item", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
+                response =  new ResponseEntity<>("Failed to save item", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
+
         return response;
     }
 
@@ -70,7 +83,8 @@ public class ItemController {
         else{
             response =  new ResponseEntity<>("Failed to delete item", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
+
         return response;
     }
 
@@ -83,11 +97,12 @@ public class ItemController {
             @ApiResponse(responseCode = "404", description = "Item not found"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve item")
     })
-    public ResponseEntity<Object> getItemByName(@PathVariable("name") String name) {
+    public ResponseEntity<Object> getItemByName(@RequestParam("name") String name) {
         ResponseEntity<Object> response;
         if (!services.checkIfItemExists(name)){
             response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
+
         }else {
             response = getItem(services.getItemByName(name));
         }
@@ -106,7 +121,7 @@ public class ItemController {
         ResponseEntity<Object> response;
         if (!services.checkIfItemExists(id)){
             response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }else {
             response = getItem(services.getItemById(id));
         }
@@ -117,7 +132,7 @@ public class ItemController {
         ResponseEntity<Object> response;
         if (item == null) {
             response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         } else {
             response = new ResponseEntity<>(item, HttpStatus.OK);
             logger.info("Item retrieved");
@@ -130,7 +145,7 @@ public class ItemController {
     @Operation(summary = "Get all items")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieved the items"),
-            @ApiResponse(responseCode = "204", description = "No content in database"),
+            @ApiResponse(responseCode = "404", description = "Item are not found"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve items")
     })
     public ResponseEntity<Object> getAllItems() {
@@ -138,11 +153,13 @@ public class ItemController {
         List<ItemDto> items = services.getAllItems();
         if (items == null){
             response = new ResponseEntity<>("Failed to retrieve items", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
+
         }
         else if (items.isEmpty()){
             response = new ResponseEntity<>("There are no items registered in the database", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
+
         }
         else {
             response = new ResponseEntity<>(items, HttpStatus.OK);
@@ -163,18 +180,18 @@ public class ItemController {
         ResponseEntity<Object> response;
         if(!categoryServices.categoryExist(categoryId)){
             response = new ResponseEntity<>("Category does not exist", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
         List<ItemDto> items = services.getAllItemsByCategory(categoryId);
         if (items == null){
             response = new ResponseEntity<>("Failed to retrieve items", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else if (items.isEmpty()){
             response = new ResponseEntity<>("There are no items registered under this category", HttpStatus.NO_CONTENT);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(items, HttpStatus.OK);
