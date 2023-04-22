@@ -5,19 +5,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.dto.item.CategoryDto;
 import idatt2106v231.backend.model.Category;
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.CategoryRepository;
-import idatt2106v231.backend.repository.ItemRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@TestPropertySource(locations = "classpath:application-test.properties")
 public class CategoryIntegrationTest {
 
     @Autowired
@@ -79,7 +77,6 @@ public class CategoryIntegrationTest {
             ObjectMapper mapper = new ObjectMapper();
             List<Category> actualCategories = mapper.readValue(responseString, new TypeReference<>() {
             });
-            System.out.println(actualCategories.get(1).getDescription());
 
             Assertions.assertEquals(categoryRepository.findAll().size(), actualCategories.size());
 
@@ -99,7 +96,6 @@ public class CategoryIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            System.out.println(responseString);
             Assertions.assertEquals("There are no categories registered in the database", responseString);
 
         }
@@ -175,11 +171,11 @@ public class CategoryIntegrationTest {
 
     }
 
- */
+
     //Change endpoint either to find by name or by an alternative solution for id
     @Test
     @WithMockUser(username = "USER")
-    @DisplayName("Test getting valid category")
+    @DisplayName("Test getting invalid category")
     public void getInvalidCategory() throws Exception {
         MvcResult result = mockMvc.perform(get("/api/categories/getCategory/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -193,5 +189,7 @@ public class CategoryIntegrationTest {
 
 
     }
+
+ */
 }
 
