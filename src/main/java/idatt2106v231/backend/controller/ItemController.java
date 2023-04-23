@@ -43,7 +43,7 @@ public class ItemController {
     @PostMapping("/saveItem")
     @Operation(summary = "Save new item")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Item is added to database"),
+            @ApiResponse(responseCode = "201", description = "Item is added to database"),
             @ApiResponse(responseCode = "226", description = "Item already exists"),
             @ApiResponse(responseCode = "400", description = "Data is not specified"),
             @ApiResponse(responseCode = "404", description = "Category does not exist"),
@@ -54,7 +54,7 @@ public class ItemController {
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
             if (services.saveItem(item)){
-                response = new ResponseEntity<>("Item saved to database", HttpStatus.OK);
+                response = new ResponseEntity<>("Item saved to database", HttpStatus.CREATED);
             }else{
                 response =  new ResponseEntity<>("Failed to save item", HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -120,7 +120,7 @@ public class ItemController {
     public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
         ResponseEntity<Object> response;
         if (!services.checkIfItemExists(id)){
-            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         }else {
             response = getItem(services.getItemById(id));
@@ -209,7 +209,7 @@ public class ItemController {
         else if (services.checkIfItemExists(dto.getName())){
             response = new ResponseEntity<>("Item already exists", HttpStatus.IM_USED);
         }
-        else if (categoryServices.categoryExist(dto.getCategoryId())){
+        else if (!categoryServices.categoryExist(dto.getCategoryId())){
             response =  new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
         return response;

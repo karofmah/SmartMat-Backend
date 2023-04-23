@@ -38,7 +38,7 @@ public class UserIntegrationTest {
 
 
     @BeforeAll
-    @DisplayName("Setting up mock data for tests")
+    @DisplayName("Add test data to test database")
     public void setup() {
 
         User user1=new User();

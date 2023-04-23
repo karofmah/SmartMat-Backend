@@ -47,7 +47,7 @@ public class AuthenticationServicesTest {
     PasswordEncoder passwordEncoder;
 
     @BeforeAll
-    @DisplayName("Setting up mock data for tests")
+    @DisplayName("Add test data to test database")
     public void setup() {
 
         var user1 = User.builder()

@@ -39,7 +39,7 @@ public class CategoryIntegrationTest {
 
 
     @BeforeAll
-    @DisplayName("Setting up mock data for tests")
+    @DisplayName("Add test data to test database")
     public void setup() {
 
         Category category1=Category.builder().description("test").build();
@@ -143,7 +143,7 @@ public class CategoryIntegrationTest {
 
 
     @Nested
-    class GetItem{
+    class GetCategory{
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting valid category")

@@ -19,8 +19,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -42,7 +44,7 @@ public class ItemIntegrationTest {
     private CategoryRepository categoryRepository;
 
     @BeforeAll
-    @DisplayName("Setting up mock data for tests")
+    @DisplayName("Add test data to test database")
     public void setup() {
 
         Category category=Category.builder().description("category").build();
@@ -79,6 +81,7 @@ public class ItemIntegrationTest {
             });
 
 
+            System.out.println(actualItems);
             Assertions.assertEquals(itemRepository.findAll().size(), actualItems.size());
 
         }
@@ -102,9 +105,49 @@ public class ItemIntegrationTest {
 
         }
     }
+    @Nested
+    class GetItem{
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test getting an item that exists in database")
+
+        public void getItemIsOk() throws Exception {
 
 
-/* Endpoints returns 404
+            MvcResult result = mockMvc.perform(get("/api/items/getItem/1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            ItemDto retrievedItem= objectMapper.readValue(responseString, new TypeReference<>() {
+            });
+            System.out.println("Item: " + retrievedItem);
+            Assertions.assertEquals("test1",retrievedItem.getName());
+
+
+        }
+
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test getting an item that does not exist in database")
+        public void getItemIsNotFound() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/items/getItem/4")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            System.out.println("Response: " + responseString);
+            Assertions.assertEquals("Item does not exist",responseString);
+
+
+        }
+
+    }
+
+
     @Nested
     class SaveItem {
         @Test
@@ -112,11 +155,7 @@ public class ItemIntegrationTest {
         @DisplayName("Testing the endpoint for saving an Item to database")
         public void saveItemIsCreated() throws Exception {
 
-            Category category=Category.builder().description("category1").build();
-
-            categoryRepository.save(category);
-
-            ItemDto newItemDto = ItemDto.builder().name("newTest").categoryId(2).build();
+            ItemDto newItemDto = ItemDto.builder().name("newTest").categoryId(1).build();
 
 
             String newItemJson = objectMapper.writeValueAsString(newItemDto);
@@ -134,7 +173,7 @@ public class ItemIntegrationTest {
             Assertions.assertTrue(itemOptional.isPresent());
             Item retrievedItem = itemOptional.get();
 
-            Assertions.assertEquals("Item is saved to database", responseString);
+            Assertions.assertEquals("Item saved to database", responseString);
             Assertions.assertEquals(newItemDto.getName(), retrievedItem.getName());
 
         }
@@ -143,7 +182,7 @@ public class ItemIntegrationTest {
         @DisplayName("Testing the endpoint for saving an item to database when it already exists")
         public void saveItemIsImUsed() throws Exception {
 
-            ItemDto existingItemDto = ItemDto.builder().name("test").categoryId(1).build();
+            ItemDto existingItemDto = ItemDto.builder().name("test1").categoryId(1).build();
 
 
             String existingItemJson = objectMapper.writeValueAsString(existingItemDto);
@@ -160,5 +199,5 @@ public class ItemIntegrationTest {
             Assertions.assertEquals("Item already exists", responseString);
 
         }
-    }*/
+    }
 }
