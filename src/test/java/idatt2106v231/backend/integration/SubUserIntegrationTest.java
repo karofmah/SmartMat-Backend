@@ -22,8 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -114,7 +113,7 @@ public class SubUserIntegrationTest {
     class TestGetUsersFromMaster {
 
         @Test
-        @DisplayName("Method retrieves the correct number of subusers")
+        @DisplayName("Retrieves the correct number of subusers")
         public void retrieveSubUsersFromMaster() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster")
@@ -124,6 +123,192 @@ public class SubUserIntegrationTest {
 
             List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<SubUserDto>>() {});
             assertEquals(2, retrievedSubUsers.size());
+        }
+
+        @Test
+        @DisplayName("Returns error when wrong master is given")
+        public void returnErrorWhenGivenWrongParam() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster")
+                    .param("email", "invalidEmail"))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+    }
+
+    @Nested
+    class TestGetUserByNameAndMaster {
+
+        @Test
+        @DisplayName("Returns correct user")
+        public void returnCorrectUser() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
+                    .param("email", "test1@ntnu.no")
+                    .param("name", "subUser1Name"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<SubUserDto>() {});
+            assertEquals("subUser1Name", retrievedSubUser.getName());
+        }
+
+        @Test
+        @DisplayName("Returns error when masteruser doesnt exist")
+        public void returnErrorWhenWrongMaster() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
+                            .param("email", "invalidMail")
+                            .param("name", "subUser1Name"))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when subuser doesnt correlate to a master")
+        public void returnErrorWhenSubuserMismatchMaster() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
+                            .param("email", "test1@ntnu.no")
+                            .param("name", "subUser3Name"))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+    }
+
+    @Nested
+    class TestAddSubUser {
+
+        @Test
+        @DisplayName("Returns ok when requirements are met")
+        public void addSubUserAllArgsOk() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setName("testSubUser");
+            testSubUser.setAccessLevel(false);
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when masteruser doesnt exist")
+        public void addSubUserMasterDoesntExist() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("invalidMaster");
+            testSubUser.setName("testSubUser");
+            testSubUser.setAccessLevel(false);
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when subuser already exist")
+        public void addSubUserSubUserExists() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setName("subUser1Name");
+            testSubUser.setAccessLevel(false);
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isImUsed())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when masteruser is undefined")
+        public void addSubUserMasterUndefined() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setName("testSubUser");
+            testSubUser.setAccessLevel(false);
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when name is undefined")
+        public void addSubUserNameUndefined() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setAccessLevel(false);
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when accesslevel is undefined")
+        public void addSubUserAccesslevelUndefined() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setName("testSubUser");
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+    }
+
+    @Nested
+    class TestDeleteUser {
+
+        @Test
+        @DisplayName("Returns ok when requirements are met")
+        public void deleteSubUserAllArgsOk() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setName("subUser1Name");
+            testSubUser.setAccessLevel(true);
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(delete("/api/subusers/deleteSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when subuser doesnt exist")
+        public void deleteSubUserDoesntExist() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("invalidMaster");
+            testSubUser.setName("invalidName");
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+            MvcResult result = mockMvc.perform(delete("/api/subusers/deleteSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
         }
     }
 }

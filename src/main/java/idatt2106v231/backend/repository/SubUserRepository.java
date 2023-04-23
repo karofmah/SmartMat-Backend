@@ -12,5 +12,5 @@ public interface SubUserRepository extends JpaRepository<SubUser, String> {
 
     List<SubUser> findAllByMasterUserEmail(String email);
 
-    Optional<SubUser> findDistinctByNameAndMasterUserEmail(String name, String email);
+    Optional<SubUser> findByMasterUserEmailAndName(String email, String name);
 }

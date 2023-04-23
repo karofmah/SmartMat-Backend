@@ -79,6 +79,8 @@ public class SubUserController {
         ResponseEntity<Object> response;
         if(subUserServices.subUserExists(subUser.getName(), subUser.getMasterUser())) {
             response = new ResponseEntity<>("Subuser already exists", HttpStatus.IM_USED);
+        } else if (!userServices.userExists(subUser.getMasterUser())){
+            response = new ResponseEntity<>("Masteruser doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(subUser.getMasterUser() == null) {
             response = new ResponseEntity<>("Masteruser is not defined", HttpStatus.BAD_REQUEST);
         } else if(subUser.getName() == null) {

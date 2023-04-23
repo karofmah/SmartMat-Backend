@@ -26,9 +26,13 @@ public class SubUserServices {
 
     private final ModelMapper mapper = new ModelMapper();
 
-    public List<SubUserDto> getSubUsersByMaster(String email) {
+    public SubUserServices() {
         TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
+
+    }
+
+    public List<SubUserDto> getSubUsersByMaster(String email) {
 
         List<SubUser> subUsers = subUserRepository.findAllByMasterUserEmail(email);
         List<SubUserDto> list = new ArrayList<>();
@@ -37,8 +41,9 @@ public class SubUserServices {
     }
 
     public SubUserDto getSubUserByMasterAndName(String email, String name) {
-        Optional<SubUser> subUser = subUserRepository.findDistinctByNameAndMasterUserEmail(name, email);
-        return mapper.map(subUser, SubUserDto.class);
+
+        Optional<SubUser> subUser = subUserRepository.findByMasterUserEmailAndName(email, name);
+        return mapper.map(subUser.get(), SubUserDto.class);
     }
 
     public boolean saveSubUser(SubUserDto subUserDto) {
@@ -54,13 +59,13 @@ public class SubUserServices {
 
     public boolean deleteSubUser(SubUserDto subUser) {
         try {
-            subUserRepository.delete(subUserRepository.findDistinctByNameAndMasterUserEmail(subUser.getName(), subUser.getMasterUser()).get());
+            subUserRepository.delete(subUserRepository.findByMasterUserEmailAndName(subUser.getMasterUser(), subUser.getName()).get());
             return true;
         } catch (Exception e) {
             return false;
         }
     }
     public boolean subUserExists(String name, String email) {
-        return subUserRepository.findDistinctByNameAndMasterUserEmail(name, email).isPresent();
+        return subUserRepository.findByMasterUserEmailAndName(email, name).isPresent();
     }
 }
