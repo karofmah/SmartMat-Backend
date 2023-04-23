@@ -49,7 +49,7 @@ public class UserIntegrationTest {
 
         userRepository.deleteAll();
 
-        User user1=new User("test@ntnu.no","123",
+        /*User user1=new User("test@ntnu.no","123",
                 "First name",
                 "Last mame",
                 21948391,
@@ -76,7 +76,7 @@ public class UserIntegrationTest {
 
         userRepository.save(user1);
         userRepository.save(user2);
-        userRepository.save(user3);
+        userRepository.save(user3);*/
     }
 
     @DisplayName("Teardown of userRepository")

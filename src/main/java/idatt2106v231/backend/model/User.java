@@ -66,7 +66,7 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "masterUser", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> userList = new ArrayList<>();
+    private List<SubUser> subUserList = new ArrayList<>();
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
