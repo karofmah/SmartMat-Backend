@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,6 +78,7 @@ public class CategoryIntegrationTest {
 
         @Test
         @WithMockUser(username = "ADMIN")
+        @Transactional
         @DisplayName("Testing the endpoint for retrieving all categories")
         public void getCategoriesNotFound() throws Exception {
 
@@ -96,7 +98,9 @@ public class CategoryIntegrationTest {
 
     @Nested
     class SaveCategory{
+
         @Test
+        @Transactional
         @DisplayName("Testing the endpoint for saving a category to database")
         public void saveCategoryIsCreated() throws Exception {
             CategoryDto newCategoryDto=CategoryDto.builder().description("newTest").build();
