@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -47,14 +49,14 @@ public class ItemIntegrationTest {
     @DisplayName("Add test data to test database")
     public void setup() {
 
-        Category category=Category.builder().description("category").build();
+        Category category = Category.builder().description("category").build();
 
         categoryRepository.save(category);
 
         System.out.println(category);
-        Item item1=Item.builder().name("test1").category(category).build();
-        Item item2=Item.builder().name("test2").category(category).build();
-        Item item3=Item.builder().name("test3").category(category).build();
+        Item item1 = Item.builder().name("test1").category(category).build();
+        Item item2 = Item.builder().name("test2").category(category).build();
+        Item item3 = Item.builder().name("test3").category(category).build();
 
         itemRepository.save(item1);
         itemRepository.save(item2);
@@ -105,8 +107,9 @@ public class ItemIntegrationTest {
 
         }
     }
+
     @Nested
-    class GetItem{
+    class GetItem {
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting an item that exists in database")
@@ -120,10 +123,10 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            ItemDto retrievedItem= objectMapper.readValue(responseString, new TypeReference<>() {
+            ItemDto retrievedItem = objectMapper.readValue(responseString, new TypeReference<>() {
             });
             System.out.println("Item: " + retrievedItem);
-            Assertions.assertEquals("test1",retrievedItem.getName());
+            Assertions.assertEquals("test1", retrievedItem.getName());
 
 
         }
@@ -140,7 +143,7 @@ public class ItemIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             System.out.println("Response: " + responseString);
-            Assertions.assertEquals("Item does not exist",responseString);
+            Assertions.assertEquals("Item does not exist", responseString);
 
 
         }
@@ -197,6 +200,87 @@ public class ItemIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Assertions.assertEquals("Item already exists", responseString);
+
+        }
+
+        @Test
+        @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
+        public void saveItemIsNotFound() throws Exception {
+
+            ItemDto existingItemDto = ItemDto.builder().name("test4").categoryId(10).build();
+
+
+            String existingItemJson = objectMapper.writeValueAsString(existingItemDto);
+
+            MvcResult result = mockMvc.perform(post("/api/items/saveItem")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(existingItemJson))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Category does not exist", responseString);
+
+        }
+        @Test
+        @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
+        public void saveItemIsBadRequest() throws Exception {
+
+            ItemDto existingItemDto = ItemDto.builder().name("").build();
+
+
+            String existingItemJson = objectMapper.writeValueAsString(existingItemDto);
+
+            MvcResult result = mockMvc.perform(post("/api/items/saveItem")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(existingItemJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Data is not specified", responseString);
+
+        }
+    }
+    @Nested
+    class DeleteItem{
+        @Test
+        @WithMockUser(username = "USER")
+        @Transactional
+        @DisplayName("Test deletion of item")
+        public void deleteItemIsOk() throws Exception {
+
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/3")
+                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(2,itemRepository.findAll().size());
+            Assertions.assertEquals("Item removed from database",responseString);
+        }
+
+        @Test
+        @WithMockUser(username = "USER")
+        @Transactional
+        @DisplayName("Test deletion of item when item is not found in database")
+        public void deleteItemIsNotFound() throws Exception {
+
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/4")
+                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Item does not exist",responseString);
+
 
         }
     }

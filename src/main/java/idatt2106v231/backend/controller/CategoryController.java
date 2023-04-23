@@ -21,8 +21,14 @@ import java.util.List;
 @Tag(name = "Category API", description = "API for managing categories")
 public class CategoryController {
 
-    @Autowired
+
     private CategoryServices categoryServices;
+
+    @Autowired
+    public void setCategoryServices(CategoryServices categoryServices) {
+        this.categoryServices = categoryServices;
+    }
+
     private final Logger logger = LoggerFactory.getLogger(ItemController.class);
 
     @PostMapping("/saveCategory")
@@ -44,25 +50,25 @@ public class CategoryController {
             response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
-    @DeleteMapping("/deleteCategory")
+    @DeleteMapping("/deleteCategory/{categoryId}")
     @Operation(summary = "Delete category")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category is removed from database"),
             @ApiResponse(responseCode = "404", description = "Category does not exists"),
     })
-    public ResponseEntity<Object> deleteCategory(@RequestParam int categoryId) {
+    public ResponseEntity<Object> deleteCategory(@PathVariable int categoryId) {
         ResponseEntity<Object> response;
         if (categoryServices.deleteCategory(categoryId)){
             response = new ResponseEntity<>("Category removed from database", HttpStatus.OK);
         }
         else {
-            response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -77,7 +83,7 @@ public class CategoryController {
         CategoryDto category = categoryServices.getCategory(categoryId);
         if (category == null){
             response = new ResponseEntity<>("Category is not registered in the database", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(category, HttpStatus.OK);
@@ -97,7 +103,7 @@ public class CategoryController {
         List<CategoryDto> categories = categoryServices.getAllCategories();
         if (categories.isEmpty()){
             response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(categories, HttpStatus.OK);

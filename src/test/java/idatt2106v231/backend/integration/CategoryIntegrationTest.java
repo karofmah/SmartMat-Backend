@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -125,6 +127,7 @@ public class CategoryIntegrationTest {
 
         }
         @Test
+        @Transactional
         @DisplayName("Testing the endpoint for saving a category to database when it already exists")
         public void saveCategoryIsImUsed() throws Exception {
             CategoryDto existingCategoryDto=CategoryDto.builder().description("test").build();
@@ -186,6 +189,44 @@ public class CategoryIntegrationTest {
 
         }
 
+    }
+    @Nested
+    class DeleteCategory{
+        @Test
+        @WithMockUser(username = "USER")
+        @Transactional
+        @DisplayName("Test deletion of category")
+        public void deleteCategoryIsOk() throws Exception {
+
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/3")
+                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(2,categoryRepository.findAll().size());
+            Assertions.assertEquals("Category removed from database",responseString);
+        }
+
+        @Test
+        @WithMockUser(username = "USER")
+        @Transactional
+        @DisplayName("Test deletion of category when category is not found in database")
+        public void deleteCategoryIsNotFound() throws Exception {
+
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/4")
+                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Category does not exist",responseString);
+
+
+        }
     }
 
 

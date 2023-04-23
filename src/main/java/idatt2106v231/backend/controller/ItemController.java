@@ -64,18 +64,18 @@ public class ItemController {
         return response;
     }
 
-    @PostMapping("/deleteItem")
+    @DeleteMapping("/deleteItem/{itemId}")
     @Operation(summary = "Delete item")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Item is removed from database"),
             @ApiResponse(responseCode = "404", description = "Item does not exist in database"),
             @ApiResponse(responseCode = "500", description = "Failed to delete item")
     })
-    public ResponseEntity<Object> deleteItem(@RequestParam int itemId) {
+    public ResponseEntity<Object> deleteItem(@PathVariable int itemId) {
         ResponseEntity<Object> response;
 
         if (!services.checkIfItemExists(itemId)){
-            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
         }
         else if (services.deleteItem(itemId)){
             response = new ResponseEntity<>("Item removed from database", HttpStatus.OK);
