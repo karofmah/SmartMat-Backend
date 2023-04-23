@@ -122,7 +122,6 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            System.out.println("hei");
             List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<SubUserDto>>() {});
             assertEquals(2, retrievedSubUsers.size());
         }

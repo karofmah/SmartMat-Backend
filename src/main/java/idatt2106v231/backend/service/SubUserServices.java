@@ -5,6 +5,7 @@ import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.repository.SubUserRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,12 @@ public class SubUserServices {
     private final ModelMapper mapper = new ModelMapper();
 
     public List<SubUserDto> getSubUsersByMaster(String email) {
-        Optional<SubUser> subUsers = subUserRepository.findAllByMasterUserEmail(email);
+        TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
+        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
+
+        List<SubUser> subUsers = subUserRepository.findAllByMasterUserEmail(email);
         List<SubUserDto> list = new ArrayList<>();
-        subUsers.ifPresent(obj -> list.add(mapper.map(obj, SubUserDto.class)));
+        subUsers.forEach(obj -> list.add(mapper.map(obj, SubUserDto.class)));
         return list;
     }
 
