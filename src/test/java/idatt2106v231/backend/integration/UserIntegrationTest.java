@@ -3,6 +3,9 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
+import idatt2106v231.backend.dto.item.CategoryDto;
+import idatt2106v231.backend.dto.user.UserUpdateDto;
+import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -17,8 +20,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import java.util.Optional;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -86,5 +92,39 @@ public class UserIntegrationTest {
             Assertions.assertEquals("User not found",responseString);
 
         }
+    }
+
+
+    @Test
+    @WithMockUser(username = "USER")
+    @DisplayName("Test updating a user")
+    public void updateUser() throws Exception {
+
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .email("test@ntnu.no")
+                .firstName("New first name")
+                .lastName("New last name")
+                .phoneNumber(11111111)
+                .household(10)
+                .build();
+
+        String updateUserJson = objectMapper.writeValueAsString(userUpdateDto);
+
+        MvcResult result = mockMvc.perform(put("/api/users/updateUser?email=test@ntnu.no")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateUserJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+        User retrievedUser = userRepository.findByEmail(userUpdateDto.getEmail()).get();
+
+        Assertions.assertEquals("User is updated", responseString);
+        Assertions.assertEquals(userUpdateDto.getFirstName(), retrievedUser.getFirstName());
+        Assertions.assertEquals(userUpdateDto.getLastName(), retrievedUser.getLastName());
+        Assertions.assertEquals(userUpdateDto.getPhoneNumber(), retrievedUser.getPhoneNumber());
+        Assertions.assertEquals(userUpdateDto.getHousehold(), retrievedUser.getHousehold());
+
     }
 }
