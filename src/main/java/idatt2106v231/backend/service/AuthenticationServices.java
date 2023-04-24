@@ -2,8 +2,11 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.auth.AuthenticationResponse;
 import idatt2106v231.backend.config.JwtService;
+import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Service;
 public class AuthenticationServices {
 
     private final UserRepository repository;
+    private final RefrigeratorRepository refrigeratorRepository;
+
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -46,26 +51,36 @@ public class AuthenticationServices {
                 .role(Role.USER)
                 .build();
         repository.save(user);
+
+        var ref = Refrigerator.builder()
+                .user(user)
+                .build();
+        refrigeratorRepository.save(ref);
+
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
+    public boolean emailIsUsed(String email) {
+        return repository.findByEmail(email).isPresent();
+    }
     /**
      * Authenticate a user, used in login.
      *
      * @param request email and password for the user
      * @return a token which authenticates the user if the password is correct
      */
-    public AuthenticationResponse authenticate(UserCreationDto request) {
+    public AuthenticationResponse authenticate(UserAuthenticationDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        var user = repository.findDistinctByEmail(request.getEmail());
+        var optionalUser = repository.findByEmail(request.getEmail());
+        User user = optionalUser.get();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)

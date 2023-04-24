@@ -16,19 +16,18 @@ import java.util.List;
 @Table
 @AllArgsConstructor
 @NoArgsConstructor
-public class Refrigerator {
+public class Category {
 
     @Id
     @Column
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int refrigeratorId;
+    private int categoryId;
 
+    @Column
     @NotNull
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_email", referencedColumnName = "email")
-    private User user;
+    private String description;
 
-    @OneToMany(mappedBy = "refrigerator")
-    private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>();
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item> items = new ArrayList<>();
 }
