@@ -8,8 +8,6 @@ import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.repository.CategoryRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -30,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class CategoryIntegrationTest {
 
     @Autowired
@@ -209,6 +206,9 @@ public class CategoryIntegrationTest {
         @DisplayName("Test deletion of category when category is not found in database")
         public void deleteCategoryIsNotFound() throws Exception {
 
+            int size = categoryRepository.findAll().size();
+
+
             MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/30")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
@@ -216,6 +216,8 @@ public class CategoryIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(size,categoryRepository.findAll().size());
             Assertions.assertEquals("Category does not exist",responseString);
         }
     }

@@ -10,8 +10,6 @@ import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -32,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class ItemIntegrationTest {
 
     @Autowired
@@ -48,7 +45,6 @@ public class ItemIntegrationTest {
     private CategoryRepository categoryRepository;
 
     @BeforeAll
-    @Transactional
     @DisplayName("Add test data to test database")
     public void setup() {
 
@@ -86,7 +82,6 @@ public class ItemIntegrationTest {
             });
 
 
-            System.out.println(actualItems);
             Assertions.assertEquals(itemRepository.findAll().size(), actualItems.size());
 
         }
@@ -256,6 +251,8 @@ public class ItemIntegrationTest {
         @Transactional
         @DisplayName("Test deletion of item")
         public void deleteItemIsOk() throws Exception {
+            int size = itemRepository.findAll().size();
+
 
             MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/3")
                             .accept(MediaType.APPLICATION_JSON))
@@ -265,7 +262,7 @@ public class ItemIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(2,itemRepository.findAll().size());
+            Assertions.assertEquals(size-1,itemRepository.findAll().size());
             Assertions.assertEquals("Item removed from database",responseString);
         }
 
@@ -275,6 +272,9 @@ public class ItemIntegrationTest {
         @DisplayName("Test deletion of item when item is not found in database")
         public void deleteItemIsNotFound() throws Exception {
 
+            int size = itemRepository.findAll().size();
+
+
             MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/4")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
@@ -282,6 +282,8 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(size,itemRepository.findAll().size());
             Assertions.assertEquals("Item does not exist",responseString);
 
 

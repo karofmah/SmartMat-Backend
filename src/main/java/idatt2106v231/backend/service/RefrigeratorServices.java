@@ -80,6 +80,7 @@ public class RefrigeratorServices {
             refrigeratorRepository.findAll().forEach(obj -> list.add(mapper.map(obj, RefrigeratorDto.class)));
             return list;
         }catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }

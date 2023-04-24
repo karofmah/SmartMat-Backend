@@ -100,7 +100,7 @@ public class RefrigeratorController {
             logger.info(response.getBody() + "");
         }
         else if (refrigerators.isEmpty()){
-            response = new ResponseEntity<>("There are no refrigerators registered in the database", HttpStatus.NO_CONTENT);
+            response = new ResponseEntity<>("There are no refrigerators registered in the database", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
         }
         else {
@@ -121,7 +121,7 @@ public class RefrigeratorController {
         ResponseEntity<Object> response;
 
         if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
-            response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
             return response;
         }
@@ -145,7 +145,7 @@ public class RefrigeratorController {
     @PostMapping("/addItemInRefrigerator")
     @Operation(summary = "Add item in refrigerator")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Item is added to refrigerator"),
+            @ApiResponse(responseCode = "201", description = "Item is added to refrigerator"),
             @ApiResponse(responseCode = "400", description = "Data is not valid"),
             @ApiResponse(responseCode = "404", description = "Refrigerator or/and item does not exist"),
             @ApiResponse(responseCode = "500", description = "Item is not added to refrigerator")
@@ -163,7 +163,7 @@ public class RefrigeratorController {
             response = new ResponseEntity<>("Item is updated", HttpStatus.OK);
         }
         else if(refrigeratorServices.addItemToRefrigerator(dto)){
-            response = new ResponseEntity<>("Item is added to refrigerator", HttpStatus.OK);
+            response = new ResponseEntity<>("Item is added to refrigerator", HttpStatus.CREATED);
         }
         else {
             response = new ResponseEntity<>("Item is not added to refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
