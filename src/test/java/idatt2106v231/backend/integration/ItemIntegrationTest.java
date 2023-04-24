@@ -10,6 +10,8 @@ import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -30,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class ItemIntegrationTest {
 
     @Autowired
