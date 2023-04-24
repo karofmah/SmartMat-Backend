@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@Disabled("These tests requires a private key and should not run in the pipeline")
+@Disabled("These tests require a private key and should not run in the pipeline")
 public class AiServicesTest {
 
     @Autowired

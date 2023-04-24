@@ -5,10 +5,12 @@ import com.theokanning.openai.OpenAiApi;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
+import idatt2106v231.backend.repository.OpenAiKeyRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import retrofit2.Retrofit;
 
@@ -23,6 +25,13 @@ public class AiServices {
 
     private static final Logger _logger =
             LoggerFactory.getLogger(UserServices.class);
+
+    OpenAiKeyRepository openAiKeyRepository;
+
+    @Autowired
+    public void setOpenAiKeyRepository(OpenAiKeyRepository openAiKeyRepository) {
+        this.openAiKeyRepository = openAiKeyRepository;
+    }
 
     /**
      * Gets a chat completion using OpenAI GPT-3
@@ -72,15 +81,20 @@ public class AiServices {
      */
     public String getOpenAiApiKey() {
         try {
-            Dotenv dotenv = Dotenv.configure().load();
-            String token = dotenv.get("OPENAI_TOKEN");
+            String token = openAiKeyRepository.findFirstByOrderByIdDesc().get().getApiKey();
+
             if (token == null) {
-                _logger.error("Token is missing. " +
-                        "Make sure a valid OpenAI API key is stored in a .env file in the root of the project");
-                return null;
-            } else {
-                return token;
+                Dotenv dotenv = Dotenv.configure().load();
+                token = dotenv.get("OPENAI_TOKEN");
+
+                if (token == null) {
+                    _logger.error("Token is missing. " +
+                            "Make sure a valid OpenAI API key is stored in the database " +
+                            "or in a .env file in the root of the project");
+                    return null;
+                }
             }
+            return token;
         } catch (Exception e) {
             _logger.error("Failed to get token: " + e.getMessage());
             return null;
