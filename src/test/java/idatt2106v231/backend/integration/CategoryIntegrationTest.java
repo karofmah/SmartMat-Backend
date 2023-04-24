@@ -184,7 +184,7 @@ public class CategoryIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             System.out.println("Category: " + responseString);
-            Assertions.assertEquals("Category is not registered in the database",responseString);
+            Assertions.assertEquals("Category does not exist",responseString);
 
 
         }
@@ -224,8 +224,6 @@ public class CategoryIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
             Assertions.assertEquals("Category does not exist",responseString);
-
-
         }
     }
 

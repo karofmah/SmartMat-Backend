@@ -65,7 +65,7 @@ public class CategoryController {
     public ResponseEntity<Object> deleteCategory(@PathVariable int categoryId) {
         ResponseEntity<Object> response;
         if (!categoryServices.categoryExist(categoryId)){
-            response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
         else if (categoryServices.deleteCategory(categoryId)){
             response = new ResponseEntity<>("Category removed from database", HttpStatus.OK);
@@ -88,7 +88,7 @@ public class CategoryController {
         ResponseEntity<Object> response;
 
         if (!categoryServices.categoryExist(categoryId)){
-            response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
         }
@@ -109,7 +109,7 @@ public class CategoryController {
     @Operation(summary = "Get all categories")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Returned the categories"),
-            @ApiResponse(responseCode = "204", description = "No content in database"),
+            @ApiResponse(responseCode = "404", description = "No content in database"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve categories")
     })
     public ResponseEntity<Object> getAllCategories() {
@@ -121,7 +121,7 @@ public class CategoryController {
             logger.info((String)response.getBody());
         }
         else if (categories.isEmpty()){
-            response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NO_CONTENT);
+            response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         }
         else {
