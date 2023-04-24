@@ -1,6 +1,6 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.model.Item;
+import idatt2106v231.backend.dto.item.ItemDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +42,11 @@ public class RecipeServices {
     public String generateRecipe(int refrigeratorId) {
         try {
 
-            //List<Item> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
-            List<Item> ingredients = null; // TODO Implement fridge connection
+            List<ItemDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
 
-            for (Item ingredient : ingredients) {
+            for (ItemDto ingredient : ingredients) {
                 query.append(ingredient.getName()).append(" ");
             }
 
@@ -57,6 +56,4 @@ public class RecipeServices {
             return null;
         }
     }
-
-
 }

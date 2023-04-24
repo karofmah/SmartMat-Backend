@@ -79,7 +79,6 @@ public class AiServices {
                         "Make sure a valid OpenAI API key is stored in a .env file in the root of the project");
                 return null;
             } else {
-                System.out.println(token);
                 return token;
             }
         } catch (Exception e) {
