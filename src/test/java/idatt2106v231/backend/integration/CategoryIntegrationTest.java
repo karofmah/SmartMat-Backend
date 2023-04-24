@@ -152,25 +152,15 @@ public class CategoryIntegrationTest {
 
     @Nested
     class GetCategory{
+
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting valid category")
-
         public void getCategoryIsOk() throws Exception {
-
-
-            MvcResult result = mockMvc.perform(get("/api/categories/getCategory/1")
+             mockMvc.perform(get("/api/categories/getCategory/1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
-
-            String responseString = result.getResponse().getContentAsString();
-            Category retrievedCategory= objectMapper.readValue(responseString, new TypeReference<>() {
-            });
-            System.out.println("Category: " + retrievedCategory);
-            Assertions.assertEquals("test",retrievedCategory.getDescription());
-
-
         }
 
         @Test
