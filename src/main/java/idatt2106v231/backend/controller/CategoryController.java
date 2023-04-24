@@ -21,9 +21,15 @@ import java.util.List;
 @Tag(name = "Category API", description = "API for managing categories")
 public class CategoryController {
 
-    @Autowired
+
     private CategoryServices categoryServices;
-    private final Logger logger = LoggerFactory.getLogger(ItemController.class);
+
+    @Autowired
+    public void setCategoryServices(CategoryServices categoryServices) {
+        this.categoryServices = categoryServices;
+    }
+
+    private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
     @PostMapping("/saveCategory")
     @Operation(summary = "Save new category")
@@ -38,37 +44,36 @@ public class CategoryController {
             response = new ResponseEntity<>("Category already exists", HttpStatus.IM_USED);
         }
         else if (categoryServices.saveCategory(categoryDto)){
-            response = new ResponseEntity<>("Category is saved to database", HttpStatus.OK);
+            response = new ResponseEntity<>("Category is saved to database", HttpStatus.CREATED);
         }
         else{
-            response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
+            response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
-    @PostMapping("/deleteCategory")
+    @DeleteMapping("/deleteCategory/{categoryId}")
     @Operation(summary = "Delete category")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category is removed from database"),
             @ApiResponse(responseCode = "404", description = "Category does not exists"),
-            @ApiResponse(responseCode = "500", description = "Failed to delete category to database")
+            @ApiResponse(responseCode = "500", description = "Failed to delete category")
+
     })
-    public ResponseEntity<Object> deleteCategory(@RequestParam int categoryId) {
+    public ResponseEntity<Object> deleteCategory(@PathVariable int categoryId) {
         ResponseEntity<Object> response;
         if (!categoryServices.categoryExist(categoryId)){
-            response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
-        else if(categoryServices.deleteCategory(categoryId)){
+        else if (categoryServices.deleteCategory(categoryId)){
             response = new ResponseEntity<>("Category removed from database", HttpStatus.OK);
-            logger.info(response.getBody() + "");
         }
-        else{
-            response = new ResponseEntity<>("Failed to delete category", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
-            logger.info(response.getBody() + "");
+        else {
+            response = new ResponseEntity<>("Failed to delete category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -76,14 +81,22 @@ public class CategoryController {
     @Operation(summary = "Get category")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Return the category"),
-            @ApiResponse(responseCode = "404", description = "Category not found")
+            @ApiResponse(responseCode = "404", description = "Category not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve category")
     })
     public ResponseEntity<Object> getCategoryById(@PathVariable("categoryId") Integer categoryId) {
         ResponseEntity<Object> response;
+
+        if (!categoryServices.categoryExist(categoryId)){
+            response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
+            logger.info((String)response.getBody());
+            return response;
+        }
+
         CategoryDto category = categoryServices.getCategory(categoryId);
         if (category == null){
-            response = new ResponseEntity<>("Category is not registered in the database", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            response = new ResponseEntity<>("Failed to retrieve category", HttpStatus.BAD_REQUEST);
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(category, HttpStatus.OK);
@@ -96,14 +109,20 @@ public class CategoryController {
     @Operation(summary = "Get all categories")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Returned the categories"),
-            @ApiResponse(responseCode = "204", description = "No content in database")
+            @ApiResponse(responseCode = "404", description = "No content in database"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve categories")
     })
     public ResponseEntity<Object> getAllCategories() {
         ResponseEntity<Object> response;
+
         List<CategoryDto> categories = categoryServices.getAllCategories();
-        if (categories.isEmpty()){
-            response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NO_CONTENT);
-            logger.info(response.getBody() + "");
+        if (categories == null){
+            response = new ResponseEntity<>("Failed to retrieve categories", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info((String)response.getBody());
+        }
+        else if (categories.isEmpty()){
+            response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NOT_FOUND);
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(categories, HttpStatus.OK);

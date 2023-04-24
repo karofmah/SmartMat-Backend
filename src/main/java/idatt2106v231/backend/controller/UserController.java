@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin("http://localhost:8000/")
+@CrossOrigin("*")
 public class UserController {
 
     private UserServices userServices;
@@ -19,7 +19,7 @@ public class UserController {
         this.userServices=userServices;
     }
 
-    @GetMapping("/login/user")
+    @GetMapping("/login/getUser")
     public ResponseEntity<Object> getUser(@RequestParam String email){
         try{
             UserCreationDto user=userServices.getUser(email);

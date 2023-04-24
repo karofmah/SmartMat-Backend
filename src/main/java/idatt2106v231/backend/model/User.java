@@ -1,6 +1,8 @@
 package idatt2106v231.backend.model;
 
+import idatt2106v231.backend.enums.Role;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,49 +18,37 @@ import java.util.List;
 @Data
 @Builder
 @Entity
-@Table
+@Table(name="´user´")
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
-    /**
-     * The email address of the user.
-     */
+
     @Id
+    @NotNull
+    @Column
     private String email;
 
-    /**
-     * password of the user.
-     */
+    @NotNull
     @Column
     private String password;
 
-    /**
-     * The first name of the user.
-     */
+    @NotNull
     @Column
     private String firstName;
 
-    /**
-     * The last name of the user.
-     */
+    @NotNull
     @Column
     private String lastName;
 
-    /**
-     * The phone number of the user.
-     */
+    @NotNull
     @Column
     private int phoneNumber;
 
-    /**
-     * The age of the user.
-     */
+    @NotNull
     @Column
     private int age;
 
-    /**
-     * The number of members in the household the user.
-     */
+    @NotNull
     @Column
     private int household;
 
@@ -67,6 +57,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "masterUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubUser> subUserList = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Refrigerator refrigerator;
 
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.

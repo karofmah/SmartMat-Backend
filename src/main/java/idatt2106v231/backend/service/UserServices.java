@@ -39,10 +39,11 @@ public class UserServices {
      */
     public UserCreationDto getUser(String email) {
         try{
-            User user=userRepository.findDistinctByEmail(email).get();
-            if(user!=null) {
+            Optional<User> user=userRepository.findByEmail(email);
+
+            if(user.isPresent()) {
                 _logger.info("User was retrieved successfully!");
-                return mapper.map(user, UserCreationDto.class);
+                return mapper.map(user.get(), UserCreationDto.class);
             }
             else{
                 throw new IllegalArgumentException();
@@ -55,6 +56,10 @@ public class UserServices {
 
     public boolean userExists(String email) {
         return userRepository.findDistinctByEmail(email).isPresent();
+    }
+
+    public boolean checkIfUserExists(String email){
+        return userRepository.findById(email).isPresent();
     }
 }
 

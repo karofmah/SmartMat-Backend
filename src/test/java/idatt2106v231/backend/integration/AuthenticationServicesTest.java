@@ -1,41 +1,33 @@
 package idatt2106v231.backend.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.controller.AuthenticationController;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
-import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.service.AuthenticationServices;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@TestPropertySource(locations = "classpath:application-william.properties")
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class AuthenticationServicesTest {
 
     @Autowired
@@ -56,14 +48,13 @@ public class AuthenticationServicesTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    @DisplayName("Setting up mock data for tests")
+    @BeforeAll
+    @DisplayName("Add test data to test database")
     public void setup() {
 
         var user1 = User.builder()
                 .email("test1@ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .age(1)
                 .firstName("firstName1")
                 .lastName("lastName1")
                 .phoneNumber(1234)
@@ -71,21 +62,15 @@ public class AuthenticationServicesTest {
                 .household(1)
                 .role(Role.USER)
                 .build();
-
         userRepository.save(user1);
     }
 
-    @DisplayName("Teardown of userRepository")
-    @AfterEach
-    public void teardown(){
-        userRepository.deleteAll();
-    }
 
     @Nested
     class TestAuthenticatingUsers{
 
         @Test
-        //@WithMockUser(username = "USER")
+        @WithMockUser(username = "USER")
         @DisplayName("Logging in a user with correct credentials")
         public void authenticateUserWithCorrectCredentials() throws Exception {
 
@@ -95,7 +80,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+            mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -103,7 +88,7 @@ public class AuthenticationServicesTest {
         }
 
         @Test
-        //@WithMockUser(username = "USER")
+        @WithMockUser(username = "USER")
         @DisplayName("Logging in a user with wrong credentials")
         public void authenticateUserWithWrongCredentials() throws Exception {
 
@@ -113,7 +98,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+             mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isForbidden())
@@ -138,10 +123,10 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(userJson))
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andReturn();
         }
 
@@ -159,7 +144,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+             mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
@@ -179,7 +164,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())

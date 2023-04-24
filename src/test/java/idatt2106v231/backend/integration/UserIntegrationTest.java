@@ -3,29 +3,28 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.controller.UserController;
-import idatt2106v231.backend.model.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
-import idatt2106v231.backend.service.UserServices;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static  org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@TestPropertySource(locations = "classpath:application-test.properties")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class UserIntegrationTest {
 
     @Autowired
@@ -35,65 +34,33 @@ public class UserIntegrationTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    UserController userController;
-    @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    UserServices userServices;
-
-
-    @BeforeEach
-    @DisplayName("Setting up mock data for tests")
+    @BeforeAll
+    @DisplayName("Add test data to test database")
     public void setup() {
 
-        userRepository.deleteAll();
+        User user1=new User();
 
-        /*User user1=new User("test@ntnu.no","123",
-                "First name",
-                "Last mame",
-                21948391,
-                20,
-                4,
-                Role.USER);
-
-        User user2=new User("test2@ntnu.no",
-                "123",
-                "First name 2",
-                "Last name 2",
-                21948391,
-                20,
-                4,
-                Role.USER);
-        User user3=new User("test3@ntnu.no",
-                "123",
-                "First name 3",
-                "Last name 3",
-                21948391,
-                20,
-                4,
-                Role.USER);
+        user1.setEmail("test@ntnu.no");
+        user1.setFirstName("First name");
+        user1.setLastName("Last name");
+        user1.setPhoneNumber(29185929);
+        user1.setAge(20);
+        user1.setPassword("123");
+        user1.setHousehold(4);
 
         userRepository.save(user1);
-        userRepository.save(user2);
-        userRepository.save(user3);*/
     }
-
-    @DisplayName("Teardown of userRepository")
-    @AfterEach
-    public void teardown(){
-        userRepository.deleteAll();
-    }
-
 
     @Nested
-    class TestGetUsers{
+    class TestGetUser{
 
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting valid user")
         public void getValidUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/users/login/user?email=test@ntnu.no")
+            MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=test@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
@@ -109,7 +76,7 @@ public class UserIntegrationTest {
         @WithMockUser(username = "USER")
         @DisplayName("Test getting invalid user")
         public void getInvalidUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/users/login/user?email=invalid@ntnu.no")
+            MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=invalid@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
