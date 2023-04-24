@@ -35,4 +35,8 @@ public class ItemRefrigerator {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
     private Refrigerator refrigerator;
+
+    public void updateAmount(int amount){
+        this.amount += amount;
+    }
 }
