@@ -82,14 +82,12 @@ public class ItemController {
             @ApiResponse(responseCode = "500", description = "Failed to retrieve item")
     })
     public ResponseEntity<Object> getItemByName(@PathVariable("name") String name) {
-        ResponseEntity<Object> response;
         if (!services.checkIfItemExists(name)){
-            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            ResponseEntity<Object> response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
-        }else {
-            response = getItem(services.getItemByName(name));
+            return response;
         }
-        return response;
+        return getItem(services.getItemByName(name));
     }
 
     @GetMapping("/getItem/{id}")
@@ -100,14 +98,12 @@ public class ItemController {
             @ApiResponse(responseCode = "500", description = "Failed to retrieve item")
     })
     public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
-        ResponseEntity<Object> response;
         if (!services.checkIfItemExists(id)){
-            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            ResponseEntity<Object> response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
-        }else {
-            response = getItem(services.getItemById(id));
+            return response;
         }
-        return response;
+        return getItem(services.getItemById(id));
     }
 
     private ResponseEntity<Object> getItem(ItemDto item){
@@ -189,7 +185,7 @@ public class ItemController {
         else if (services.checkIfItemExists(dto.getName())){
             response = new ResponseEntity<>("Item already exists", HttpStatus.IM_USED);
         }
-        else if (categoryServices.categoryExist(dto.getCategoryId())){
+        else if (!categoryServices.categoryExist(dto.getCategoryId())){
             response =  new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
         return response;

@@ -5,6 +5,7 @@ import idatt2106v231.backend.model.Item;
 
 
 import idatt2106v231.backend.repository.CategoryRepository;
+import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ public class ItemServices {
 
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private ItemRefrigeratorRepository itemRefrigeratorRepository;
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -151,5 +154,9 @@ public class ItemServices {
      */
     public boolean checkIfItemExists(int itemId){
         return itemRepository.existsById(itemId);
+    }
+
+    public boolean itemExistInRefrigerator(String itemName, int refrigeratorId){
+        return itemRefrigeratorRepository.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
     }
 }
