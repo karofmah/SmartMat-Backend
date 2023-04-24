@@ -46,6 +46,7 @@ public class ItemIntegrationTest {
     private CategoryRepository categoryRepository;
 
     @BeforeAll
+    @Transactional
     @DisplayName("Add test data to test database")
     public void setup() {
 

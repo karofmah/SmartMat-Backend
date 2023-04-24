@@ -42,6 +42,7 @@ public class CategoryIntegrationTest {
 
 
     @BeforeAll
+    @Transactional
     @DisplayName("Add test data to test database")
     public void setup() {
 
@@ -53,8 +54,6 @@ public class CategoryIntegrationTest {
         categoryRepository.save(category2);
         categoryRepository.save(category3);
     }
-
-
 
     @Nested
     class GetCategories {
@@ -176,7 +175,7 @@ public class CategoryIntegrationTest {
         @WithMockUser(username = "USER")
         @DisplayName("Test getting invalid category")
         public void getCategoryIsNotFound() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/categories/getCategory/4")
+            MvcResult result = mockMvc.perform(get("/api/categories/getCategory/30")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
@@ -198,6 +197,8 @@ public class CategoryIntegrationTest {
         @DisplayName("Test deletion of category")
         public void deleteCategoryIsOk() throws Exception {
 
+            int size = categoryRepository.findAll().size();
+
             MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/3")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
@@ -206,7 +207,7 @@ public class CategoryIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(2,categoryRepository.findAll().size());
+            Assertions.assertEquals(size-1,categoryRepository.findAll().size());
             Assertions.assertEquals("Category removed from database",responseString);
         }
 
@@ -216,7 +217,7 @@ public class CategoryIntegrationTest {
         @DisplayName("Test deletion of category when category is not found in database")
         public void deleteCategoryIsNotFound() throws Exception {
 
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/4")
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/30")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
