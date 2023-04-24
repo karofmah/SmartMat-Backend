@@ -1,6 +1,7 @@
 package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.BackendApplication;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@Disabled("These tests requires a private key and should not run in the pipeline")
 public class AiServicesTest {
 
     @Autowired

@@ -1,9 +1,12 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.model.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class RecipeServices {
@@ -11,6 +14,8 @@ public class RecipeServices {
     private static final Logger _logger =
             LoggerFactory.getLogger(UserServices.class);
     private AiServices aiServices;
+
+    private RefrigeratorServices refrigeratorServices;
 
 
     /**
@@ -23,6 +28,11 @@ public class RecipeServices {
         this.aiServices = aiServices;
     }
 
+    @Autowired
+    public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
+        this.refrigeratorServices = refrigeratorServices;
+    }
+
     /**
      * This method generates a random recipe based on items in a refrigerator.
      *
@@ -31,11 +41,17 @@ public class RecipeServices {
      */
     public String generateRecipe(int refrigeratorId) {
         try {
-            // TODO Implement random recipe based on refrigerator contents
 
-            String query = "I need a random recipe";
+            //List<Item> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+            List<Item> ingredients = null; // TODO Implement fridge connection
 
-            return aiServices.getChatCompletion(query);
+            StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
+
+            for (Item ingredient : ingredients) {
+                query.append(ingredient.getName()).append(" ");
+            }
+
+            return aiServices.getChatCompletion(query.toString());
         } catch (IllegalArgumentException e){
             _logger.error("Failed to generate recipe", e);
             return null;

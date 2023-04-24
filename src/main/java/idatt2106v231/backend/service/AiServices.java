@@ -73,9 +73,18 @@ public class AiServices {
     public String getOpenAiApiKey() {
         try {
             Dotenv dotenv = Dotenv.configure().load();
-            return dotenv.get("OPENAI_TOKEN");
+            String token = dotenv.get("OPENAI_TOKEN");
+            if (token == null) {
+                _logger.error("Token is missing. " +
+                        "Make sure a valid OpenAI API key is stored in a .env file in the root of the project");
+                return null;
+            } else {
+                System.out.println(token);
+                return token;
+            }
         } catch (Exception e) {
-            return "Something went wrong " + e.getMessage();
+            _logger.error("Failed to get token: " + e.getMessage());
+            return null;
         }
     }
 }
