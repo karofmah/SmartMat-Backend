@@ -19,19 +19,6 @@ public class CategoryServices {
     @Autowired
     private CategoryRepository categoryRepository;
 
-
-    /**
-     * Method to assert a category exists
-     *
-     * @param categoryId the categorys id
-     */
-    /*
-    public boolean categoryExist(int categoryId){
-
-        return categoryRepository.findById(categoryId).isPresent();
-    }
-*/
-
     private final ModelMapper mapper = new ModelMapper();
 
 
@@ -58,11 +45,12 @@ public class CategoryServices {
      * @return true if the category exists and is deleted
      */
     public boolean deleteCategory(int categoryId){
-        if (categoryExist(categoryId)){
+        try {
             categoryRepository.deleteById(categoryId);
             return true;
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     /**
@@ -72,10 +60,13 @@ public class CategoryServices {
      * @return the category
      */
     public CategoryDto getCategory(int categoryId){
-        if (categoryExist(categoryId)){
+        try {
             return mapper.map(categoryRepository.findById(categoryId).get(), CategoryDto.class);
         }
-        return null;
+        catch (Exception e) {
+            return null;
+        }
+
     }
 
     /**
@@ -84,9 +75,13 @@ public class CategoryServices {
      * @return all categories
      */
     public List<CategoryDto> getAllCategories(){
-        List<CategoryDto> list = new ArrayList<>();
-        categoryRepository.findAll().forEach(obj -> list.add(mapper.map(obj, CategoryDto.class)));
-        return list;
+        try {
+            List<CategoryDto> list = new ArrayList<>();
+            categoryRepository.findAll().forEach(obj -> list.add(mapper.map(obj, CategoryDto.class)));
+            return list;
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     /**

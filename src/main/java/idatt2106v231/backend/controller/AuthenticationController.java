@@ -3,7 +3,9 @@ package idatt2106v231.backend.controller;
 import idatt2106v231.backend.auth.AuthenticationResponse;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.service.AuthenticationServices;
+import idatt2106v231.backend.service.RefrigeratorServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,34 +26,25 @@ public class AuthenticationController {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @PostMapping("/register")
-    @Operation(summary = "Regsiter a new user")
+    @Operation(summary = "Register a new user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User created"),
             @ApiResponse(responseCode = "226", description = "User already exists"),
             @ApiResponse(responseCode = "400", description = "One or more fields are missing")
     })
-    public ResponseEntity<Object> register(
-            @RequestBody UserCreationDto request
-    ) {
-        if(request.getEmail() == null ||
-                request.getPassword() == null ||
-                request.getFirstName() == null ||
-                request.getLastName() == null ||
-                request.getAge() == 0 ||
-                request.getPhoneNumber() == 0 ||
-                request.getHousehold() == 0) {
-            logger.info("One or more fields are missing");
-            return new ResponseEntity<>("One or more fields are missing", HttpStatus.BAD_REQUEST);
-        }
-        if(service.emailIsUsed(request.getEmail())) {
-            logger.info("Email is already in use");
-            return new ResponseEntity<>("User already exists", HttpStatus.IM_USED);
+    public ResponseEntity<Object> register(@RequestBody UserCreationDto request) {
+        ResponseEntity<Object> response = validateUser(request);
+
+        if (response.getStatusCode() != HttpStatus.OK){
+            logger.info(response + "");
+            return response;
         }
 
-        AuthenticationResponse response = service.register(request);
+        AuthenticationResponse responseToken = service.register(request); // få med try catch i services?
+        response = new ResponseEntity<>(responseToken, HttpStatus.CREATED);
+        logger.info("Creating user with token and refrigerator");
 
-        logger.info("Creating user with token");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return response;
     }
 
     @PostMapping("/authenticate")
@@ -71,4 +64,20 @@ public class AuthenticationController {
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    private ResponseEntity<Object> validateUser(UserCreationDto request){
+        if(request.getEmail() == null ||
+                request.getPassword() == null ||
+                request.getFirstName() == null ||
+                request.getLastName() == null ||
+                request.getAge() == 0 ||
+                request.getPhoneNumber() == 0 ||
+                request.getHousehold() == 0) {
+            return new ResponseEntity<>("One or more fields are missing", HttpStatus.BAD_REQUEST);
+        } else if(service.emailIsUsed(request.getEmail())) {
+            return new ResponseEntity<>("User already exists", HttpStatus.IM_USED);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
