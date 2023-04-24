@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationServices service;
-
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @PostMapping("/register")
@@ -42,7 +41,7 @@ public class AuthenticationController {
         }
 
         AuthenticationResponse responseToken = service.register(request); // få med try catch i services?
-        response = new ResponseEntity<>(responseToken, HttpStatus.OK);
+        response = new ResponseEntity<>(responseToken, HttpStatus.CREATED);
         logger.info("Creating user with token and refrigerator");
 
         return response;

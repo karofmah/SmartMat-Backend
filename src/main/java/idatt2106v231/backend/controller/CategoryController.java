@@ -44,17 +44,17 @@ public class CategoryController {
             response = new ResponseEntity<>("Category already exists", HttpStatus.IM_USED);
         }
         else if (categoryServices.saveCategory(categoryDto)){
-            response = new ResponseEntity<>("Category is saved to database", HttpStatus.OK);
+            response = new ResponseEntity<>("Category is saved to database", HttpStatus.CREATED);
         }
         else{
-            response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);                logger.info(response.getBody() + "");
+            response = new ResponseEntity<>("Failed to save category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
-    @DeleteMapping("/deleteCategory")
+    @DeleteMapping("/deleteCategory/{categoryId}")
     @Operation(summary = "Delete category")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Category is removed from database"),
@@ -62,7 +62,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "500", description = "Failed to delete category")
 
     })
-    public ResponseEntity<Object> deleteCategory(@RequestParam int categoryId) {
+    public ResponseEntity<Object> deleteCategory(@PathVariable int categoryId) {
         ResponseEntity<Object> response;
         if (!categoryServices.categoryExist(categoryId)){
             response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
@@ -73,7 +73,7 @@ public class CategoryController {
         else {
             response = new ResponseEntity<>("Failed to delete category", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -89,14 +89,14 @@ public class CategoryController {
 
         if (!categoryServices.categoryExist(categoryId)){
             response = new ResponseEntity<>("Category does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
         CategoryDto category = categoryServices.getCategory(categoryId);
         if (category == null){
             response = new ResponseEntity<>("Failed to retrieve category", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(category, HttpStatus.OK);
@@ -118,11 +118,11 @@ public class CategoryController {
         List<CategoryDto> categories = categoryServices.getAllCategories();
         if (categories == null){
             response = new ResponseEntity<>("Failed to retrieve categories", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else if (categories.isEmpty()){
             response = new ResponseEntity<>("There are no categories registered in the database", HttpStatus.NO_CONTENT);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(categories, HttpStatus.OK);

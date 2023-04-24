@@ -1,6 +1,5 @@
 package idatt2106v231.backend.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,6 +13,7 @@ import java.util.List;
 @Data
 @Builder
 @Entity
+@Table
 @AllArgsConstructor
 @NoArgsConstructor
 public class Refrigerator {
