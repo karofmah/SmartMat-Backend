@@ -35,7 +35,7 @@ public class Item {
     private Category category;
 
     @OneToMany(mappedBy = "item")
-    private List<ItemRefrigerator> itemInRefrigerators = new ArrayList<>(); //??
+    private List<ItemRefrigerator> itemInRefrigerators = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

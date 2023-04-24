@@ -1,5 +1,6 @@
 package idatt2106v231.backend.dto.refrigerator;
 
+import idatt2106v231.backend.dto.item.ItemDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,5 @@ import java.util.List;
 public class RefrigeratorDto {
 
     private String userEmail;
-
-    private List<String> items;
+    private List<ItemDto> items;
 }
