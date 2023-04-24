@@ -7,5 +7,6 @@ public enum Measurement {
     G,
     KG,
     DL,
-    L
+    L,
+    UNIT
 }
