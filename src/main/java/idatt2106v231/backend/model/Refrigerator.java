@@ -24,7 +24,6 @@ public class Refrigerator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int refrigeratorId;
 
-
     @NotNull
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_email", referencedColumnName = "email")

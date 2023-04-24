@@ -1,23 +1,20 @@
 package idatt2106v231.backend.service;
 
 
-import idatt2106v231.backend.dto.RefrigeratorDto;
-import idatt2106v231.backend.dto.user.UserDto;
-import idatt2106v231.backend.model.Item;
-import idatt2106v231.backend.model.Refrigerator;
-import idatt2106v231.backend.model.User;
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
+import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
+import idatt2106v231.backend.dto.item.ItemDto;
+import idatt2106v231.backend.enums.Measurement;
+import idatt2106v231.backend.model.ItemRefrigerator;
+import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
+import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
-import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Class to handle Refrigerator objects
@@ -26,8 +23,8 @@ import java.util.Optional;
 public class RefrigeratorServices {
 
     private RefrigeratorRepository refrigeratorRepository;
-
-    private UserRepository userRepository;
+    private ItemRefrigeratorRepository itemRefrigeratorRepository;
+    private ItemRepository itemRepository;
 
     private final ModelMapper mapper = new ModelMapper();
 
@@ -37,100 +34,130 @@ public class RefrigeratorServices {
     }
 
     @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setItemRefrigeratorRepository(ItemRefrigeratorRepository itemRefrigeratorRepository) {
+        this.itemRefrigeratorRepository = itemRefrigeratorRepository;
     }
-
-    /**
-     * Method to save a new refrigerator to database
-     *
-     * @param refrigerator the new refrigerator
-     */
-
-    public boolean saveRefrigerator(RefrigeratorDto refrigerator) {
-        try {
-            Refrigerator ref = mapper.map(refrigerator, Refrigerator.class);
-            ref.setUser(userRepository.findByEmail(refrigerator.getUserEmail()).get());
-            refrigeratorRepository.save(ref);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    @Autowired
+    public void setItemRepository(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
     }
-
-    /**
-     * Method to delete a refrigerator from database
-     *
-     * @param refrigeratorId user of refrigerator
-     */
-
-    public boolean deleteRefrigerator(int refrigeratorId) {
-        try {
-            refrigeratorRepository.deleteById(refrigeratorId);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    /*
-
-    public boolean deleteRefrigerator(int id) {
-        if (refrigeratorExists(id)){
-            System.out.println("hei");
-            refrigeratorRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }*/
-
-
 
     /**
      * Method to get a refrigerator by id
      *
-     * @param id the refrigerators id
+     * @param refrigeratorId the refrigerators id
      */
-    public void getRefrigerator(int id) {
+    public RefrigeratorDto getRefrigeratorById(int refrigeratorId) {
+        try {
+            return mapper.map(refrigeratorRepository.findById(refrigeratorId).get(), RefrigeratorDto.class);
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 
     /**
      * Method to get a refrigerator by user
      *
-     * @param user the user
+     * @param userEmail the user email
      */
-    public void getRefrigeratorByUser(String user) {
+    public RefrigeratorDto getRefrigeratorByUserEmail(String userEmail) {
+        try {
+            return mapper.map(refrigeratorRepository.findByUserEmail(userEmail).get(), RefrigeratorDto.class);
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 
     /**
      * Method to get all refrigerators
      *
      */
-    public void getAllRefrigerators() {
+    public List<RefrigeratorDto> getAllRefrigerators() {
+        try {
+            List<RefrigeratorDto> list = new ArrayList<>();
+            refrigeratorRepository.findAll().forEach(obj -> list.add(mapper.map(obj, RefrigeratorDto.class)));
+            return list;
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     /**
      * Method to get all items in refrigerator
-     *
      */
-    public void getItemInRefrigerator(int id) {
-
+    public List<ItemDto> getItemsInRefrigerator(int refrigeratorId) {
+        try {
+            return refrigeratorRepository.findById(refrigeratorId).get()
+                    .getItemsInRefrigerator().stream().map(obj -> mapper.map(obj.getItem(), ItemDto.class)).toList();
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     /**
-     * Method to get all items in refrigerator
+     * Method to add item to refrigerator
      *
+     * @return if the item is added
      */
-    public void getItemsInRefrigerator(int id) {
-
-
+    public boolean addItemToRefrigerator(ItemInRefrigeratorDto dto){
+        try {
+            var itemRef = ItemRefrigerator.builder()
+                    .refrigerator(refrigeratorRepository.findById(dto.getRefrigeratorId()).get())
+                    .item(itemRepository.findByName(dto.getItemName()).get())
+                    .amount(dto.getAmount())
+                    .measurementType(Measurement.L)
+                    .build();
+            itemRefrigeratorRepository.save(itemRef);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 
+    /**
+     * Method to delete item from refrigerator
+     *
+     * @return if the item is deleted
+     */
+    public boolean deleteItemFromRefrigerator(ItemInRefrigeratorDto dto){
+        try {
+          ItemRefrigerator item = itemRefrigeratorRepository
+                  .findByItemNameAndRefrigeratorRefrigeratorId(dto.getItemName(), dto.getRefrigeratorId()).get();
+
+            itemRefrigeratorRepository.delete(item);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    /**
+     * Method to update amount of an item in refrigerator
+     *
+     * @return if the item is updated
+     */
+    public boolean updateItemInRefrigerator(ItemInRefrigeratorDto dto){
+        try {
+            ItemRefrigerator itemRefrigerator = itemRefrigeratorRepository
+                    .findByItemNameAndRefrigeratorRefrigeratorId(dto.getItemName(), dto.getRefrigeratorId()).get();
+
+            itemRefrigerator.updateAmount(dto.getAmount());
+            itemRefrigeratorRepository.save(itemRefrigerator);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    /**
+     * Checks if the refrigerator exists
+     */
     public boolean refrigeratorExists(String email){
         return refrigeratorRepository.findByUserEmail(email).isPresent();
     }
     public boolean refrigeratorExists(int refrigeratorId){
         return refrigeratorRepository.findById(refrigeratorId).isPresent();
     }
-
 }
