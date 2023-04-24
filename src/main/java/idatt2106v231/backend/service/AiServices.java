@@ -30,6 +30,10 @@ public class AiServices {
 
     OpenAiKeyRepository openAiKeyRepository;
 
+    /**
+     * Sets the Open AI key repository
+     * @param openAiKeyRepository the repository to use
+     */
     @Autowired
     public void setOpenAiKeyRepository(OpenAiKeyRepository openAiKeyRepository) {
         this.openAiKeyRepository = openAiKeyRepository;
@@ -79,6 +83,8 @@ public class AiServices {
 
     /**
      * Gets the OpenAi API key
+     * This must either be stored in the table 'open_ai_key' in the database,
+     * or in a .env file in the root of the project folder as OPENAI_TOKEN=your_token
      * @return the key
      */
     public String getOpenAiApiKey() {

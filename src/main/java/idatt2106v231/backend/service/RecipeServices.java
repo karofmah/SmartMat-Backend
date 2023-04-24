@@ -28,6 +28,10 @@ public class RecipeServices {
         this.aiServices = aiServices;
     }
 
+    /**
+     * Sets the refrigerator service
+     * @param refrigeratorServices the service to use
+     */
     @Autowired
     public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
         this.refrigeratorServices = refrigeratorServices;
