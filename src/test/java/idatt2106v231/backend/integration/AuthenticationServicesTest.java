@@ -5,7 +5,7 @@ import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.controller.AuthenticationController;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
-import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.service.AuthenticationServices;
@@ -55,7 +55,6 @@ public class AuthenticationServicesTest {
         var user1 = User.builder()
                 .email("test1@ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .age(1)
                 .firstName("firstName1")
                 .lastName("lastName1")
                 .phoneNumber(1234)
@@ -63,7 +62,6 @@ public class AuthenticationServicesTest {
                 .household(1)
                 .role(Role.USER)
                 .build();
-
         userRepository.save(user1);
     }
 
