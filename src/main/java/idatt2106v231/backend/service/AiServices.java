@@ -5,6 +5,7 @@ import com.theokanning.openai.OpenAiApi;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
+import idatt2106v231.backend.model.OpenAiKey;
 import idatt2106v231.backend.repository.OpenAiKeyRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.OkHttpClient;
@@ -17,6 +18,7 @@ import retrofit2.Retrofit;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.theokanning.openai.service.OpenAiService.*;
 
@@ -81,7 +83,9 @@ public class AiServices {
      */
     public String getOpenAiApiKey() {
         try {
-            String token = openAiKeyRepository.findFirstByOrderByIdDesc().get().getApiKey();
+            String token = null;
+            Optional<OpenAiKey> openAiKey = openAiKeyRepository.findFirstByOrderByIdDesc();
+            if (openAiKey.isPresent()) token = openAiKey.get().getApiKey();
 
             if (token == null) {
                 Dotenv dotenv = Dotenv.configure().load();
