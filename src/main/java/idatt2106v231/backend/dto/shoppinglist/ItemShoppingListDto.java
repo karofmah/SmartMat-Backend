@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemShoppingListDto {
     //private String user;
-    private String userEmail;
+    private int shoppingListId;
     private String itemName;
     private int amount;
     private Measurement measurement;

@@ -55,13 +55,13 @@ public class ShoppingListController {
     @PostMapping("/addItemToShoppingList")
     @Operation(summary = "Add item to a shoppinglist")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Retrieved items from database"),
-            @ApiResponse(responseCode = "400", description = "User does not exist in database")
+            @ApiResponse(responseCode = "200", description = "Added item to shoppinglist"),
+            @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
     })
     public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemShoppingListDto itemShoppingListDto) {
         ResponseEntity<Object> response;
 
-        if(!userServices.checkIfUserExists(itemShoppingListDto.getUserEmail())) {
+        if(!shoppingListServices.shoppingListExists(itemShoppingListDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(!itemServices.checkIfItemExists(itemShoppingListDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
@@ -70,8 +70,12 @@ public class ShoppingListController {
         } else if(itemShoppingListDto.getMeasurement() == null) {
             response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
         } else {
-            shoppingListServices.
+            shoppingListServices.saveItemToShoppingList(itemShoppingListDto);
+            response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
         }
+        logger.info(response.getBody() + "");
+        return response;
+
 
     }
 }

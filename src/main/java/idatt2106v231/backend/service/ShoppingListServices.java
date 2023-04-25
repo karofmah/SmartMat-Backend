@@ -3,9 +3,11 @@ package idatt2106v231.backend.service;
 import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemShoppingList;
 import idatt2106v231.backend.model.SubUser;
+import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.ItemShoppingListRepository;
 import idatt2106v231.backend.repository.ShoppingListRepository;
 import org.modelmapper.ModelMapper;
@@ -20,6 +22,9 @@ import java.util.List;
 public class ShoppingListServices {
 
     @Autowired
+    private ItemRepository itemRepository;
+
+    @Autowired
     private ShoppingListRepository shoppingListRepository;
 
     @Autowired
@@ -29,8 +34,11 @@ public class ShoppingListServices {
 
     public ShoppingListServices() {
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
-        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getShoppingList().getShoppingListId(), ItemShoppingList::setShoppingList));
-
+        TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
+        //propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getShoppingList().getShoppingListId(), ItemShoppingList::setShoppingList));
+        propertyMapper2.addMappings(mapper -> mapper.map(obj -> itemRepository.findByName(obj.getItemName()).get(), ItemShoppingList::setItem));
+        propertyMapper2.addMappings(mapper -> mapper.map(obj -> shoppingListRepository.findById(obj.getShoppingListId()).get(), ItemShoppingList::setShoppingList));
+        propertyMapper2.addMappings(mapper -> mapper.map(obj -> Measurement.L, ItemShoppingList::setMeasurement));
     }
 
     public List<ItemShoppingListDto> getAllItemsFromShoppingList(String email) {
@@ -48,5 +56,9 @@ public class ShoppingListServices {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public boolean shoppingListExists(int shoppingListId) {
+        return shoppingListRepository.findById(shoppingListId).isPresent();
     }
 }

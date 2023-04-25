@@ -13,8 +13,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -192,6 +192,29 @@ public class ShoppingListTest {
                     .andExpect(status().isBadRequest())
                     .andReturn();
 
+        }
+    }
+
+    @Nested
+    class TestAddItemToShoppingList {
+
+        @Test
+        @DisplayName("Return ok when all requirements are met")
+        public void addItemAllArgsOk() throws Exception {
+            var itemShoppingListDto = ItemShoppingListDto.builder()
+                    .shoppingListId(1)
+                    .itemName("Milk")
+                    .amount(1)
+                    .measurement(Measurement.L)
+                    .build();
+
+            String shoppingListJson = objectMapper.writeValueAsString(itemShoppingListDto);
+
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(shoppingListJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
         }
     }
 }
