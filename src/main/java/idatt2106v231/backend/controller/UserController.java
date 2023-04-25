@@ -1,6 +1,8 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.user.UserDto;
+import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.dto.user.UserUpdateDto;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -50,5 +52,28 @@ public class UserController {
 
         logger.info("User is retrieved");
         return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PutMapping("/updateUser")
+    @Operation(summary = "Update a user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User is updated"),
+            @ApiResponse(responseCode = "404", description = "User does not exist"),
+            @ApiResponse(responseCode = "500", description = "User could not be update")
+    })
+    public ResponseEntity<Object> updateUser(@RequestParam String email, @RequestBody UserUpdateDto userUpdateDto) {
+
+        ResponseEntity<Object> response;
+
+        if (!userServices.checkIfUserExists(email)){
+            response = new ResponseEntity<>("User does not exists", HttpStatus.NOT_FOUND);
+        } else if(userServices.updateUser(email, userUpdateDto)){
+            response = new ResponseEntity<>("User is updated", HttpStatus.OK);
+        } else{
+            response = new ResponseEntity<>("User could not be updated", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        logger.info(String.valueOf(response.getBody()));
+        return response;
     }
 }

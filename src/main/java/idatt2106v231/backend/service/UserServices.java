@@ -1,6 +1,10 @@
 package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.dto.user.UserDto;
+import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.dto.user.UserUpdateDto;
+import idatt2106v231.backend.model.User;
+>>>>>>> src/main/java/idatt2106v231/backend/service/UserServices.java
 import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +52,32 @@ public class UserServices {
      */
     public boolean checkIfUserExists(String email){
         return userRepo.findById(email).isPresent();
+    }
+
+    /**
+     * Method for updating a user
+     * @param email the email of the user
+     * @param userUpdateDto the DTO of the updated user
+     * @return if the user is updated
+     */
+    public boolean updateUser(String email, UserUpdateDto userUpdateDto) {
+        try {
+            Optional<User> userData = userRepository.findByEmail(email);
+
+            if (userData.isPresent()) {
+                User _user = userData.get();
+                _user.setFirstName(userUpdateDto.getFirstName());
+                _user.setLastName(userUpdateDto.getLastName());
+                _user.setPhoneNumber(userUpdateDto.getPhoneNumber());
+                _user.setHousehold(userUpdateDto.getHousehold());
+                userRepository.save(_user);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            _logger.error("Failed update user with email " + email, e);
+            return false;
+        }
     }
 }
