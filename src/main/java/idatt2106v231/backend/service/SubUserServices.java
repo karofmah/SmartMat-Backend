@@ -49,7 +49,7 @@ public class SubUserServices {
     public boolean saveSubUser(SubUserDto subUserDto) {
         try {
             SubUser subUser = mapper.map(subUserDto, SubUser.class);
-            subUser.setMasterUser(userRepository.findDistinctByEmail(subUserDto.getMasterUser()).get());
+            subUser.setMasterUser(userRepository.findByEmail(subUserDto.getMasterUser()).get());
             subUserRepository.save(subUser);
             return true;
         } catch (Exception e) {
@@ -65,6 +65,7 @@ public class SubUserServices {
             return false;
         }
     }
+
     public boolean subUserExists(String name, String email) {
         return subUserRepository.findByMasterUserEmailAndName(email, name).isPresent();
     }

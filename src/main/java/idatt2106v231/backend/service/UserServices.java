@@ -54,12 +54,8 @@ public class UserServices {
         }
     }
 
-    public boolean userExists(String email) {
-        return userRepository.findDistinctByEmail(email).isPresent();
-    }
-
     public boolean checkIfUserExists(String email){
-        return userRepository.findById(email).isPresent();
+        return userRepository.findByEmail(email).isPresent();
     }
 }
 

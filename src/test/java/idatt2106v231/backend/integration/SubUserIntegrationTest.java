@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
-import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.SubUserRepository;
@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@TestPropertySource(locations = "classpath:application-william.properties")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 public class SubUserIntegrationTest {
 
@@ -46,7 +47,8 @@ public class SubUserIntegrationTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @BeforeEach
+    @BeforeAll
+    @Transactional
     @DisplayName("Populating the database with testdata")
     public void setup() {
 
@@ -95,19 +97,28 @@ public class SubUserIntegrationTest {
                 .masterUser(user2)
                 .build();
 
+        var subUser4 = SubUser.builder()
+                .subUserId(4)
+                .accessLevel(true)
+                .name("subUser4Name")
+                .masterUser(user1)
+                .build();
+
         userRepository.save(user1);
         userRepository.save(user2);
         subUserRepository.save(subUser1);
         subUserRepository.save(subUser2);
         subUserRepository.save(subUser3);
+        subUserRepository.save(subUser4);
+
     }
 
-    @AfterEach
+    /*@AfterEach
     @DisplayName("Teardown of user table and subuser table")
     public void teardown() {
         userRepository.deleteAll();
         subUserRepository.deleteAll();
-    }
+    }*/
 
     @Nested
     class TestGetUsersFromMaster {
@@ -122,7 +133,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<SubUserDto>>() {});
-            assertEquals(2, retrievedSubUsers.size());
+            assertEquals(3, retrievedSubUsers.size());
         }
 
         @Test
@@ -147,8 +158,9 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<SubUserDto>() {});
+            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertEquals("subUser1Name", retrievedSubUser.getName());
+            assertEquals("test1@ntnu.no", retrievedSubUser.getMasterUser());
         }
 
         @Test
@@ -215,7 +227,7 @@ public class SubUserIntegrationTest {
             SubUserDto testSubUser = new SubUserDto();
             testSubUser.setMasterUser("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
-            testSubUser.setAccessLevel(false);
+            testSubUser.setAccessLevel(true);
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
@@ -283,7 +295,7 @@ public class SubUserIntegrationTest {
         public void deleteSubUserAllArgsOk() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
             testSubUser.setMasterUser("test1@ntnu.no");
-            testSubUser.setName("subUser1Name");
+            testSubUser.setName("subUser4Name");
             testSubUser.setAccessLevel(true);
 
             String userJson = objectMapper.writeValueAsString(testSubUser);

@@ -37,7 +37,7 @@ public class SubUserController {
     })
     public ResponseEntity<Object> getUsersFromMaster(@RequestParam String email) {
         ResponseEntity<Object> response;
-        if(!userServices.userExists(email)) {
+        if(!userServices.checkIfUserExists(email)) {
             response = new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
             logger.info(response.getBody() + "");
         } else {
@@ -55,7 +55,7 @@ public class SubUserController {
     })
     public ResponseEntity<Object> getUserByMasterAndName(@RequestParam String email, String name) {
         ResponseEntity<Object> response;
-        if(!userServices.userExists(email)) {
+        if(!userServices.checkIfUserExists(email)) {
             response = new ResponseEntity<>("Masteruser not found", HttpStatus.BAD_REQUEST);
             logger.info(response.getBody() + "");
         } else if(!subUserServices.subUserExists(name, email)) {
@@ -79,7 +79,7 @@ public class SubUserController {
         ResponseEntity<Object> response;
         if(subUserServices.subUserExists(subUser.getName(), subUser.getMasterUser())) {
             response = new ResponseEntity<>("Subuser already exists", HttpStatus.IM_USED);
-        } else if (!userServices.userExists(subUser.getMasterUser())){
+        } else if (!userServices.checkIfUserExists(subUser.getMasterUser())){
             response = new ResponseEntity<>("Masteruser doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(subUser.getMasterUser() == null) {
             response = new ResponseEntity<>("Masteruser is not defined", HttpStatus.BAD_REQUEST);
