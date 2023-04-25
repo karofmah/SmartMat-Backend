@@ -61,19 +61,20 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User does not exist"),
             @ApiResponse(responseCode = "500", description = "User could not be update")
     })
-    public ResponseEntity<Object> updateUser(@RequestParam String email, @RequestBody UserUpdateDto userUpdateDto) {
-
+    public ResponseEntity<Object> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(email)){
+        if (!userServices.checkIfUserExists(userUpdateDto.getEmail())){
             response = new ResponseEntity<>("User does not exists", HttpStatus.NOT_FOUND);
-        } else if(userServices.updateUser(email, userUpdateDto)){
+        }
+        else if(userServices.updateUser(userUpdateDto)){
             response = new ResponseEntity<>("User is updated", HttpStatus.OK);
-        } else{
-            response = new ResponseEntity<>("User could not be updated", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        else{
+            response = new ResponseEntity<>("User is not updated", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info(String.valueOf(response.getBody()));
+        logger.info((String) response.getBody());
         return response;
     }
 }
