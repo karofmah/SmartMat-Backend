@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface RefrigeratorRepository extends CrudRepository<Refrigerator, Integer> {
 
-    Optional<Refrigerator> findByUserEmail(String email);
+    Optional<Refrigerator> findByUserEmail(String userEmail);
 }
