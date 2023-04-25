@@ -4,11 +4,9 @@ import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
+import idatt2106v231.backend.model.Garbage;
 import idatt2106v231.backend.model.ItemRefrigerator;
-import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
-import idatt2106v231.backend.repository.ItemRepository;
-import idatt2106v231.backend.repository.RefrigeratorRepository;
-import idatt2106v231.backend.repository.UserRepository;
+import idatt2106v231.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,7 @@ public class RefrigeratorServices {
     private UserRepository userRepo;
     private ItemRepository itemRepo;
     private ItemRefrigeratorRepository itemRefRepo;
+    private GarbageRepository garbRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
@@ -66,6 +65,16 @@ public class RefrigeratorServices {
     @Autowired
     public void setItemRefRepo(ItemRefrigeratorRepository itemRefRepo) {
         this.itemRefRepo = itemRefRepo;
+    }
+
+    /**
+     * Sets the garbage repository to use for database access.
+     *
+     * @param garbRepo the garbage repository to use
+     */
+    @Autowired
+    public void setGarbRepo(GarbageRepository garbRepo) {
+        this.garbRepo = garbRepo;
     }
 
     /**
@@ -142,6 +151,23 @@ public class RefrigeratorServices {
                   .get();
             itemRefRepo.delete(item);
             return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    /**
+     * Method to ass waste in the garbage table in the database,
+     * and delete the item from the refrigerator.
+     *
+     * @param itemRefDto the garbage
+     * @return true if the item is deleted
+     */
+    public boolean throwInGarbage(ItemInRefrigeratorCreationDto itemRefDto){
+        try {
+            Garbage garbage = mapper.map(itemRefDto, Garbage.class);
+            garbRepo.save(garbage);
+            return deleteItemFromRefrigerator(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId());
         }catch (Exception e){
             return false;
         }

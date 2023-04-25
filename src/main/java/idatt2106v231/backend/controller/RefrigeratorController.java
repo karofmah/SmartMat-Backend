@@ -109,7 +109,8 @@ public class RefrigeratorController {
             @ApiResponse(responseCode = "404", description = "Refrigerator or/and item does not exist"),
             @ApiResponse(responseCode = "500", description = "Item is not removed from refrigerator")
     })
-    public ResponseEntity<Object> removeItemFromRefrigerator(@RequestBody ItemInRefrigeratorCreationDto dto){
+    public ResponseEntity<Object> removeItemFromRefrigerator(@RequestBody ItemInRefrigeratorCreationDto dto,
+                                                             @RequestParam boolean waste){
         ResponseEntity<Object> response = validateItemInRefrigerator(dto);
 
         if (response.getStatusCode() != HttpStatus.OK){
@@ -119,13 +120,19 @@ public class RefrigeratorController {
 
         if (!refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) ) {
             response = new ResponseEntity<>("Item does not exist in refrigerator", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+            return response;
         }
-        else if(refrigeratorServices.deleteItemFromRefrigerator(dto.getItemName(), dto.getRefrigeratorId())){
+
+
+        if(!waste && refrigeratorServices.deleteItemFromRefrigerator(dto.getItemName(), dto.getRefrigeratorId())){
             response = new ResponseEntity<>("Item is removed from refrigerator", HttpStatus.OK);
+        }
+        else if(waste && refrigeratorServices.throwInGarbage(dto)){
+            response = new ResponseEntity<>("Item is removed from refrigerator and thrown in garbage", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         else{
             response = new ResponseEntity<>("Item is not removed from refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
         logger.info((String) response.getBody());
         return response;
