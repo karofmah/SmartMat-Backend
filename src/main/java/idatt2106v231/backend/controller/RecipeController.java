@@ -2,6 +2,9 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.service.RecipeServices;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +13,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/recipes")
 @CrossOrigin("http://localhost:8000/")
+@Tag(name = "Recipe API", description = "API for managing Recipes")
 public class RecipeController {
+
+    private final Logger logger = LoggerFactory.getLogger(RecipeController.class);
 
     private RecipeServices recipeServices;
 

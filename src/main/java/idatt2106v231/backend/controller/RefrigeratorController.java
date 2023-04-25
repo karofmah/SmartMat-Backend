@@ -1,6 +1,7 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.service.ItemServices;
 import idatt2106v231.backend.service.RefrigeratorServices;
@@ -16,8 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8000/")
 @RequestMapping("/api/refrigerators")
 @Tag(name = "Refrigerator API", description = "API for managing refrigerators")
 public class RefrigeratorController {
@@ -71,6 +74,35 @@ public class RefrigeratorController {
         return response;
     }
 
+    @GetMapping("/getItemInRefrigeratorByCategory/{refrigeratorId}")
+    @Operation(summary = "Get items refrigerator by refrigerator and category")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Return the items in the refrigerator"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve refrigerator")
+    })
+    public ResponseEntity<Object> getItemsInRefrigeratorByCategory(@PathVariable("refrigeratorId") int refrigeratorId, @RequestParam int categoryId) {
+        ResponseEntity<Object> response;
+
+        if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
+            response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
+        List<ItemInRefrigeratorDto> items = refrigeratorServices.getItemsInRefrigeratorByCategory(refrigeratorId, categoryId);
+
+        if (items == null){
+            response = new ResponseEntity<>("Failed to retrieve items in refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info(response.getBody() + "");
+        }
+        else {
+            response = new ResponseEntity<>(items, HttpStatus.OK);
+            logger.info("Refrigerator retrieved");
+        }
+        return response;
+    }
+
     @PostMapping("/addItemInRefrigerator")
     @Operation(summary = "Add item in refrigerator")
     @ApiResponses(value = {
@@ -83,7 +115,6 @@ public class RefrigeratorController {
         ResponseEntity<Object> response = validateItemInRefrigerator(dto);
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
             return response;
         }
 
@@ -109,12 +140,13 @@ public class RefrigeratorController {
             @ApiResponse(responseCode = "404", description = "Refrigerator or/and item does not exist"),
             @ApiResponse(responseCode = "500", description = "Item is not removed from refrigerator")
     })
-    public ResponseEntity<Object> removeItemFromRefrigerator(@RequestBody ItemInRefrigeratorCreationDto dto,
-                                                             @RequestParam boolean waste){
+    public ResponseEntity<Object> removeItemFromRefrigerator(
+            @RequestBody ItemInRefrigeratorCreationDto dto,
+            @RequestParam boolean waste)
+    {
         ResponseEntity<Object> response = validateItemInRefrigerator(dto);
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
             return response;
         }
 
@@ -123,7 +155,6 @@ public class RefrigeratorController {
             logger.info(response.getBody() + "");
             return response;
         }
-
 
         if(!waste && refrigeratorServices.deleteItemFromRefrigerator(dto.getItemName(), dto.getRefrigeratorId())){
             response = new ResponseEntity<>("Item is removed from refrigerator", HttpStatus.OK);
@@ -138,7 +169,7 @@ public class RefrigeratorController {
         return response;
     }
 
-    public ResponseEntity<Object> validateItemInRefrigerator(ItemInRefrigeratorCreationDto dto){
+    private ResponseEntity<Object> validateItemInRefrigerator(ItemInRefrigeratorCreationDto dto){
         ResponseEntity<Object> response;
         if (dto.getRefrigeratorId() == -1 || dto.getItemName().isEmpty() || dto.getAmount() == 0){
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
@@ -152,7 +183,9 @@ public class RefrigeratorController {
         else {
             response = new ResponseEntity<>(HttpStatus.OK);
         }
+        if (response.getBody() != HttpStatus.OK){
+            logger.info((String) response.getBody());
+        }
         return response;
     }
-
 }
