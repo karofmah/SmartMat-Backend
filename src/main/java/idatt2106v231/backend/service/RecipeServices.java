@@ -1,11 +1,8 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.item.ItemDto;
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.WeekMenuRepository;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +12,9 @@ import java.util.Optional;
 @Service
 public class RecipeServices {
 
-    private static final Logger _logger =
-            LoggerFactory.getLogger(UserServices.class);
     private AiServices aiServices;
-
     private RefrigeratorServices refrigeratorServices;
-
     private WeekMenuRepository weekMenuRepository;
-
-    private UserServices userServices;
-
-    private final ModelMapper mapper = new ModelMapper();
-
 
     /**
      * Sets the AI Service for AI queries.
@@ -40,6 +28,7 @@ public class RecipeServices {
 
     /**
      * Sets the refrigerator service
+     *
      * @param refrigeratorServices the service to use
      */
     @Autowired
@@ -49,20 +38,12 @@ public class RecipeServices {
 
     /**
      * Sets the week menu repository
+     *
      * @param weekMenuRepository the repository to use
      */
     @Autowired
     public void setWeekMenuRepository(WeekMenuRepository weekMenuRepository) {
         this.weekMenuRepository = weekMenuRepository;
-    }
-
-    /**
-     * Sets user services
-     * @param userServices the user service
-     */
-    @Autowired
-    public void setUserServices(UserServices userServices) {
-        this.userServices = userServices;
     }
 
     /**
@@ -73,22 +54,19 @@ public class RecipeServices {
      */
     public String generateRecipe(int refrigeratorId) {
         try {
-
-            List<ItemDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
 
-            for (ItemDto ingredient : ingredients) {
-                query.append(ingredient.getName()).append(" ");
+            for (ItemInRefrigeratorDto ingredient : ingredients) {
+                query.append(ingredient.getItem().getName()).append(" ");
             }
 
             return aiServices.getChatCompletion(query.toString());
         } catch (IllegalArgumentException e){
-            _logger.error("Failed to generate recipe", e);
             return null;
         }
     }
-
 
     /**
      * This method generates a weekly menu
@@ -99,7 +77,6 @@ public class RecipeServices {
      */
     public String generateWeeklyMenu(String userEmail, int numPeople) {
         try {
-
             String query = "I need a weekly menu (7 days) for " + numPeople + " people. " +
                     "It should be structured like this: " +
                     "'Monday: dish name', then a list of ingredients," +
@@ -107,16 +84,14 @@ public class RecipeServices {
 
             query += " I have some ingredients in my fridge that I would like to use up: ";
 
-            List<ItemDto> ingredients = refrigeratorServices.getItemsInRefrigerator(1);
+            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(1);
 
 
-            for (ItemDto ingredient : ingredients) {
-                query += ingredient.getName() + ", ";
+            for (ItemInRefrigeratorDto ingredient : ingredients) {
+                query += ingredient.getItem().getName() + ", ";
             }
 
             query += ". Do not include any of these ingredients more than in one day/meal. Use metric measurements.";
-
-
 
             String menu = aiServices.getChatCompletion(query);
 
@@ -125,7 +100,6 @@ public class RecipeServices {
 
             return menu;
         } catch (IllegalArgumentException e){
-            _logger.error("Failed to generate weekly menu", e);
             return null;
         }
     }
@@ -138,7 +112,6 @@ public class RecipeServices {
      */
     private boolean saveWeeklyMenu(String userEmail, String menu) {
         try {
-
             Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
 
             if (weeklyMenu.isPresent()) {
@@ -150,7 +123,6 @@ public class RecipeServices {
                 return false;
             }
         } catch (IllegalArgumentException e){
-            _logger.error("Could not save weekly menu", e);
             return false;
         }
     }

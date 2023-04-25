@@ -85,8 +85,8 @@ public class RefrigeratorServices {
      */
     public RefrigeratorDto getRefrigeratorByUserEmail(String userEmail) {
         try {
-            List<ItemInRefrigeratorDto> items = getItemsInRefrigerator(userEmail);
             int refrigeratorId = refRepo.findByUserEmail(userEmail).get().getRefrigeratorId();
+            List<ItemInRefrigeratorDto> items = getItemsInRefrigerator(refrigeratorId);
 
             return new RefrigeratorDto(refrigeratorId, items);
         }
@@ -98,15 +98,14 @@ public class RefrigeratorServices {
     /**
      * Method to get all items in a refrigerator.
      *
-     * @param userEmail the user of the refrigerator
+     * @param refrigeratorId the refrigerator id
      * @return the items in the refrigerator as dto objects
      */
-    private List<ItemInRefrigeratorDto> getItemsInRefrigerator(String userEmail) {
+    public List<ItemInRefrigeratorDto> getItemsInRefrigerator(int refrigeratorId) {
         try {
-           return userRepo
-                   .findByEmail(userEmail)
+           return refRepo
+                   .findById(refrigeratorId)
                    .get()
-                   .getRefrigerator()
                    .getItemsInRefrigerator()
                    .stream()
                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
