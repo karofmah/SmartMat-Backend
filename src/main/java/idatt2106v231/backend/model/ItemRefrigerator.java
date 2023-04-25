@@ -3,14 +3,12 @@ package idatt2106v231.backend.model;
 import idatt2106v231.backend.enums.Measurement;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
 
 @Data
+@ToString
 @Builder
 @Entity
 @Table

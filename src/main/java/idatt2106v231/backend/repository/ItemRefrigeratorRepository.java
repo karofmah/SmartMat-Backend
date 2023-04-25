@@ -9,10 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ItemRefrigeratorRepository extends CrudRepository<ItemRefrigerator, Integer> {
 
-    Optional<ItemRefrigerator> findAllByItemItemId(int itemId);
-
     Optional<ItemRefrigerator> findByItemNameAndRefrigeratorRefrigeratorId(String itemName, int refrigeratorId);
-
-    void deleteByItemNameAndRefrigeratorRefrigeratorId(String itemName, int refrigeratorId);
-
 }

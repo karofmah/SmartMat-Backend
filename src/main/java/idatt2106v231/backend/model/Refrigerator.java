@@ -2,16 +2,14 @@ package idatt2106v231.backend.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Data
+@ToString
 @Builder
 @Entity
 @Table
@@ -32,6 +30,9 @@ public class Refrigerator {
 
     @OneToMany(mappedBy = "refrigerator")
     private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>();
+
+    @OneToMany(mappedBy = "refrigerator")
+    private List<Garbage> garbagePerYear = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {
