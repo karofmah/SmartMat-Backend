@@ -5,7 +5,7 @@ import idatt2106v231.backend.config.JwtService;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Refrigerator;
-import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
