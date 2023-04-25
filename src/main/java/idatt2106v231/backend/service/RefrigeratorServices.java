@@ -1,14 +1,10 @@
 package idatt2106v231.backend.service;
 
-
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemRefrigerator;
-import idatt2106v231.backend.model.Refrigerator;
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
@@ -26,9 +22,9 @@ import java.util.List;
 public class RefrigeratorServices {
 
     private RefrigeratorRepository refRepo;
-    private UserRepository userRepository;
-    private ItemRefrigeratorRepository itemRefRepo;
+    private UserRepository userRepo;
     private ItemRepository itemRepo;
+    private ItemRefrigeratorRepository itemRefRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
@@ -42,19 +38,14 @@ public class RefrigeratorServices {
         this.refRepo = refRepo;
     }
 
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     /**
-     * Sets the itemRefrigerator repository to use for database access.
+     * Sets the user repository to use for database access.
      *
-     * @param itemRefRepo the itemRefrigerator repository to use
+     * @param userRepo the user repository to use
      */
     @Autowired
-    public void setItemRefRepo(ItemRefrigeratorRepository itemRefRepo) {
-        this.itemRefRepo = itemRefRepo;
+    public void setUserRepo(UserRepository userRepo) {
+        this.userRepo = userRepo;
     }
 
     /**
@@ -65,6 +56,16 @@ public class RefrigeratorServices {
     @Autowired
     public void setItemRepo(ItemRepository itemRepo) {
         this.itemRepo = itemRepo;
+    }
+
+    /**
+     * Sets the itemRefrigerator repository to use for database access.
+     *
+     * @param itemRefRepo the itemRefrigerator repository to use
+     */
+    @Autowired
+    public void setItemRefRepo(ItemRefrigeratorRepository itemRefRepo) {
+        this.itemRefRepo = itemRefRepo;
     }
 
     /**
@@ -91,9 +92,9 @@ public class RefrigeratorServices {
      * @param userEmail the user of the refrigerator
      * @return the items in the refrigerator as dto objects
      */
-    public List<ItemInRefrigeratorDto> getItemsInRefrigerator(String userEmail) {
+    private List<ItemInRefrigeratorDto> getItemsInRefrigerator(String userEmail) {
         try {
-           return userRepository
+           return userRepo
                    .findByEmail(userEmail)
                    .get()
                    .getRefrigerator()

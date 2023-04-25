@@ -1,61 +1,52 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.user.UserCreationDto;
-import idatt2106v231.backend.model.User;
+import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
+/**
+ * Class to handle User objects.
+ */
 @Service
 public class UserServices {
 
-    private static final Logger _logger =
-            LoggerFactory.getLogger(UserServices.class);
-    private UserRepository userRepository;
+    private UserRepository userRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
     /**
      * Sets the user repository to use for database access.
      *
-     * @param userRepository the user repository to use.
+     * @param userRepo the user repository to use
      */
     @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public void setUserRepo(UserRepository userRepo) {
+        this.userRepo = userRepo;
     }
 
-
     /**
-     * This method retrieves a user with a specified email address from the database.
+     * Method to get a user with a specified email address.
      *
-     * @param email the email address of the user to retrieve.
-     * @return an Optional object containing the user with the specified email address, or an empty Optional object if the user does not exist in the database.
+     * @param email the email address of the user to retrieve
+     * @return the user
      */
-    public UserCreationDto getUser(String email) {
+    public UserDto getUser(String email) {
         try{
-            Optional<User> user=userRepository.findByEmail(email);
-
-            if(user.isPresent()) {
-                _logger.info("User was retrieved successfully!");
-                return mapper.map(user.get(), UserCreationDto.class);
-            }
-            else{
-                throw new IllegalArgumentException();
-            }
-        }catch (IllegalArgumentException e){
-            _logger.error("Failed to get user for email " + email,e);
+            return mapper.map(userRepo.findByEmail(email), UserDto.class);
+        }catch (Exception e){
             return null;
         }
     }
+
+    /**
+     * Method to check if a user exist.
+     *
+     * @param email the email address of the user
+     * @return true if the user exist
+     */
     public boolean checkIfUserExists(String email){
-        return userRepository.findById(email).isPresent();
+        return userRepo.findById(email).isPresent();
     }
 }
-
-
