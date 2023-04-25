@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemShoppingListDto {
     //private String user;
-    private int shoppingListId;
+    private String userEmail;
+    private String itemName;
     private int amount;
     private Measurement measurement;
 }

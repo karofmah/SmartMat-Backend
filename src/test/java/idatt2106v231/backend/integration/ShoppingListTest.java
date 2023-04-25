@@ -1,23 +1,34 @@
 package idatt2106v231.backend.integration;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.model.Category;
-import idatt2106v231.backend.model.Item;
-import idatt2106v231.backend.model.Role;
-import idatt2106v231.backend.model.User;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
+import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.enums.Measurement;
+import idatt2106v231.backend.enums.Role;
+import idatt2106v231.backend.model.*;
+import idatt2106v231.backend.repository.*;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
-@TestPropertySource(locations = "classpath:application-william.properties")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 public class ShoppingListTest {
 
@@ -28,9 +39,25 @@ public class ShoppingListTest {
     ObjectMapper objectMapper;
 
     @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ItemRepository itemRepository;
+
+    @Autowired
+    ShoppingListRepository shoppingListRepository;
+
+    @Autowired
+    ItemShoppingListRepository itemShoppingListRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
-    @BeforeEach
+    @BeforeAll
+    @Transactional
     @DisplayName("Populating the database with testdata")
     public void setup() {
 
@@ -58,9 +85,113 @@ public class ShoppingListTest {
                 .role(Role.USER)
                 .build();
 
+        userRepository.save(user1);
+        userRepository.save(user2);
 
-        var category = Category
+        var category = Category.builder()
+                .description("Dairy")
+                .build();
+
+        categoryRepository.save(category);
+
         var item1 = Item.builder()
                 .name("Cheese")
+                .category(category)
+                .build();
+
+        var item2 = Item.builder()
+                .name("Milk")
+                .category(category)
+                .build();
+
+        var item3 = Item.builder()
+                .name("Yoghurt")
+                .category(category)
+                .build();
+
+        itemRepository.save(item1);
+        itemRepository.save(item2);
+        itemRepository.save(item3);
+
+        var shoppingListUser1 = ShoppingList.builder()
+                .user(user1)
+                .build();
+
+        var shoppingListUser2 = ShoppingList.builder()
+                .user(user2)
+                .build();
+
+        shoppingListRepository.save(shoppingListUser1);
+        shoppingListRepository.save(shoppingListUser2);
+
+        var itemShoppingList1 = ItemShoppingList.builder()
+                .amount(1)
+                .measurement(Measurement.KG)
+                .shoppingList(shoppingListUser1)
+                .item(item1)
+                .build();
+
+        var itemShoppingList2 = ItemShoppingList.builder()
+                .amount(1)
+                .measurement(Measurement.L)
+                .shoppingList(shoppingListUser1)
+                .item(item2)
+                .build();
+
+        var itemShoppingList3 = ItemShoppingList.builder()
+                .amount(300)
+                .measurement(Measurement.G)
+                .shoppingList(shoppingListUser1)
+                .item(item3)
+                .build();
+
+        var itemShoppingListUser2 = ItemShoppingList.builder()
+                .amount(1)
+                .measurement(Measurement.L)
+                .shoppingList(shoppingListUser2)
+                .item(item2)
+                .build();
+
+        itemShoppingListRepository.save(itemShoppingList1);
+        itemShoppingListRepository.save(itemShoppingList2);
+        itemShoppingListRepository.save(itemShoppingList3);
+        itemShoppingListRepository.save(itemShoppingListUser2);
+    }
+
+    /*@AfterEach
+    @DisplayName("Teardown of database")
+    public void teardown() {
+        itemShoppingListRepository.deleteAll();
+        itemRepository.deleteAll();
+        categoryRepository.deleteAll();
+        shoppingListRepository.deleteAll();
+        userRepository.deleteAll();
+    }*/
+
+    @Nested
+    class TestGetItemsFromShoppingList {
+
+        @Test
+        @DisplayName("Retrieve correct items from shoppinglist")
+        public void retrieveItemsFromShoppingList() throws Exception {
+
+            MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+                    .param("email","test1@ntnu.no"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            List<ItemShoppingListDto> retrievedItems = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+            assertEquals(3, retrievedItems.size());
+        }
+
+        @Test
+        @DisplayName("Return error when supplied invalid user")
+        public void returnErrorWithInvalidUser() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+                            .param("email","invalidUser"))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+        }
     }
 }

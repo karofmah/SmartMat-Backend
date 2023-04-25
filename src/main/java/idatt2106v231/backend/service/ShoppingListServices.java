@@ -29,15 +29,24 @@ public class ShoppingListServices {
 
     public ShoppingListServices() {
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
-        //propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
+        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getShoppingList().getShoppingListId(), ItemShoppingList::setShoppingList));
 
     }
 
-    public List<ItemShoppingListDto> getAllItems(String email) {
+    public List<ItemShoppingListDto> getAllItemsFromShoppingList(String email) {
         List<ItemShoppingList> items = itemShoppingListRepository.findAllByShoppingListShoppingListId(shoppingListRepository.findDistinctByUserEmail(email).get().getShoppingListId());
         List<ItemShoppingListDto> itemDtos = new ArrayList<>();
 
         items.forEach(obj -> itemDtos.add(mapper.map(obj, ItemShoppingListDto.class)));
         return itemDtos;
+    }
+
+    public boolean saveItemToShoppingList(ItemShoppingListDto itemShoppingListDto) {
+        try {
+            itemShoppingListRepository.save(mapper.map(itemShoppingListDto, ItemShoppingList.class));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
