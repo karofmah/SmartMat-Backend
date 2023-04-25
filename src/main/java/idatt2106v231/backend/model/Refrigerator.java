@@ -31,6 +31,9 @@ public class Refrigerator {
     @OneToMany(mappedBy = "refrigerator")
     private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>();
 
+    @OneToMany(mappedBy = "refrigerator")
+    private List<GarbageRefrigerator> refrigeratorGarbages = new ArrayList<>(); //??
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
