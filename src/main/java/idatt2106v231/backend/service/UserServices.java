@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 /**
- * Class to handle User objects.
+ * Class to manage User objects.
  */
 @Service
 public class UserServices {
