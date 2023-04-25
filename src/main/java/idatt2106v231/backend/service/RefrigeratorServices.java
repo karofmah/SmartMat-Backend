@@ -1,69 +1,84 @@
 package idatt2106v231.backend.service;
 
 
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
-import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.enums.Measurement;
+import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemRefrigerator;
+import idatt2106v231.backend.model.Refrigerator;
+import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
+import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to handle Refrigerator objects
+ * Class to handle Refrigerator objects.
  */
 @Service
 public class RefrigeratorServices {
 
-    private RefrigeratorRepository refrigeratorRepository;
-    private ItemRefrigeratorRepository itemRefrigeratorRepository;
-    private ItemRepository itemRepository;
+    private RefrigeratorRepository refRepo;
+    private UserRepository userRepository;
+    private ItemRefrigeratorRepository itemRefRepo;
+    private ItemRepository itemRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
-    @Autowired
-    public void setRefrigeratorRepository(RefrigeratorRepository refrigeratorRepository) {
-        this.refrigeratorRepository = refrigeratorRepository;
-    }
-
-    @Autowired
-    public void setItemRefrigeratorRepository(ItemRefrigeratorRepository itemRefrigeratorRepository) {
-        this.itemRefrigeratorRepository = itemRefrigeratorRepository;
-    }
-    @Autowired
-    public void setItemRepository(ItemRepository itemRepository) {
-        this.itemRepository = itemRepository;
-    }
-
     /**
-     * Method to get a refrigerator by id
+     * Sets the refrigerator repository to use for database access.
      *
-     * @param refrigeratorId the refrigerators id
+     * @param refRepo the refrigerator repository to use
      */
-    public RefrigeratorDto getRefrigeratorById(int refrigeratorId) {
-        try {
-            return mapper.map(refrigeratorRepository.findById(refrigeratorId).get(), RefrigeratorDto.class);
-        }
-        catch (Exception e) {
-            return null;
-        }
+    @Autowired
+    public void setRefRepo(RefrigeratorRepository refRepo) {
+        this.refRepo = refRepo;
+    }
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
-     * Method to get a refrigerator by user
+     * Sets the itemRefrigerator repository to use for database access.
+     *
+     * @param itemRefRepo the itemRefrigerator repository to use
+     */
+    @Autowired
+    public void setItemRefRepo(ItemRefrigeratorRepository itemRefRepo) {
+        this.itemRefRepo = itemRefRepo;
+    }
+
+    /**
+     * Sets the item repository to use for database access.
+     *
+     * @param itemRepo the item repository to use
+     */
+    @Autowired
+    public void setItemRepo(ItemRepository itemRepo) {
+        this.itemRepo = itemRepo;
+    }
+
+    /**
+     * Method to get a refrigerator by user.
      *
      * @param userEmail the user email
+     * @return the refrigerator as a dto object
      */
     public RefrigeratorDto getRefrigeratorByUserEmail(String userEmail) {
         try {
-            return mapper.map(refrigeratorRepository.findByUserEmail(userEmail).get(), RefrigeratorDto.class);
+            List<ItemInRefrigeratorDto> items = getItemsInRefrigerator(userEmail);
+            int refrigeratorId = refRepo.findByUserEmail(userEmail).get().getRefrigeratorId();
+
+            return new RefrigeratorDto(refrigeratorId, items);
         }
         catch (Exception e) {
             return null;
@@ -71,45 +86,41 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to get all refrigerators
+     * Method to get all items in a refrigerator.
      *
+     * @param userEmail the user of the refrigerator
+     * @return the items in the refrigerator as dto objects
      */
-    public List<RefrigeratorDto> getAllRefrigerators() {
+    public List<ItemInRefrigeratorDto> getItemsInRefrigerator(String userEmail) {
         try {
-            List<RefrigeratorDto> list = new ArrayList<>();
-            refrigeratorRepository.findAll().forEach(obj -> list.add(mapper.map(obj, RefrigeratorDto.class)));
-            return list;
+           return userRepository
+                   .findByEmail(userEmail)
+                   .get()
+                   .getRefrigerator()
+                   .getItemsInRefrigerator()
+                   .stream()
+                   .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
+                   .toList();
         }catch (Exception e) {
             return null;
         }
     }
 
     /**
-     * Method to get all items in refrigerator
-     */
-    public List<ItemDto> getItemsInRefrigerator(int refrigeratorId) {
-        try {
-            return refrigeratorRepository.findById(refrigeratorId).get()
-                    .getItemsInRefrigerator().stream().map(obj -> mapper.map(obj.getItem(), ItemDto.class)).toList();
-        }catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * Method to add item to refrigerator
+     * Method to add an item to a refrigerator.
      *
-     * @return if the item is added
+     * @param itemRefDto the itemRefrigerator object to add
+     * @return true if the item is added to the refrigerator
      */
-    public boolean addItemToRefrigerator(ItemInRefrigeratorDto dto){
+    public boolean addItemToRefrigerator(ItemInRefrigeratorCreationDto itemRefDto){
         try {
             var itemRef = ItemRefrigerator.builder()
-                    .refrigerator(refrigeratorRepository.findById(dto.getRefrigeratorId()).get())
-                    .item(itemRepository.findByName(dto.getItemName()).get())
-                    .amount(dto.getAmount())
+                    .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
+                    .item(itemRepo.findByName(itemRefDto.getItemName()).get())
+                    .amount(itemRefDto.getAmount())
                     .measurementType(Measurement.L)
                     .build();
-            itemRefrigeratorRepository.save(itemRef);
+            itemRefRepo.save(itemRef);
             return true;
         }catch (Exception e){
             return false;
@@ -117,16 +128,18 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to delete item from refrigerator
+     * Method to delete item from refrigerator.
      *
-     * @return if the item is deleted
+     * @param itemName the item to be removed
+     * @param refrigeratorId the refrigerator id
+     * @return true if the item is deleted
      */
-    public boolean deleteItemFromRefrigerator(ItemInRefrigeratorDto dto){
+    public boolean deleteItemFromRefrigerator(String itemName, int refrigeratorId){
         try {
-          ItemRefrigerator item = itemRefrigeratorRepository
-                  .findByItemNameAndRefrigeratorRefrigeratorId(dto.getItemName(), dto.getRefrigeratorId()).get();
-
-            itemRefrigeratorRepository.delete(item);
+          ItemRefrigerator item = itemRefRepo
+                  .findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId)
+                  .get();
+            itemRefRepo.delete(item);
             return true;
         }catch (Exception e){
             return false;
@@ -134,17 +147,19 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to update amount of an item in refrigerator
+     * Method to update amount of an item in a refrigerator.
      *
-     * @return if the item is updated
+     * @param itemRefDto the itemRefrigerator object with updated information
+     * @return true if the item is updated
      */
-    public boolean updateItemInRefrigerator(ItemInRefrigeratorDto dto){
+    public boolean updateItemInRefrigeratorAmount(ItemInRefrigeratorCreationDto itemRefDto){
         try {
-            ItemRefrigerator itemRefrigerator = itemRefrigeratorRepository
-                    .findByItemNameAndRefrigeratorRefrigeratorId(dto.getItemName(), dto.getRefrigeratorId()).get();
+            ItemRefrigerator itemRefrigerator = itemRefRepo
+                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
+                    .get();
 
-            itemRefrigerator.updateAmount(dto.getAmount());
-            itemRefrigeratorRepository.save(itemRefrigerator);
+            itemRefrigerator.updateAmount(itemRefDto.getAmount());
+            itemRefRepo.save(itemRefrigerator);
             return true;
         }catch (Exception e){
             return false;
@@ -152,12 +167,23 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Checks if the refrigerator exists
+     * Checks if the refrigerator exists by id.
+     *
+     * @param refrigeratorId the refrigerators id
+     * @return true if the refrigerator exists
      */
-    public boolean refrigeratorExists(String email){
-        return refrigeratorRepository.findByUserEmail(email).isPresent();
-    }
     public boolean refrigeratorExists(int refrigeratorId){
-        return refrigeratorRepository.findById(refrigeratorId).isPresent();
+        return refRepo.findById(refrigeratorId).isPresent();
+    }
+
+    /**
+     * Method to check if an item exists in a refrigerator.
+     *
+     * @param itemName the items name
+     * @param refrigeratorId the refrigerators id
+     * @return true if the item exists
+     */
+    public boolean refrigeratorContainsItem(String itemName, int refrigeratorId){
+        return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
     }
 }
