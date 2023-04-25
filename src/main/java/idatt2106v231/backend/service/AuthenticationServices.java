@@ -6,9 +6,11 @@ import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.model.Role;
+import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
+import idatt2106v231.backend.repository.WeekMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +26,7 @@ public class AuthenticationServices {
 
     private final UserRepository repository;
     private final RefrigeratorRepository refrigeratorRepository;
+    private final WeekMenuRepository weekMenuRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -56,6 +59,11 @@ public class AuthenticationServices {
                 .user(user)
                 .build();
         refrigeratorRepository.save(ref);
+
+        var weeklyMenu = WeeklyMenu.builder()
+                .user(user)
+                .build();
+        weekMenuRepository.save(weeklyMenu);
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()

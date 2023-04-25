@@ -51,7 +51,7 @@ public class AiServices {
 
             ObjectMapper mapper = defaultObjectMapper();
 
-            Duration timeout = Duration.ofSeconds(30);
+            Duration timeout = Duration.ofSeconds(300);
 
 
             OkHttpClient client = defaultClient(token, timeout)
@@ -69,7 +69,7 @@ public class AiServices {
             ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
                     .messages(messages)
                     .model("gpt-3.5-turbo")
-                    .temperature(0.01)
+                    .temperature(0.0)
                     .build();
 
 
