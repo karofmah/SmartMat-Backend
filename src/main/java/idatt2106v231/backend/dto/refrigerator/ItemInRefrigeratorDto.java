@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemInRefrigeratorDto {
 
-    private int refrigeratorId;
     private String itemName;
+    private int refrigeratorId;
     private int amount;
     private Measurement measurementType;
 }
