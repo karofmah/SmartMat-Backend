@@ -74,9 +74,11 @@ public class RefrigeratorServices {
      */
     public RefrigeratorDto getRefrigeratorByUserEmail(String userEmail) {
         try {
-            int refrigeratorId = refRepo.findByUserEmail(userEmail).get().getRefrigeratorId();
-            List<ItemInRefrigeratorDto> items = getItemsInRefrigerator(refrigeratorId);
+            int refrigeratorId = refRepo.findByUserEmail(userEmail)
+                    .get()
+                    .getRefrigeratorId();
 
+            List<ItemInRefrigeratorDto> items = getItemsInRefrigerator(refrigeratorId);
             return new RefrigeratorDto(refrigeratorId, items);
         }
         catch (Exception e) {
@@ -92,8 +94,7 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigerator(int refrigeratorId) {
         try {
-           return refRepo
-                   .findById(refrigeratorId)
+           return refRepo.findById(refrigeratorId)
                    .get()
                    .getItemsInRefrigerator()
                    .stream()
@@ -112,8 +113,7 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByCategory(int refrigeratorId, int categoryId) {
         try {
-            return refRepo
-                    .findById(refrigeratorId)
+            return refRepo.findById(refrigeratorId)
                     .get()
                     .getItemsInRefrigerator()
                     .stream()

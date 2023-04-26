@@ -8,8 +8,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 /**
  * Class to manage User objects.
  */
@@ -46,26 +44,21 @@ public class UserServices {
     }
 
     /**
-     * Method for updating a user
+     * Method for updating a user.
      *
      * @param userUpdateDto the new information about the user as a dto
      * @return true if the user is updated
      */
     public boolean updateUser(UserUpdateDto userUpdateDto) {
         try {
-            Optional<User> userData = userRepo.findByEmail(userUpdateDto.getEmail());
+            User user = userRepo.findByEmail(userUpdateDto.getEmail()).get();
+            user.setFirstName(userUpdateDto.getFirstName());
+            user.setLastName(userUpdateDto.getLastName());
+            user.setPhoneNumber(userUpdateDto.getPhoneNumber());
+            user.setHousehold(userUpdateDto.getHousehold());
 
-            if (userData.isPresent()) {
-                User _user = userData.get();
-                _user.setFirstName(userUpdateDto.getFirstName());
-                _user.setLastName(userUpdateDto.getLastName());
-                _user.setPhoneNumber(userUpdateDto.getPhoneNumber());
-                _user.setHousehold(userUpdateDto.getHousehold());
-                userRepo.save(_user);
-                return true;
-            } else {
-                return false;
-            }
+            userRepo.save(user);
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -80,5 +73,4 @@ public class UserServices {
     public boolean checkIfUserExists(String email){
         return userRepo.findById(email).isPresent();
     }
-
 }

@@ -1,16 +1,18 @@
 package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.auth.AuthenticationResponse;
-import idatt2106v231.backend.config.JwtService;
+import idatt2106v231.backend.security.JwtService;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.enums.Role;
+import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.WeekMenuRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,13 +25,47 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationServices {
 
-    private final UserRepository userRepo;
-    private final RefrigeratorRepository refRepo;
-    private final WeekMenuRepository weekMenuRepo;
+    private UserRepository userRepo;
+    private RefrigeratorRepository refRepo;
+    private WeekMenuRepository weekMenuRepo;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    public UserRepository getUserRepo() {
+        return userRepo;
+    }
+
+    /**
+     * Sets the refrigerator repository to use for database access.
+     *
+     * @param refRepo the category repository to use
+     */
+    @Autowired
+    public void setRefRepo(RefrigeratorRepository refRepo) {
+        this.refRepo = refRepo;
+    }
+
+    /**
+     * Sets the user repository to use for database access.
+     *
+     * @param userRepo the category repository to use
+     */
+    @Autowired
+    public void setUserRepo(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    /**
+     * Sets the week menu repository to use for database access.
+     *
+     * @param weekMenuRepo the category repository to use
+     */
+    @Autowired
+    public void setWeekMenuRepo(WeekMenuRepository weekMenuRepo) {
+        this.weekMenuRepo = weekMenuRepo;
+    }
 
     /**
      * Register a user.
@@ -59,10 +95,10 @@ public class AuthenticationServices {
                 .build();
         refRepo.save(ref);
 
-        /*var weeklyMenu = WeeklyMenu.builder()
+        var weeklyMenu = WeeklyMenu.builder()
                 .user(user)
                 .build();
-        weekMenuRepository.save(weeklyMenu);*/
+        weekMenuRepo.save(weeklyMenu);
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()

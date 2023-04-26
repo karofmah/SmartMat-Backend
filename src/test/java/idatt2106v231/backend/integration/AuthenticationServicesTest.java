@@ -18,12 +18,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
@@ -81,7 +79,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-            mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+            mockMvc.perform(post("http://localhost:8080/api/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -99,7 +97,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-             mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+             mockMvc.perform(post("http://localhost:8080/api/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isForbidden())
@@ -124,7 +122,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(userJson))
                     .andExpect(status().isCreated())
@@ -145,7 +143,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-             mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+             mockMvc.perform(post("http://localhost:8080/api/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
@@ -165,7 +163,7 @@ public class AuthenticationServicesTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())

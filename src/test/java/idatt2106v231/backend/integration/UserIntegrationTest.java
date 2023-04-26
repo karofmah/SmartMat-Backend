@@ -67,7 +67,6 @@ public class UserIntegrationTest {
 
 
             String responseString = result.getResponse().getContentAsString();
-            System.out.println(responseString + "");
             UserDto retrievedUser = objectMapper.readValue(responseString, new TypeReference<>() {
             });
             Assertions.assertEquals("test@ntnu.no", retrievedUser.getEmail());
