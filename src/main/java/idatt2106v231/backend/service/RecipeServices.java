@@ -53,6 +53,7 @@ public class RecipeServices {
 
     /**
      * Sets user repository
+     *
      * @param userRepository the user repository
      */
     @Autowired
@@ -122,6 +123,7 @@ public class RecipeServices {
 
     /**
      * Saves a weekly menu
+     *
      * @param userEmail the email of the user
      * @param menu the updated weekly menu
      * @return if the weekly menu is saved
@@ -150,6 +152,7 @@ public class RecipeServices {
 
     /**
      * Gets a user's saved weekly menu
+     *
      * @param userEmail the email of the user
      * @return the saved weekly menu
      */
