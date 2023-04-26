@@ -159,7 +159,7 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            if (itemRefDto.getAmount() <= item.getAmount()){
+            if (itemRefDto.getAmount() >= item.getAmount()){
                 itemRefRepo.delete(item);
             }else{
                 item.updateAmount(-itemRefDto.getAmount());

@@ -12,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -30,10 +29,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
         ,properties = {
         "spring.config.name=test2",
-        "spring.datasource.url=jdbc:h2:mem:test2",
+        "spring.datasource.url=jdbc:h2:mem:test2;NON_KEYWORDS=YEAR",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
-        "spring.datasource.driver-class-name=org.h2.Driver"})
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=update",
+})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 public class CategoryIntegrationTest {

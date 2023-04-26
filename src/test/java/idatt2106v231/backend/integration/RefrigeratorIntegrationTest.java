@@ -3,7 +3,7 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
+import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
@@ -29,10 +29,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
         ,properties = {
         "spring.config.name=test4",
-        "spring.datasource.url=jdbc:h2:mem:test4",
+        "spring.datasource.url=jdbc:h2:mem:test4;NON_KEYWORDS=YEAR",
         "spring.datasource.username=sa",
         "spring.datasource.password=",
-        "spring.datasource.driver-class-name=org.h2.Driver"})
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=update",
+})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 public class RefrigeratorIntegrationTest {
@@ -57,7 +59,8 @@ public class RefrigeratorIntegrationTest {
     @Autowired
     private RefrigeratorRepository refrigeratorRepository;
 
-    private static JdbcDataSource dataSource;
+    @Autowired
+    private GarbageRepository garbageRepository;
 
 
     @BeforeAll
@@ -110,6 +113,8 @@ public class RefrigeratorIntegrationTest {
 
         itemRefrigeratorRepository.save(itemRefrigerator1);
 
+        Garbage garbage=Garbage.builder().refrigerator(refrigerator).amount(1).build();
+        garbageRepository.save(garbage);
 
     }
 
@@ -164,7 +169,7 @@ public class RefrigeratorIntegrationTest {
         public void addItemToRefrigeratorIsCreated() throws Exception {
 
 
-            ItemInRefrigeratorCreationDto newItem= ItemInRefrigeratorCreationDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
 
             String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
 
@@ -192,7 +197,7 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for adding item to refrigerator when item already exists in that refrigerator")
         public void addItemToRefrigeratorIsOk() throws Exception {
 
-            ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -219,7 +224,7 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when item does not exist")
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
 
-                ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("test30").refrigeratorId(1).amount(1).build();
+                EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("test30").refrigeratorId(1).amount(1).build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -239,7 +244,7 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when refrigerator does not exist ")
             public void addItemToRefrigeratorRefrigeratorIsNotFound() throws Exception {
 
-                ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("test10").refrigeratorId(30).amount(1).build();
+                EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(30).amount(1).build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -260,7 +265,7 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for saving an item to refrigerator when item is not valid")
         public void addItemToRefrigeratorIsBadRequest() throws Exception {
 
-            ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("").refrigeratorId(30).amount(1).build();
+            EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("").refrigeratorId(30).amount(1).build();
 
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -279,7 +284,7 @@ public class RefrigeratorIntegrationTest {
         }
     }
     @Nested
-    class DeleteRefrigerator{
+    class RemoveItemFromRefrigerator{
 
         @Test
         @WithMockUser(username = "USER")
@@ -289,11 +294,11 @@ public class RefrigeratorIntegrationTest {
 
             int size = itemRefrigeratorRepository.findAll().size();
 
-            ItemInRefrigeratorCreationDto itemToRemove= ItemInRefrigeratorCreationDto.builder().itemName("test10").refrigeratorId(1).amount(2).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(2).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItemFromRefrigerator")
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(itemToRemoveJson))
@@ -305,20 +310,69 @@ public class RefrigeratorIntegrationTest {
             Assertions.assertEquals(size-1,itemRefrigeratorRepository.findAll().size());
             Assertions.assertEquals("Item is removed from refrigerator",responseString);
         }
-
         @Test
         @WithMockUser(username = "USER")
         @Transactional
-        @DisplayName("Test deletion of refrigerator when refrigerator is not found in database")
+        @DisplayName("Test removal of item from refrigerator and throw total amount in garbage")
+        public void removeItemFromRefrigeratorAndThrowInGarbageIsOk() throws Exception {
+
+            int itemInRefrigeratorSize = itemRefrigeratorRepository.findAll().size();
+            int garbageSize=garbageRepository.findAll().size();
+
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(2).build();
+
+            String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
+
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=true")
+                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(itemToRemoveJson))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(itemInRefrigeratorSize-1,itemRefrigeratorRepository.findAll().size());
+            Assertions.assertEquals(garbageSize+1,garbageRepository.findAll().size());
+            Assertions.assertEquals("Item is removed from refrigerator and thrown in garbage",responseString);
+        }
+        @Test
+        @WithMockUser(username = "USER")
+        @Transactional
+        @DisplayName("Test removal of an amount of an item that is less than total from refrigerator")
+        public void removeAmountOfItemFromRefrigeratorIsOk() throws Exception {
+
+            int totalAmount=itemRefrigeratorRepository.findById(1).get().getAmount();
+
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+
+            String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
+
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
+                            .accept(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(itemToRemoveJson))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(totalAmount-1,itemRefrigeratorRepository.findById(1).get().getAmount());
+            Assertions.assertEquals("Item is removed from refrigerator",responseString);
+        }
+        @Test
+        @WithMockUser(username = "USER")
+        @Transactional
+        @DisplayName("Test removal of item when refrigerator is not found in database")
         public void removeItemFromRefrigeratorIsNotFound() throws Exception {
 
             int size = itemRefrigeratorRepository.findAll().size();
 
-            ItemInRefrigeratorCreationDto itemToRemove= ItemInRefrigeratorCreationDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItemFromRefrigerator")
+            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(itemToRemoveJson))
