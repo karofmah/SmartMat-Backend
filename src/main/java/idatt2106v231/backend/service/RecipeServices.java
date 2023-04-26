@@ -2,6 +2,7 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.model.WeeklyMenu;
+import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.repository.WeekMenuRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -21,11 +22,13 @@ public class RecipeServices {
 
     private RefrigeratorServices refrigeratorServices;
 
-    private WeekMenuRepository weekMenuRepository;
+    private WeekMenuRepository weeklyMenuRepository;
 
     private UserServices userServices;
 
     private final ModelMapper mapper = new ModelMapper();
+
+    private UserRepository userRepository;
 
 
     /**
@@ -49,11 +52,11 @@ public class RecipeServices {
 
     /**
      * Sets the week menu repository
-     * @param weekMenuRepository the repository to use
+     * @param weeklyMenuRepository the repository to use
      */
     @Autowired
-    public void setWeekMenuRepository(WeekMenuRepository weekMenuRepository) {
-        this.weekMenuRepository = weekMenuRepository;
+    public void setWeeklyMenuRepository(WeekMenuRepository weeklyMenuRepository) {
+        this.weeklyMenuRepository = weeklyMenuRepository;
     }
 
     /**
@@ -63,6 +66,15 @@ public class RecipeServices {
     @Autowired
     public void setUserServices(UserServices userServices) {
         this.userServices = userServices;
+    }
+
+    /**
+     * Sets user repository
+     * @param userRepository the user repository
+     */
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     /**
@@ -134,24 +146,25 @@ public class RecipeServices {
      * Saves a weekly menu
      * @param userEmail the email of the user
      * @param menu the updated weekly menu
-     * @return if the weekly menu is saved
      */
-    private boolean saveWeeklyMenu(String userEmail, String menu) {
+    private void saveWeeklyMenu(String userEmail, String menu) {
         try {
 
-            Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
+            Optional<WeeklyMenu> weeklyMenu = weeklyMenuRepository.findByUserEmail(userEmail);
 
+            WeeklyMenu _weeklyMenu;
             if (weeklyMenu.isPresent()) {
-                WeeklyMenu _weeklyMenu = weeklyMenu.get();
+                _weeklyMenu = weeklyMenu.get();
                 _weeklyMenu.setMenu(menu);
-                weekMenuRepository.save(_weeklyMenu);
-                return true;
             } else {
-                return false;
+                _weeklyMenu = WeeklyMenu.builder()
+                        .user(userRepository.findByEmail(userEmail).get())
+                        .build();
             }
+            _weeklyMenu.setMenu(menu);
+            weeklyMenuRepository.save(_weeklyMenu);
         } catch (IllegalArgumentException e){
             _logger.error("Could not save weekly menu", e);
-            return false;
         }
     }
 
@@ -162,7 +175,7 @@ public class RecipeServices {
      */
     public String getWeeklyMenu(String userEmail) {
         try {
-            Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
+            Optional<WeeklyMenu> weeklyMenu = weeklyMenuRepository.findByUserEmail(userEmail);
             return weeklyMenu.map(WeeklyMenu::getMenu).orElse(null);
         } catch (Exception e) {
             return null;

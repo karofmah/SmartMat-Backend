@@ -17,7 +17,6 @@ public class WeeklyMenu {
 
     @Id
     @Column
-    @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
