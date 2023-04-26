@@ -2,46 +2,43 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.model.Item;
-
-
-import idatt2106v231.backend.repository.CategoryRepository;
-import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
-
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class to manage Item objects.
+ */
 @Service
 public class ItemServices {
 
-
-    @Autowired
-    private ItemRepository itemRepository;
-    @Autowired
-    private ItemRefrigeratorRepository itemRefrigeratorRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-
+    private ItemRepository itemRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
     /**
-     * Method to save a new item to database
+     * Sets the item repository to use for database access.
+     *
+     * @param itemRepo the item repository to use
+     */
+    @Autowired
+    public void setItemRepo(ItemRepository itemRepo) {
+        this.itemRepo = itemRepo;
+    }
+
+    /**
+     * Method to save a new item to database.
      *
      * @param item the new item
-     * @return if the item was saved
+     * @return true if the item was saved
      */
     public boolean saveItem(ItemDto item) {
         try {
             Item it = mapper.map(item, Item.class);
-            it.setCategory(categoryRepository.findById(item.getCategoryId()).get());
-            itemRepository.save(it);
+            itemRepo.save(it);
             return true;
         } catch (Exception e) {
             return false;
@@ -49,114 +46,118 @@ public class ItemServices {
     }
 
     /**
-     * Method to delete an item from database
+     * Method to delete an item from database.
      *
      * @param itemId the item id
-     * @return if the item was deleted
+     * @return true if the item was deleted
      */
     public boolean deleteItem(int itemId){
         try{
-            itemRepository.deleteById(itemId);
+            itemRepo.deleteById(itemId);
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e){
             return false;
         }
     }
 
     /**
-     * Method to get an item by name
+     * Method to get an item by name.
      *
      * @param name the items name
-     * @return the item
+     * @return the item as a dto object
      */
     public ItemDto getItemByName(String name){
         try{
-            return mapper.map(itemRepository.findByName(name).get(), ItemDto.class);
+            return mapper.map(itemRepo.findByName(name).get(), ItemDto.class);
         }catch (Exception e){
             return null;
         }
     }
 
     /**
-     * Method to get an item by id
+     * Method to get an item by id.
      *
      * @param itemId the items id
-     * @return the item
+     * @return the item as a dto object
      */
     public ItemDto getItemById(int itemId){
         try{
-            return mapper.map(itemRepository.findById(itemId).get(), ItemDto.class);
+            return mapper.map(itemRepo.findById(itemId).get(), ItemDto.class);
         }catch (Exception e){
             return null;
         }
     }
 
     /**
-     * Method to get all items
+     * Method to get all items.
      *
-     * @return list of ItemDto objects
+     * @return list of Items as dto objects
      */
     public List<ItemDto> getAllItems(){
         try{
-            List<ItemDto> list = new ArrayList<>();
-            itemRepository.findAll().forEach(obj -> list.add(mapper.map(obj, ItemDto.class)));
-            return list;
+            return itemRepo
+                    .findAll()
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemDto.class))
+                    .toList();
         }catch (Exception e){
             return null;
         }
     }
 
     /**
-     * Method to get all item by category
+     * Method to get all item by category.
      *
      * @param categoryId the category id
-     * @return list of ItemDto objects
+     * @return list of items as dto objects
      */
     public List<ItemDto> getAllItemsByCategory(int categoryId){
         try{
-            List<ItemDto> list = new ArrayList<>();
-            categoryRepository.findById(categoryId).get().getItems().forEach(obj -> list.add(mapper.map(obj, ItemDto.class)));
-            return list;
+            return itemRepo
+                    .findAllByCategoryCategoryId(categoryId)
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemDto.class))
+                    .toList();
         }catch (Exception e){
             return null;
         }
     }
 
     /**
-     * Method to get the amount of refrigerators containing a specific item
+     * Method to get the amount of refrigerators containing a specific item.
      *
      * @param itemId the items id
      * @return the amount
      */
     public int getAmountOfRefrigeratorsContainingItem(int itemId){
-        if (checkIfItemExists(itemId)){
-            return itemRepository.findById(itemId).get().getItemInRefrigerators().size();
+        try{
+            return itemRepo
+                    .findById(itemId)
+                    .get()
+                    .getItemInRefrigerators()
+                    .size();
+        }catch (Exception e){
+            return -1;
         }
-        return -1;
     }
 
     /**
-     * Method to check if item exists by name
+     * Method to check if an item exists by name.
      *
      * @param name the items name
-     * @return if the item exists
+     * @return true if the item exists
      */
     public boolean checkIfItemExists(String name){
-        return itemRepository.findByName(name).isPresent();
+        return itemRepo.findByName(name).isPresent();
     }
 
     /**
-     * Method to check if item exists by id
+     * Method to check if an item exists by id
      *
      * @param itemId the items id
-     * @return if the item exists
+     * @return true if the item exists
      */
     public boolean checkIfItemExists(int itemId){
-        return itemRepository.existsById(itemId);
-    }
-
-    public boolean itemExistInRefrigerator(String itemName, int refrigeratorId){
-        return itemRefrigeratorRepository.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
+        return itemRepo.existsById(itemId);
     }
 }

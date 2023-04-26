@@ -4,32 +4,23 @@ import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.repository.WeekMenuRepository;
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class to manage Recipe objects.
+ */
 @Service
 public class RecipeServices {
 
-    private static final Logger _logger =
-            LoggerFactory.getLogger(UserServices.class);
     private AiServices aiServices;
-
     private RefrigeratorServices refrigeratorServices;
-
     private WeekMenuRepository weeklyMenuRepository;
-
     private UserServices userServices;
-
-    private final ModelMapper mapper = new ModelMapper();
-
     private UserRepository userRepository;
-
 
     /**
      * Sets the AI Service for AI queries.
@@ -42,7 +33,8 @@ public class RecipeServices {
     }
 
     /**
-     * Sets the refrigerator service
+     * Sets the refrigerator service.
+     *
      * @param refrigeratorServices the service to use
      */
     @Autowired
@@ -52,6 +44,7 @@ public class RecipeServices {
 
     /**
      * Sets the week menu repository
+     *
      * @param weeklyMenuRepository the repository to use
      */
     @Autowired
@@ -96,11 +89,9 @@ public class RecipeServices {
 
             return aiServices.getChatCompletion(query.toString());
         } catch (IllegalArgumentException e){
-            _logger.error("Failed to generate recipe", e);
             return null;
         }
     }
-
 
     /**
      * This method generates a weekly menu
@@ -111,7 +102,6 @@ public class RecipeServices {
      */
     public String generateWeeklyMenu(String userEmail, int numPeople) {
         try {
-
             String query = "I need a weekly menu (7 days) for " + numPeople + " people. " +
                     "It should be structured like this: " +
                     "'Monday: dish name', then a list of ingredients," +
@@ -128,8 +118,6 @@ public class RecipeServices {
 
             query += ". Do not include any of these ingredients more than in one day/meal. Use metric measurements.";
 
-
-
             String menu = aiServices.getChatCompletion(query);
 
             saveWeeklyMenu(userEmail, menu);
@@ -137,7 +125,6 @@ public class RecipeServices {
 
             return menu;
         } catch (IllegalArgumentException e){
-            _logger.error("Failed to generate weekly menu", e);
             return null;
         }
     }
@@ -146,10 +133,10 @@ public class RecipeServices {
      * Saves a weekly menu
      * @param userEmail the email of the user
      * @param menu the updated weekly menu
+     * @return if the weekly menu is saved
      */
-    private void saveWeeklyMenu(String userEmail, String menu) {
+    private boolean saveWeeklyMenu(String userEmail, String menu) {
         try {
-
             Optional<WeeklyMenu> weeklyMenu = weeklyMenuRepository.findByUserEmail(userEmail);
 
             WeeklyMenu _weeklyMenu;
@@ -163,8 +150,9 @@ public class RecipeServices {
             }
             _weeklyMenu.setMenu(menu);
             weeklyMenuRepository.save(_weeklyMenu);
+            return true;
         } catch (IllegalArgumentException e){
-            _logger.error("Could not save weekly menu", e);
+            return false;
         }
     }
 

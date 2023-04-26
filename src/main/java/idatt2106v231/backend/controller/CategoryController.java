@@ -17,10 +17,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8000/")
 @Tag(name = "Category API", description = "API for managing categories")
 public class CategoryController {
 
+    private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
     private CategoryServices categoryServices;
 
@@ -29,7 +30,6 @@ public class CategoryController {
         this.categoryServices = categoryServices;
     }
 
-    private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
     @PostMapping("/saveCategory")
     @Operation(summary = "Save new category")
@@ -62,7 +62,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "500", description = "Failed to delete category")
 
     })
-    public ResponseEntity<Object> deleteCategory(@PathVariable int categoryId) {
+    public ResponseEntity<Object> deleteCategory(@PathVariable("categoryId") int categoryId) {
         ResponseEntity<Object> response;
         if (!categoryServices.categoryExist(categoryId)){
             response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);

@@ -1,7 +1,6 @@
-
 package idatt2106v231.backend.controller;
 
-import idatt2106v231.backend.dto.user.UserCreationDto;
+import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.dto.user.UserUpdateDto;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8000/")
 public class UserController {
 
-    private UserServices userServices;
-
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    private UserServices userServices;
 
     @Autowired
     public void setUserService(UserServices userServices) {
@@ -29,19 +28,29 @@ public class UserController {
     }
 
     @GetMapping("/login/getUser")
+    @Operation(summary = "Get user by email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Return the user"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve user")
+    })
     public ResponseEntity<Object> getUser(@RequestParam String email){
-        try{
-            UserCreationDto user=userServices.getUser(email);
-
-            if(user==null){
-                return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
-            }
-
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-
+        ResponseEntity<Object> response;
+        if (!userServices.checkIfUserExists(email)){
+           response = new ResponseEntity<>("User does not exist",HttpStatus.NOT_FOUND);
+           logger.info((String)response.getBody());
+           return response;
         }
+
+        UserDto user = userServices.getUser(email);
+        if(user == null){
+            response = new ResponseEntity<>("User not retrieved",HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info((String)response.getBody());
+            return response;
+        }
+
+        logger.info("User is retrieved");
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PutMapping("/updateUser")
@@ -51,19 +60,20 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User does not exist"),
             @ApiResponse(responseCode = "500", description = "User could not be update")
     })
-    public ResponseEntity<Object> updateUser(@RequestParam String email, @RequestBody UserUpdateDto userUpdateDto) {
-
+    public ResponseEntity<Object> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(email)){
+        if (!userServices.checkIfUserExists(userUpdateDto.getEmail())){
             response = new ResponseEntity<>("User does not exists", HttpStatus.NOT_FOUND);
-            logger.info(String.valueOf(response.getBody()));
-            return response;
-        } else if(userServices.updateUser(email, userUpdateDto)){
-            response = new ResponseEntity<>("User is updated", HttpStatus.OK);
-        } else{
-            response = new ResponseEntity<>("User could not be updated", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        else if(userServices.updateUser(userUpdateDto)){
+            response = new ResponseEntity<>("User is updated", HttpStatus.OK);
+        }
+        else{
+            response = new ResponseEntity<>("User is not updated", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        logger.info((String) response.getBody());
         return response;
     }
 }
