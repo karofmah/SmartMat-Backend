@@ -14,13 +14,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Class to handle Refrigerator objects.
+ * Class to manage Refrigerator objects.
  */
 @Service
 public class RefrigeratorServices {
 
     private RefrigeratorRepository refRepo;
-    private UserRepository userRepo;
     private ItemRepository itemRepo;
     private ItemRefrigeratorRepository itemRefRepo;
     private GarbageRepository garbRepo;
@@ -35,16 +34,6 @@ public class RefrigeratorServices {
     @Autowired
     public void setRefRepo(RefrigeratorRepository refRepo) {
         this.refRepo = refRepo;
-    }
-
-    /**
-     * Sets the user repository to use for database access.
-     *
-     * @param userRepo the user repository to use
-     */
-    @Autowired
-    public void setUserRepo(UserRepository userRepo) {
-        this.userRepo = userRepo;
     }
 
     /**
@@ -110,6 +99,27 @@ public class RefrigeratorServices {
                    .stream()
                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
                    .toList();
+        }catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Method to get all items in a refrigerator which match a specified category
+     *
+     * @param refrigeratorId the refrigerator id
+     * @return the items in the refrigerator as dto objects
+     */
+    public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByCategory(int refrigeratorId, int categoryId) {
+        try {
+            return refRepo
+                    .findById(refrigeratorId)
+                    .get()
+                    .getItemsInRefrigerator()
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
+                    .filter(obj -> obj.getItem().getCategoryId() == categoryId)
+                    .toList();
         }catch (Exception e) {
             return null;
         }

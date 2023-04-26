@@ -9,8 +9,6 @@ import idatt2106v231.backend.model.OpenAiKey;
 import idatt2106v231.backend.repository.OpenAiKeyRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.OkHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import retrofit2.Retrofit;
@@ -22,25 +20,27 @@ import java.util.Optional;
 
 import static com.theokanning.openai.service.OpenAiService.*;
 
+/**
+ * Class to manage Ai.
+ */
 @Service
 public class AiServices {
 
-    private static final Logger _logger =
-            LoggerFactory.getLogger(UserServices.class);
-
-    OpenAiKeyRepository openAiKeyRepository;
+    private OpenAiKeyRepository openAiKeyRepo;
 
     /**
      * Sets the Open AI key repository
-     * @param openAiKeyRepository the repository to use
+     *
+     * @param openAiKeyRepo the repository to use
      */
     @Autowired
-    public void setOpenAiKeyRepository(OpenAiKeyRepository openAiKeyRepository) {
-        this.openAiKeyRepository = openAiKeyRepository;
+    public void setOpenAiKeyRepo(OpenAiKeyRepository openAiKeyRepo) {
+        this.openAiKeyRepo = openAiKeyRepo;
     }
 
     /**
      * Gets a chat completion using OpenAI GPT-3
+     *
      * @param content the content of the query
      * @return the answer produced by the AI
      */
@@ -76,7 +76,6 @@ public class AiServices {
             return String.valueOf(service.createChatCompletion(chatCompletionRequest)
                     .getChoices().get(0).getMessage().getContent());
         } catch (IllegalArgumentException e) {
-            _logger.error("Failed to generate chat completion", e);
             return null;
         }
     }
@@ -85,12 +84,13 @@ public class AiServices {
      * Gets the OpenAi API key
      * This must either be stored in the table 'open_ai_key' in the database,
      * or in a .env file in the root of the project folder as OPENAI_TOKEN=your_token
+     *
      * @return the key
      */
     public String getOpenAiApiKey() {
         try {
             String token = null;
-            Optional<OpenAiKey> openAiKey = openAiKeyRepository.findFirstByOrderByIdDesc();
+            Optional<OpenAiKey> openAiKey = openAiKeyRepo.findFirstByOrderByIdDesc();
             if (openAiKey.isPresent()) token = openAiKey.get().getApiKey();
 
             if (token == null) {
@@ -98,15 +98,14 @@ public class AiServices {
                 token = dotenv.get("OPENAI_TOKEN");
 
                 if (token == null) {
-                    _logger.error("Token is missing. " +
+                    System.out.println("Token is missing. " +
                             "Make sure a valid OpenAI API key is stored in the database " +
-                            "or in a .env file in the root of the project");
+                            "or in a .env file in the root of the project"); //TODO fix
                     return null;
                 }
             }
             return token;
         } catch (Exception e) {
-            _logger.error("Failed to get token: " + e.getMessage());
             return null;
         }
     }

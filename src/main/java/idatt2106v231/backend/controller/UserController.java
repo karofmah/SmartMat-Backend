@@ -1,7 +1,6 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.user.UserDto;
-import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.dto.user.UserUpdateDto;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8000/")
 public class UserController {
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -28,14 +27,14 @@ public class UserController {
         this.userServices=userServices;
     }
 
-    @GetMapping("/login/getUser/{email}")
+    @GetMapping("/login/getUser")
     @Operation(summary = "Get user by email")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Return the user"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve user")
     })
-    public ResponseEntity<Object> getUser(@PathVariable("email") String email){
+    public ResponseEntity<Object> getUser(@RequestParam String email){
         ResponseEntity<Object> response;
         if (!userServices.checkIfUserExists(email)){
            response = new ResponseEntity<>("User does not exist",HttpStatus.NOT_FOUND);

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Class to handle Item objects.
+ * Class to manage Item objects.
  */
 @Service
 public class ItemServices {

@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class to manage Recipe objects.
+ */
 @Service
 public class RecipeServices {
 
@@ -27,7 +30,7 @@ public class RecipeServices {
     }
 
     /**
-     * Sets the refrigerator service
+     * Sets the refrigerator service.
      *
      * @param refrigeratorServices the service to use
      */

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 /**
- * Class to handle User objects.
+ * Class to manage User objects.
  */
 @Service
 public class UserServices {
@@ -38,7 +38,8 @@ public class UserServices {
      */
     public UserDto getUser(String email) {
         try{
-            return mapper.map(userRepo.findByEmail(email), UserDto.class);
+            User user = userRepo.findByEmail(email).get();
+            return mapper.map(user, UserDto.class);
         }catch (Exception e){
             return null;
         }
