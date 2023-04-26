@@ -67,6 +67,16 @@ public class AuthenticationServices {
     }
 
     /**
+     * Sets the shopping list repository to use for database access.
+     *
+     * @param shoppingListRepo the category repository to use
+     */
+    @Autowired
+    public void setShoppingListRepo(ShoppingListRepository shoppingListRepo) {
+        this.shoppingListRepo = shoppingListRepo;
+    }
+
+    /**
      * Register a user.
      *
      * @param request email and password for the user
