@@ -1,4 +1,4 @@
-package idatt2106v231.backend.security;
+package idatt2106v231.backend.config;
 
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.service.CustomUserDetailsService;

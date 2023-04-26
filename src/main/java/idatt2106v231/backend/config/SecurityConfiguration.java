@@ -1,5 +1,6 @@
-package idatt2106v231.backend.security;
+package idatt2106v231.backend.config;
 
+import idatt2106v231.backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
