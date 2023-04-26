@@ -132,7 +132,34 @@ public class RefrigeratorController {
         return response;
     }
 
-    @DeleteMapping("/removeItemFromRefrigerator")
+    @DeleteMapping("/removeItem")
+    @Operation(summary = "Remove item from refrigerator")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Removed item from refrigerator"),
+            @ApiResponse(responseCode = "400", description = "Data is not valid"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator or/and item does not exist"),
+            @ApiResponse(responseCode = "500", description = "Item is not removed from refrigerator")
+    })
+    public ResponseEntity<Object> removeItemFromRefrigerator(@RequestBody ItemInRefrigeratorCreationDto dto) {
+        ResponseEntity<Object> response = validateItemInRefrigerator(dto);
+
+        if (response.getStatusCode() != HttpStatus.OK){
+            return response;
+        }
+        if (!refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) ) {
+            response = new ResponseEntity<>("Item does not exist in refrigerator", HttpStatus.NOT_FOUND);
+        }
+        else if(refrigeratorServices.deleteItemFromRefrigerator(dto.getItemName(), dto.getRefrigeratorId())){
+            response = new ResponseEntity<>("Item is removed from refrigerator", HttpStatus.OK);
+        }
+        else{
+            response = new ResponseEntity<>("Item is not removed from refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        logger.info((String) response.getBody());
+        return response;
+    }
+
+    @DeleteMapping("/removeAndThrowItem")
     @Operation(summary = "Remove items in refrigerator")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Removed item from refrigerator"),
@@ -140,30 +167,20 @@ public class RefrigeratorController {
             @ApiResponse(responseCode = "404", description = "Refrigerator or/and item does not exist"),
             @ApiResponse(responseCode = "500", description = "Item is not removed from refrigerator")
     })
-    public ResponseEntity<Object> removeItemFromRefrigerator(
-            @RequestBody ItemInRefrigeratorCreationDto dto,
-            @RequestParam boolean waste)
-    {
+    public ResponseEntity<Object> removeAndThrowItemFromRefrigerator(@RequestBody ItemInRefrigeratorCreationDto dto) {
         ResponseEntity<Object> response = validateItemInRefrigerator(dto);
 
         if (response.getStatusCode() != HttpStatus.OK){
             return response;
         }
-
         if (!refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) ) {
             response = new ResponseEntity<>("Item does not exist in refrigerator", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
-            return response;
         }
-
-        if(!waste && refrigeratorServices.deleteItemFromRefrigerator(dto.getItemName(), dto.getRefrigeratorId())){
-            response = new ResponseEntity<>("Item is removed from refrigerator", HttpStatus.OK);
-        }
-        else if(waste && refrigeratorServices.throwInGarbage(dto)){
-            response = new ResponseEntity<>("Item is removed from refrigerator and thrown in garbage", HttpStatus.INTERNAL_SERVER_ERROR);
+        else if(refrigeratorServices.throwInGarbage(dto)){
+            response = new ResponseEntity<>("Item is removed from refrigerator and thrown in garbage", HttpStatus.OK);
         }
         else{
-            response = new ResponseEntity<>("Item is not removed from refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new ResponseEntity<>("Item is not removed from refrigerator or thrown in garbage", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         logger.info((String) response.getBody());
         return response;
@@ -182,9 +199,6 @@ public class RefrigeratorController {
         }
         else {
             response = new ResponseEntity<>(HttpStatus.OK);
-        }
-        if (response.getBody() != HttpStatus.OK){
-            logger.info((String) response.getBody());
         }
         return response;
     }
