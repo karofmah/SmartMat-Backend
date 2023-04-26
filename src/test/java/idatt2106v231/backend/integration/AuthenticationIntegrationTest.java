@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
         ,properties = {
@@ -85,7 +84,7 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-            mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+            mockMvc.perform(post("http://localhost:8080/api/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -103,7 +102,7 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUserCorrectPassword);
 
-             mockMvc.perform(post("http://localhost:8080/api/v1/auth/authenticate")
+             mockMvc.perform(post("http://localhost:8080/api/auth/authenticate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isForbidden())
@@ -128,7 +127,7 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(userJson))
                     .andExpect(status().isCreated())
@@ -149,7 +148,7 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-             mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+             mockMvc.perform(post("http://localhost:8080/api/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
@@ -169,7 +168,7 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            mockMvc.perform(post("http://localhost:8080/api/v1/auth/register")
+            mockMvc.perform(post("http://localhost:8080/api/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())

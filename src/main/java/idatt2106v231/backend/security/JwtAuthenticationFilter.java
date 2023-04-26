@@ -1,4 +1,4 @@
-package idatt2106v231.backend.config;
+package idatt2106v231.backend.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +18,6 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
