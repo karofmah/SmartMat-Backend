@@ -21,3 +21,15 @@ test:
   script:
     - echo "Running tests"
     - mvn clean test
+
+
+pages:
+  stage: package
+  script:
+    - echo "Building Javadoc"
+    - mvn javadoc:javadoc
+  artifacts:
+    paths:
+      - public/javadoc
+  only:
+    - web
