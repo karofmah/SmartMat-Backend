@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface ItemRefrigeratorRepository extends CrudRepository<ItemRefrigerator, Integer> {
 
     Optional<ItemRefrigerator> findByItemNameAndRefrigeratorRefrigeratorId(String itemName, int refrigeratorId);
+
 }
