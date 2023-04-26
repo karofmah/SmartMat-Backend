@@ -9,7 +9,6 @@ import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
-import idatt2106v231.backend.repository.WeekMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,7 +24,6 @@ public class AuthenticationServices {
 
     private final UserRepository userRepo;
     private final RefrigeratorRepository refRepo;
-    private final WeekMenuRepository weekMenuRepo;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;

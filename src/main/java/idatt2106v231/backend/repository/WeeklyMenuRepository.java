@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface WeekMenuRepository  extends CrudRepository<WeeklyMenu, Integer> {
+public interface WeeklyMenuRepository extends CrudRepository<WeeklyMenu, Integer> {
 
     Optional<WeeklyMenu> findByUserEmail(String email);
 

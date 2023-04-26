@@ -1,9 +1,9 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.item.ItemDto;
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.UserRepository;
-import idatt2106v231.backend.repository.WeekMenuRepository;
+import idatt2106v231.backend.repository.WeeklyMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +18,7 @@ public class RecipeServices {
 
     private AiServices aiServices;
     private RefrigeratorServices refrigeratorServices;
-    private WeekMenuRepository weeklyMenuRepository;
-    private UserServices userServices;
+    private WeeklyMenuRepository weeklyMenuRepository;
     private UserRepository userRepository;
 
     /**
@@ -48,17 +47,8 @@ public class RecipeServices {
      * @param weeklyMenuRepository the repository to use
      */
     @Autowired
-    public void setWeeklyMenuRepository(WeekMenuRepository weeklyMenuRepository) {
+    public void setWeeklyMenuRepository(WeeklyMenuRepository weeklyMenuRepository) {
         this.weeklyMenuRepository = weeklyMenuRepository;
-    }
-
-    /**
-     * Sets user services
-     * @param userServices the user service
-     */
-    @Autowired
-    public void setUserServices(UserServices userServices) {
-        this.userServices = userServices;
     }
 
     /**
@@ -79,12 +69,12 @@ public class RecipeServices {
     public String generateRecipe(int refrigeratorId) {
         try {
 
-            List<ItemDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
 
-            for (ItemDto ingredient : ingredients) {
-                query.append(ingredient.getName()).append(" ");
+            for (ItemInRefrigeratorDto ingredient : ingredients) {
+                query.append(ingredient.getItem().getName()).append(" ");
             }
 
             return aiServices.getChatCompletion(query.toString());
@@ -105,15 +95,16 @@ public class RecipeServices {
             String query = "I need a weekly menu (7 days) for " + numPeople + " people. " +
                     "It should be structured like this: " +
                     "'Monday: dish name', then a list of ingredients," +
-                    "then the directions. Add a combined shopping list at the end. Keep the recipes basic.";
-
-            query += " I have some ingredients in my fridge that I would like to use up: ";
-
-            List<ItemDto> ingredients = refrigeratorServices.getItemsInRefrigerator(1);
+                    "then the directions. Add a combined shopping list at the end. Keep the recipes basic. " +
+                    "I have some ingredients in my fridge that I would like to use up: ";
 
 
-            for (ItemDto ingredient : ingredients) {
-                query += ingredient.getName() + ", ";
+            int refrigeratorId = refrigeratorServices.getRefrigeratorByUserEmail(userEmail).getRefrigeratorId();
+            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+
+
+            for (ItemInRefrigeratorDto ingredient : ingredients) {
+                query += ingredient.getItem().getName() + ", ";
             }
 
             query += ". Do not include any of these ingredients more than in one day/meal. Use metric measurements.";
@@ -150,6 +141,7 @@ public class RecipeServices {
             }
             _weeklyMenu.setMenu(menu);
             weeklyMenuRepository.save(_weeklyMenu);
+            // TODO Move new menu functionality to user creation
             return true;
         } catch (IllegalArgumentException e){
             return false;

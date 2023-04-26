@@ -18,7 +18,7 @@ public class WeeklyMenu {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
     @Column(length = Integer.MAX_VALUE)
     private String menu;
