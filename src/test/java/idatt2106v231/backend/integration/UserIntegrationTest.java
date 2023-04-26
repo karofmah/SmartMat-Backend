@@ -3,9 +3,8 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.item.CategoryDto;
+import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.dto.user.UserUpdateDto;
-import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -16,13 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,7 +40,7 @@ public class UserIntegrationTest {
     @DisplayName("Add test data to test database")
     public void setup() {
 
-        User user1=new User();
+        User user1 = new User();
 
         user1.setEmail("test@ntnu.no");
         user1.setFirstName("First name");
@@ -71,10 +65,12 @@ public class UserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
+
             String responseString = result.getResponse().getContentAsString();
-            User retrievedUser= objectMapper.readValue(responseString, new TypeReference<>() {
+            System.out.println(responseString + "");
+            UserDto retrievedUser = objectMapper.readValue(responseString, new TypeReference<>() {
             });
-            Assertions.assertEquals("test@ntnu.no",retrievedUser.getEmail());
+            Assertions.assertEquals("test@ntnu.no", retrievedUser.getEmail());
 
 
         }
@@ -87,13 +83,10 @@ public class UserIntegrationTest {
                     .andExpect(status().isNotFound())
                     .andReturn();
 
-
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("User not found",responseString);
-
+            Assertions.assertEquals("User does not exist",responseString);
         }
     }
-
 
     @Test
     @WithMockUser(username = "USER")

@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/items")
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8000/")
 @Tag(name = "Item API", description = "API for managing items")
 public class ItemController {
 

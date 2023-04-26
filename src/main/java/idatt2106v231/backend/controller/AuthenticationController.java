@@ -18,12 +18,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin("*")
+@CrossOrigin("http://localhost:8000/")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationServices service;
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+
+    private final AuthenticationServices service;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
