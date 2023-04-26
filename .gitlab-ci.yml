@@ -3,6 +3,7 @@ image: maven:latest
 stages:          
   - build
   - test
+  - package
 
 build:
   stage: build
