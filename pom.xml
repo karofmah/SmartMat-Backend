@@ -122,7 +122,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
-
         </dependency>
 
         <!-- Model mapper -->
@@ -160,6 +159,8 @@
 
     <build>
         <plugins>
+
+            <!-- Lombok -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -172,6 +173,20 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <show>protected</show>
+                    <windowtitle>My API Documentation</windowtitle>
+                    <reportOutputDirectory>public/apidocs</reportOutputDirectory>
+                    <destDir>/</destDir>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
