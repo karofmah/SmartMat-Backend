@@ -3,11 +3,11 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.item.ItemDto;
-import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
+import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,15 +21,22 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
+        ,properties = {
+        "spring.config.name=test4",
+        "spring.datasource.url=jdbc:h2:mem:test4",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 
 public class RefrigeratorIntegrationTest {
@@ -53,6 +60,9 @@ public class RefrigeratorIntegrationTest {
 
     @Autowired
     private RefrigeratorRepository refrigeratorRepository;
+
+    private static JdbcDataSource dataSource;
+
 
     @BeforeAll
     @DisplayName("Add test data to test database")
@@ -107,55 +117,7 @@ public class RefrigeratorIntegrationTest {
 
     }
 
-/*
-    @Nested
-    class GetRefrigerators {
 
-        @Test
-        @WithMockUser(username = "ADMIN")
-        @DisplayName("Testing the endpoint for retrieving all refrigerators")
-        public void getRefrigeratorsIsOk() throws Exception {
-
-            MvcResult result = mockMvc.perform(get("/api/refrigerators/getAllRefrigerators")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andReturn();
-
-            String responseString = result.getResponse().getContentAsString();
-            ObjectMapper mapper = new ObjectMapper();
-            List<RefrigeratorDto> actualRefrigerators = mapper.readValue(responseString, new TypeReference<>() {
-            });
-
-
-            System.out.println(actualRefrigerators);
-            Assertions.assertEquals(refrigeratorRepository.findAll().size(), actualRefrigerators.size());
-
-        }
-
-
-        @Test
-        @Transactional
-        @WithMockUser(username = "ADMIN")
-        @DisplayName("Testing the endpoint for retrieving all refrigerators when no refrigerators are in database")
-        public void getRefrigeratorsIsNotFound() throws Exception {
-
-            itemRefrigeratorRepository.deleteAll();
-            refrigeratorRepository.deleteAll();
-
-            MvcResult result = mockMvc.perform(get("/api/refrigerators/getAllRefrigerators")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound())
-                    .andReturn();
-
-
-            String responseString = result.getResponse().getContentAsString();
-
-            Assertions.assertEquals("There are no refrigerators registered in the database", responseString);
-
-        }
-
-    }
-*/
     @Nested
     class GetRefrigerator {
 
@@ -164,15 +126,16 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Test getting an Refrigerator that exists in database")
         public void getItemsInRefrigeratorIsOk() throws Exception {
 
-            MvcResult result = mockMvc.perform(get("/api/refrigerators/getItemsInRefrigerator/1")
+
+            MvcResult result = mockMvc.perform(get("/api/refrigerators/getRefrigeratorByUser?userEmail=test1@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            List<RefrigeratorDto> retrievedItemsRefrigerator = objectMapper.readValue(responseString, new TypeReference<>() {
+            RefrigeratorDto retrievedItemsRefrigerator = objectMapper.readValue(responseString, new TypeReference<>() {
             });
-            Assertions.assertEquals(refrigeratorRepository.findAll().size(),retrievedItemsRefrigerator.size());
+            Assertions.assertEquals( 1,retrievedItemsRefrigerator.getItems().size());
 
 
         }
@@ -181,7 +144,7 @@ public class RefrigeratorIntegrationTest {
         @WithMockUser(username = "USER")
         @DisplayName("Test getting an refrigerators that does not exist in database")
         public void getItemsInRefrigeratorIsNotFound() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/refrigerators/getItemsInRefrigerator/30")
+            MvcResult result = mockMvc.perform(get("/api/refrigerators/getRefrigeratorByUser?userEmail=test30@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
@@ -205,7 +168,7 @@ public class RefrigeratorIntegrationTest {
         public void addItemToRefrigeratorIsCreated() throws Exception {
 
 
-            ItemInRefrigeratorDto newItem= ItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            ItemInRefrigeratorCreationDto newItem= ItemInRefrigeratorCreationDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
 
             String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
 
@@ -233,7 +196,7 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for adding item to refrigerator when item already exists in that refrigerator")
         public void addItemToRefrigeratorIsOk() throws Exception {
 
-            ItemInRefrigeratorDto existingItem= ItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+            ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -260,7 +223,7 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when item does not exist")
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
 
-                ItemInRefrigeratorDto existingItem= ItemInRefrigeratorDto.builder().itemName("test30").refrigeratorId(1).amount(1).build();
+                ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("test30").refrigeratorId(1).amount(1).build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -280,7 +243,7 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when refrigerator does not exist ")
             public void addItemToRefrigeratorRefrigeratorIsNotFound() throws Exception {
 
-                ItemInRefrigeratorDto existingItem= ItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(30).amount(1).build();
+                ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("test10").refrigeratorId(30).amount(1).build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -301,7 +264,7 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for saving an item to refrigerator when item is not valid")
         public void addItemToRefrigeratorIsBadRequest() throws Exception {
 
-            ItemInRefrigeratorDto existingItem= ItemInRefrigeratorDto.builder().itemName("").refrigeratorId(30).amount(1).build();
+            ItemInRefrigeratorCreationDto existingItem= ItemInRefrigeratorCreationDto.builder().itemName("").refrigeratorId(30).amount(1).build();
 
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -321,6 +284,7 @@ public class RefrigeratorIntegrationTest {
     }
     @Nested
     class DeleteRefrigerator{
+
         @Test
         @WithMockUser(username = "USER")
         @Transactional
@@ -329,7 +293,7 @@ public class RefrigeratorIntegrationTest {
 
             int size = itemRefrigeratorRepository.findAll().size();
 
-            ItemInRefrigeratorDto itemToRemove= ItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+            ItemInRefrigeratorCreationDto itemToRemove= ItemInRefrigeratorCreationDto.builder().itemName("test10").refrigeratorId(1).amount(2).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
@@ -354,7 +318,7 @@ public class RefrigeratorIntegrationTest {
 
             int size = itemRefrigeratorRepository.findAll().size();
 
-            ItemInRefrigeratorDto itemToRemove= ItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            ItemInRefrigeratorCreationDto itemToRemove= ItemInRefrigeratorCreationDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 

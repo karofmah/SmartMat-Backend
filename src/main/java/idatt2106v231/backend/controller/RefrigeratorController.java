@@ -54,7 +54,7 @@ public class RefrigeratorController {
         ResponseEntity<Object> response;
 
         if (!userServices.checkIfUserExists(userEmail)){
-            response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
             return response;
         }
@@ -92,7 +92,7 @@ public class RefrigeratorController {
             response = new ResponseEntity<>("Item is updated", HttpStatus.OK);
         }
         else if(refrigeratorServices.addItemToRefrigerator(dto)){
-            response = new ResponseEntity<>("Item is added to refrigerator", HttpStatus.OK);
+            response = new ResponseEntity<>("Item is added to refrigerator", HttpStatus.CREATED);
         }
         else {
             response = new ResponseEntity<>("Item is not added to refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
