@@ -1,6 +1,8 @@
 package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.auth.AuthenticationResponse;
+import idatt2106v231.backend.model.ShoppingList;
+import idatt2106v231.backend.repository.ShoppingListRepository;
 import idatt2106v231.backend.security.JwtService;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
@@ -28,14 +30,11 @@ public class AuthenticationServices {
     private UserRepository userRepo;
     private RefrigeratorRepository refRepo;
     private WeekMenuRepository weekMenuRepo;
+    private ShoppingListRepository shoppingListRepo;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
-    public UserRepository getUserRepo() {
-        return userRepo;
-    }
 
     /**
      * Sets the refrigerator repository to use for database access.
@@ -94,6 +93,11 @@ public class AuthenticationServices {
                 .user(user)
                 .build();
         refRepo.save(ref);
+
+        var shoppingList = ShoppingList.builder()
+                .user(user)
+                .build();
+        shoppingListRepo.save(shoppingList);
 
         var weeklyMenu = WeeklyMenu.builder()
                 .user(user)
