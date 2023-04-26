@@ -9,6 +9,7 @@ import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
+import idatt2106v231.backend.repository.WeekMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,14 +17,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
- * The type Authentication service.
+ * Class to manage user authentication.
  */
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServices {
 
-    private final UserRepository repository;
-    private final RefrigeratorRepository refrigeratorRepository;
+    private final UserRepository userRepo;
+    private final RefrigeratorRepository refRepo;
+    private final WeekMenuRepository weekMenuRepo;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -36,7 +38,7 @@ public class AuthenticationServices {
      * @return a token which authenticates the user
      */
     public AuthenticationResponse register(UserCreationDto request) {
-        if(repository.findById(request.getEmail()).isPresent()) {
+        if(emailIsUsed(request.getEmail())) {
             return null;
         }
         var user = User.builder()
@@ -50,12 +52,17 @@ public class AuthenticationServices {
                 .household(request.getHousehold())
                 .role(Role.USER)
                 .build();
-        repository.save(user);
+        userRepo.save(user);
 
         var ref = Refrigerator.builder()
                 .user(user)
                 .build();
-        refrigeratorRepository.save(ref);
+        refRepo.save(ref);
+
+        /*var weeklyMenu = WeeklyMenu.builder()
+                .user(user)
+                .build();
+        weekMenuRepository.save(weeklyMenu);*/
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
@@ -63,11 +70,18 @@ public class AuthenticationServices {
                 .build();
     }
 
-    public boolean emailIsUsed(String email) {
-        return repository.findByEmail(email).isPresent();
-    }
     /**
-     * Authenticate a user, used in login.
+     * Method to check if an email is already in use.
+     *
+     * @param email the email to check
+     * @return true if the email is in use
+     */
+    public boolean emailIsUsed(String email) {
+        return userRepo.findByEmail(email).isPresent();
+    }
+
+    /**
+     * Method to authenticate a user, used in login.
      *
      * @param request email and password for the user
      * @return a token which authenticates the user if the password is correct
@@ -79,9 +93,10 @@ public class AuthenticationServices {
                         request.getPassword()
                 )
         );
-        var optionalUser = repository.findByEmail(request.getEmail());
-        User user = optionalUser.get();
+
+        User user = userRepo.findByEmail(request.getEmail()).get();
         var jwtToken = jwtService.generateToken(user);
+
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

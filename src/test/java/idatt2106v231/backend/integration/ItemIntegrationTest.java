@@ -60,7 +60,7 @@ public class ItemIntegrationTest {
 
         categoryRepository.save(category);
 
-        System.out.println(category);
+        System.out.println(category.getCategoryId());
         Item item1 = Item.builder().name("test1").category(category).build();
         Item item2 = Item.builder().name("test2").category(category).build();
         Item item3 = Item.builder().name("test3").category(category).build();

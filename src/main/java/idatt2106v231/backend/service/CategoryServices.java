@@ -6,32 +6,40 @@ import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.repository.CategoryRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class to manage Category objects.
+ */
 @Service
 public class CategoryServices {
 
-
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private CategoryRepository catRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
+    /**
+     * Sets the category repository to use for database access.
+     *
+     * @param catRepo the category repository to use
+     */
+    @Autowired
+    public void setCatRepo(CategoryRepository catRepo) {
+        this.catRepo = catRepo;
+    }
 
     /**
-     * Method to save a new category to database
+     * Method to save a new category to database.
      *
      * @param categoryDto the new category
-     * @return true if the is saved
+     * @return true if the category is saved
      */
     public boolean saveCategory(CategoryDto categoryDto){
         try {
             Category cat = mapper.map(categoryDto, Category.class);
-            categoryRepository.save(cat);
+            catRepo.save(cat);
             return true;
         } catch (Exception e) {
             return false;
@@ -39,14 +47,14 @@ public class CategoryServices {
     }
 
     /**
-     * Method to delete a category from database
+     * Method to delete a category from database.
      *
      * @param categoryId the category id
-     * @return true if the category exists and is deleted
+     * @return true if the category is deleted
      */
     public boolean deleteCategory(int categoryId){
         try {
-            categoryRepository.deleteById(categoryId);
+            catRepo.deleteById(categoryId);
             return true;
         } catch (Exception e) {
             return false;
@@ -54,14 +62,14 @@ public class CategoryServices {
     }
 
     /**
-     * Method to get a category, returns null if the category does not exist
+     * Method to get a category
      *
      * @param categoryId the category id
-     * @return the category
+     * @return the category as a dto object
      */
     public CategoryDto getCategory(int categoryId){
         try {
-            return mapper.map(categoryRepository.findById(categoryId).get(), CategoryDto.class);
+            return mapper.map(catRepo.findById(categoryId).get(), CategoryDto.class);
         }
         catch (Exception e) {
             return null;
@@ -76,9 +84,10 @@ public class CategoryServices {
      */
     public List<CategoryDto> getAllCategories(){
         try {
-            List<CategoryDto> list = new ArrayList<>();
-            categoryRepository.findAll().forEach(obj -> list.add(mapper.map(obj, CategoryDto.class)));
-            return list;
+           return catRepo.findAll()
+                    .stream()
+                    .map(obj -> mapper.map(obj, CategoryDto.class))
+                    .toList();
         }catch (Exception e) {
             return null;
         }
@@ -91,7 +100,7 @@ public class CategoryServices {
      * @return true if the category exists
      */
     public boolean categoryExist(int categoryId){
-        return categoryRepository.findById(categoryId).isPresent();
+        return catRepo.findById(categoryId).isPresent();
     }
 
     /**
@@ -101,6 +110,6 @@ public class CategoryServices {
      * @return true if the category exists
      */
     public boolean categoryExist(String description){
-        return categoryRepository.findByDescription(description).isPresent();
+        return catRepo.findByDescription(description).isPresent();
     }
 }
