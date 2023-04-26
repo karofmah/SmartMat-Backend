@@ -1,6 +1,6 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorCreationDto;
+import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
@@ -100,6 +100,7 @@ public class RefrigeratorServices {
                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
                    .toList();
         }catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -131,7 +132,7 @@ public class RefrigeratorServices {
      * @param itemRefDto the itemRefrigerator object to add
      * @return true if the item is added to the refrigerator
      */
-    public boolean addItemToRefrigerator(ItemInRefrigeratorCreationDto itemRefDto){
+    public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         try {
             var itemRef = ItemRefrigerator.builder()
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
@@ -149,16 +150,21 @@ public class RefrigeratorServices {
     /**
      * Method to delete item from refrigerator.
      *
-     * @param itemName the item to be removed
-     * @param refrigeratorId the refrigerator id
+     * @param itemRefDto the item to be removed
      * @return true if the item is deleted
      */
-    public boolean deleteItemFromRefrigerator(String itemName, int refrigeratorId){
+    public boolean deleteItemFromRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         try {
-          ItemRefrigerator item = itemRefRepo
-                  .findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId)
-                  .get();
-            itemRefRepo.delete(item);
+            ItemRefrigerator item = itemRefRepo
+                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
+                    .get();
+
+            if (itemRefDto.getAmount() >= item.getAmount()){
+                itemRefRepo.delete(item);
+            }else{
+                item.updateAmount(-itemRefDto.getAmount());
+                itemRefRepo.save(item);
+            }
             return true;
         }catch (Exception e){
             return false;
@@ -172,11 +178,11 @@ public class RefrigeratorServices {
      * @param itemRefDto the garbage
      * @return true if the item is deleted
      */
-    public boolean throwInGarbage(ItemInRefrigeratorCreationDto itemRefDto){
+    public boolean addToGarbage(EditItemInRefrigeratorDto itemRefDto){
         try {
             Garbage garbage = mapper.map(itemRefDto, Garbage.class);
             garbRepo.save(garbage);
-            return deleteItemFromRefrigerator(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId());
+            return true;
         }catch (Exception e){
             return false;
         }
@@ -188,7 +194,7 @@ public class RefrigeratorServices {
      * @param itemRefDto the itemRefrigerator object with updated information
      * @return true if the item is updated
      */
-    public boolean updateItemInRefrigeratorAmount(ItemInRefrigeratorCreationDto itemRefDto){
+    public boolean updateItemInRefrigeratorAmount(EditItemInRefrigeratorDto itemRefDto){
         try {
             ItemRefrigerator itemRefrigerator = itemRefRepo
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
