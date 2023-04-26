@@ -7,26 +7,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeeklyMenu {
+public class ShoppingList {
 
     @Id
     @Column
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int shoppingListId;
 
-    @Column(length = Integer.MAX_VALUE)
-    private String menu;
-
-    @NotNull
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_email", referencedColumnName = "email")
+    @JoinColumn(name = "userEmail", referencedColumnName = "email")
     private User user;
 
+    @OneToMany(mappedBy = "shoppingList", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemShoppingList> itemShoppingList = new ArrayList<>();
 }
