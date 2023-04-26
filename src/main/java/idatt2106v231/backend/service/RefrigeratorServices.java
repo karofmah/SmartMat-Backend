@@ -101,6 +101,7 @@ public class RefrigeratorServices {
                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
                    .toList();
         }catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -158,7 +159,7 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            if (itemRefDto.getAmount() <= item.getAmount()){
+            if (itemRefDto.getAmount() >= item.getAmount()){
                 itemRefRepo.delete(item);
             }else{
                 item.updateAmount(-itemRefDto.getAmount());

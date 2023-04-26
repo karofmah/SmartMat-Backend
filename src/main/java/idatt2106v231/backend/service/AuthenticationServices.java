@@ -9,7 +9,10 @@ import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.WeeklyMenu;
+import idatt2106v231.backend.model.ShoppingList;
+import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
+import idatt2106v231.backend.repository.ShoppingListRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.WeekMenuRepository;
@@ -109,10 +112,10 @@ public class AuthenticationServices {
                 .build();
         shoppingListRepo.save(shoppingList);
 
-        var weeklyMenu = WeeklyMenu.builder()
+        var weekMenu = WeeklyMenu.builder()
                 .user(user)
                 .build();
-        weekMenuRepo.save(weeklyMenu);
+        weekMenuRepo.save(weekMenu);
 
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()

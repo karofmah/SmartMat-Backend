@@ -2,11 +2,12 @@ package idatt2106v231.backend.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
 
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @ToString
@@ -18,7 +19,7 @@ public class Garbage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int garbageRefrigeratorId;
+    private Integer garbageRefrigeratorId;
 
     @Column
     @NotNull
