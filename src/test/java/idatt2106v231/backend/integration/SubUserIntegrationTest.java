@@ -242,6 +242,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when masteruser is undefined")
         public void addSubUserMasterUndefined() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setMasterUser("invalidMasterUser");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 

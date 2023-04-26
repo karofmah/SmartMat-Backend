@@ -1,5 +1,6 @@
 package idatt2106v231.backend.controller;
 
+import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.service.ItemServices;
@@ -46,7 +47,7 @@ public class ShoppingListController {
             response = new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
             logger.info(response.getBody() + "");
         } else {
-            response = new ResponseEntity<>(shoppingListServices.getAllItemsFromShoppingList(email), HttpStatus.OK);
+            response = new ResponseEntity<>(shoppingListServices.getShoppingListByUserEmail(email), HttpStatus.OK);
             logger.info("Retrieving all items in shoppinglist with email: " + email);
         }
         return response;
@@ -58,24 +59,56 @@ public class ShoppingListController {
             @ApiResponse(responseCode = "200", description = "Added item to shoppinglist"),
             @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
     })
-    public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemShoppingListDto itemShoppingListDto) {
-        ResponseEntity<Object> response;
+    public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
+        ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
-        if(!shoppingListServices.shoppingListExists(itemShoppingListDto.getShoppingListId())) {
-            response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(!itemServices.checkIfItemExists(itemShoppingListDto.getItemName())) {
-            response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(itemShoppingListDto.getAmount() == 0) {
-            response = new ResponseEntity<>("Amount is not specified", HttpStatus.BAD_REQUEST);
-        } else if(itemShoppingListDto.getMeasurement() == null) {
-            response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
-        } else {
-            shoppingListServices.saveItemToShoppingList(itemShoppingListDto);
-            response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
+        if (response.getStatusCode() != HttpStatus.OK){
+            logger.info(response.getBody() + "");
+            return response;
         }
+        //TODO sjekke om item ligger inne fra før?
+        shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
+        response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
+
         logger.info(response.getBody() + "");
         return response;
+    }
 
+    @DeleteMapping("/deleteItemFromShoppingList")
+    @Operation(summary = "Delete item from shoppinglist")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Deleted item from shoppinglist"),
+            @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
+    })
+    public ResponseEntity<Object> deleteItemFromShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
+        ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
+        if (response.getStatusCode() != HttpStatus.OK){
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
+        shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto);
+        response = new ResponseEntity<>("Item deleted from shoppinglist", HttpStatus.OK);
+        logger.info(response.getBody() + "");
+        return response;
+    }
+
+    public ResponseEntity<Object> validateItemShoppingListDto(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
+        ResponseEntity<Object> response;
+
+        if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
+            response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
+        } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
+            response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
+        } else if(itemInShoppingListCreationDto.getAmount() == 0) {
+            response = new ResponseEntity<>("Amount is not specified", HttpStatus.BAD_REQUEST);
+        } else if(itemInShoppingListCreationDto.getMeasurementType() == null) {
+            response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
+        } else {
+            response = new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return response;
     }
 }

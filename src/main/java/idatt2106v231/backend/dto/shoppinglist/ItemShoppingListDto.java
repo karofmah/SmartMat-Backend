@@ -1,5 +1,6 @@
 package idatt2106v231.backend.dto.shoppinglist;
 
+import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.enums.Measurement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ItemShoppingListDto {
     //private String user;
-    private int shoppingListId;
-    private String itemName;
+    private ItemDto item;
     private int amount;
-    private Measurement measurement;
+    private Measurement measurementType;
 }

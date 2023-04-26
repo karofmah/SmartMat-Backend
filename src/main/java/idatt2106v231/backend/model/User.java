@@ -16,7 +16,7 @@ import java.util.List;
 @ToString
 @Builder
 @Entity
-@Table(name="user")
+@Table(name="masterUser")
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {

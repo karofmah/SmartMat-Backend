@@ -3,8 +3,8 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
-import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
+import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.*;
@@ -19,8 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-
 public class ShoppingListTest {
 
     @Autowired
@@ -180,8 +177,8 @@ public class ShoppingListTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            List<ItemShoppingListDto> retrievedItems = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
-            assertEquals(3, retrievedItems.size());
+            ShoppingListDto shoppinglist = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+            assertEquals(3, shoppinglist.getItems().size());
         }
 
         @Test
@@ -201,18 +198,98 @@ public class ShoppingListTest {
         @Test
         @DisplayName("Return ok when all requirements are met")
         public void addItemAllArgsOk() throws Exception {
-            var itemShoppingListDto = ItemShoppingListDto.builder()
-                    .shoppingListId(1)
+            var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
+                    .shoppingListId(2)
                     .itemName("Milk")
                     .amount(1)
-                    .measurement(Measurement.L)
+                    .measurementType(Measurement.L)
                     .build();
 
-            String shoppingListJson = objectMapper.writeValueAsString(itemShoppingListDto);
+            String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
             MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(shoppingListJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Returns error when item is invalid")
+        public void addItemItemIsInvalid() throws Exception {
+            var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
+                    .shoppingListId(1)
+                    .itemName("invalidItem")
+                    .amount(1)
+                    .measurementType(Measurement.L)
+                    .build();
+
+            String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
+
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(shoppingListJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Return error when amount is invalid")
+        public void addItemAmountIsInvalid() throws Exception {
+            var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
+                    .shoppingListId(1)
+                    .itemName("Milk")
+                    .amount(0)
+                    .measurementType(Measurement.L)
+                    .build();
+
+            String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
+
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(shoppingListJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+
+        @Test
+        @DisplayName("Return error when measurement is invalid")
+        public void addItemMeasurementIsInvalid() throws Exception {
+            var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
+                    .shoppingListId(1)
+                    .itemName("Milk")
+                    .amount(1)
+                    .measurementType(null)
+                    .build();
+
+            String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
+
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(shoppingListJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
+    }
+
+    @Nested
+    class TestDeleteItemFromShoppingList {
+
+        @Test
+        @DisplayName("Return ok when all requirements are met")
+        public void deleteItemAllArgsOk() throws Exception {
+            var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
+                    .shoppingListId(2)
+                    .itemName("Milk")
+                    .amount(1)
+                    .measurementType(Measurement.L)
+                    .build();
+
+            String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
+
+            MvcResult result = mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(shoppingListJson))
                     .andExpect(status().isOk())
                     .andReturn();
         }
