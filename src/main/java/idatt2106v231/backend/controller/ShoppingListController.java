@@ -1,12 +1,11 @@
 package idatt2106v231.backend.controller;
 
+import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.model.User;
-import idatt2106v231.backend.service.ItemServices;
-import idatt2106v231.backend.service.ShoppingListServices;
-import idatt2106v231.backend.service.SubUserServices;
-import idatt2106v231.backend.service.UserServices;
+import idatt2106v231.backend.repository.CategoryRepository;
+import idatt2106v231.backend.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/shoppingList")
@@ -110,5 +112,22 @@ public class ShoppingListController {
         }
 
         return response;
+    }
+
+
+    // TODO Change to post
+    @PutMapping("/addWeeklyMenuToShoppingList")
+    @Operation(summary = "Add weekly menu to a shoppinglist")
+    public ResponseEntity<Object> addItemToShoppingList(@RequestParam String email, @RequestParam String ingredients) {
+
+        // TODO Clean this up
+        boolean success = shoppingListServices.addWeeklyMenuToShoppingList(email, ingredients);
+
+
+        if (success) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

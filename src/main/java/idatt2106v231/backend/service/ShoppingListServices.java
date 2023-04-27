@@ -6,9 +6,11 @@ import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.enums.Measurement;
+import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemShoppingList;
 import idatt2106v231.backend.model.SubUser;
+import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.ItemShoppingListRepository;
 import idatt2106v231.backend.repository.ShoppingListRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ShoppingListServices {
@@ -96,6 +99,7 @@ public class ShoppingListServices {
             //itemShoppingListRepository.save(mapper.map(itemShoppingListDto, ItemShoppingList.class));
             return true;
         } catch (Exception e) {
+            System.out.println(e);
             return false;
         }
     }
@@ -123,5 +127,63 @@ public class ShoppingListServices {
 
     public boolean shoppingListExists(int shoppingListId) {
         return shoppingListRepository.findById(shoppingListId).isPresent();
+    }
+
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    ItemServices itemServices;
+    public boolean addWeeklyMenuToShoppingList(String userEmail, String list) {
+
+
+        String[] lines = list.split("\n");
+        for (String line : lines) {
+            System.out.println(line);
+            String[] parts = line.split(", ");
+            String category = parts[0];
+            String name = parts[1];
+            String amount = parts[2].replaceAll("[^0-9]", ""); // TODO Find unit
+
+
+            if (amount.equals("-")) amount = "1";
+
+            if (!itemServices.checkIfItemExists(name)) {
+
+                Optional<Category> categoryOptional = categoryRepository.findByDescription(category);
+                int categoryId;
+
+                categoryId = categoryOptional.map(Category::getCategoryId).orElse(1); // TODO Change 1 to "Other" category
+
+                ItemDto itemDto = ItemDto.builder()
+                        .categoryId(categoryId)
+                        .name(name)
+                        .build();
+
+                System.out.println(itemDto.toString());
+                itemServices.saveItem(itemDto);
+            }
+
+
+            int shoppingListId = getShoppingListByUserEmail(userEmail).getShoppingListId();
+
+            ItemInShoppingListCreationDto itemInShoppingListCreationDto = ItemInShoppingListCreationDto
+                    .builder()
+                    .itemName(name)
+                    .amount(Integer.parseInt(amount))
+                    .shoppingListId(shoppingListId)
+                    .build();
+
+            if (saveItemToShoppingList(itemInShoppingListCreationDto)) {
+                System.out.println("Item added to shopping list");
+            } else {
+                System.out.println("Failed to add item to shopping list");
+            }
+
+        }
+
+        return true;
+
     }
 }
