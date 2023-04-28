@@ -36,6 +36,10 @@ public class ShoppingListServices {
 
     private final AiServices aiServices;
 
+    private final CategoryRepository categoryRepository;
+
+    private final ItemServices itemServices;
+
     private final ModelMapper mapper = new ModelMapper();
 
     /*@Autowired
@@ -44,11 +48,15 @@ public class ShoppingListServices {
     }*/
 
     @Autowired
-    public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository, ItemShoppingListRepository itemShoppingListRepository, AiServices aiServices) {
+    public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
+                                ItemShoppingListRepository itemShoppingListRepository, AiServices aiServices,
+                                CategoryRepository categoryRepository, ItemServices itemServices) {
         this.itemRepository = itemRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.itemShoppingListRepository = itemShoppingListRepository;
         this.aiServices = aiServices;
+        this.categoryRepository = categoryRepository;
+        this.itemServices = itemServices;
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
@@ -102,7 +110,6 @@ public class ShoppingListServices {
             //itemShoppingListRepository.save(mapper.map(itemShoppingListDto, ItemShoppingList.class));
             return true;
         } catch (Exception e) {
-            System.out.println(e);
             return false;
         }
     }
@@ -132,14 +139,6 @@ public class ShoppingListServices {
         return shoppingListRepository.findById(shoppingListId).isPresent();
     }
 
-    // Todo move these:
-
-    @Autowired
-    CategoryRepository categoryRepository;
-
-    @Autowired
-    ItemServices itemServices;
-
     /**
      * Adds a weekly menu recipe list to the shopping list of the user
      *
@@ -157,7 +156,7 @@ public class ShoppingListServices {
         String[] lines = list.split("\n");
         for (String line : lines) {
             System.out.println(line); // TODO Remove debug printing
-            String[] parts = line.split(",");
+            String[] parts = line.split(";");
             String name = "";
             String category = "";
             String quantity = "";
@@ -228,7 +227,7 @@ public class ShoppingListServices {
 
 
 
-        String query = "Write this shopping list with csv format " +
+        String query = "Write this shopping list with csv format, using semicolons " +
                 "with the attributes category,ingredient,quantity." +
                 " If no quantity is specified, use '1'." +
                 " Use the categories ";
@@ -239,7 +238,7 @@ public class ShoppingListServices {
         }
 
 
-        query += " and 'other'. Example: 'Meat,Beef,500g'. Here is the list: ";
+        query += " and 'other'. Example: 'Meat;Beef;500g'. Here is the list: ";
 
         query += recipeList.toString();
 
