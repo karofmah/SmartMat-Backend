@@ -34,6 +34,8 @@ public class ShoppingListServices {
     //@Autowired
     private final ItemShoppingListRepository itemShoppingListRepository;
 
+    private final AiServices aiServices;
+
     private final ModelMapper mapper = new ModelMapper();
 
     /*@Autowired
@@ -42,10 +44,11 @@ public class ShoppingListServices {
     }*/
 
     @Autowired
-    public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository, ItemShoppingListRepository itemShoppingListRepository) {
+    public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository, ItemShoppingListRepository itemShoppingListRepository, AiServices aiServices) {
         this.itemRepository = itemRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.itemShoppingListRepository = itemShoppingListRepository;
+        this.aiServices = aiServices;
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
@@ -129,25 +132,51 @@ public class ShoppingListServices {
         return shoppingListRepository.findById(shoppingListId).isPresent();
     }
 
+    // Todo move these:
 
     @Autowired
     CategoryRepository categoryRepository;
 
     @Autowired
     ItemServices itemServices;
-    public boolean addWeeklyMenuToShoppingList(String userEmail, String list) {
+
+    /**
+     * Adds a weekly menu recipe list to the shopping list of the user
+     *
+     * @param userEmail the user email
+     * @param recipeList the recipe list
+     * @return if the weekly menu recipe list was added
+     */
+    public boolean addWeeklyMenuToShoppingList(String userEmail, List<String> recipeList) {
+
+        String list = translateRecipeListToCorrectFormat(recipeList);
+
+        System.out.println(list); // TODO Remove debug printing
 
 
         String[] lines = list.split("\n");
         for (String line : lines) {
-            System.out.println(line);
-            String[] parts = line.split(", ");
-            String category = parts[0];
-            String name = parts[1];
-            String amount = parts[2].replaceAll("[^0-9]", ""); // TODO Find unit
+            System.out.println(line); // TODO Remove debug printing
+            String[] parts = line.split(",");
+            String name = "";
+            String category = "";
+            String quantity = "";
 
+            if (parts.length > 0) category = parts[0];
+            if (parts.length > 1) name = parts[1];
+            if (parts.length > 2) quantity = parts[2];
 
-            if (amount.equals("-")) amount = "1";
+            String[] quantityAndMeasurement = quantity.split("(?<=\\d)(?=\\D)");
+
+            quantity = quantityAndMeasurement[0];
+            if (!quantity.matches("\\d+")) quantity = "1";
+            Measurement measurement = Measurement.UNIT;
+
+            if (quantityAndMeasurement.length > 1) {
+                for(Measurement c : Measurement.values()) {
+                    if (quantityAndMeasurement[1].equalsIgnoreCase(c.name())) measurement = c;
+                }
+            }
 
             if (!itemServices.checkIfItemExists(name)) {
 
@@ -161,7 +190,6 @@ public class ShoppingListServices {
                         .name(name)
                         .build();
 
-                System.out.println(itemDto.toString());
                 itemServices.saveItem(itemDto);
             }
 
@@ -171,8 +199,9 @@ public class ShoppingListServices {
             ItemInShoppingListCreationDto itemInShoppingListCreationDto = ItemInShoppingListCreationDto
                     .builder()
                     .itemName(name)
-                    .amount(Integer.parseInt(amount))
+                    .amount(Integer.parseInt(quantity))
                     .shoppingListId(shoppingListId)
+                    .measurementType(measurement)
                     .build();
 
             if (saveItemToShoppingList(itemInShoppingListCreationDto)) {
@@ -184,6 +213,37 @@ public class ShoppingListServices {
         }
 
         return true;
+
+    }
+
+    /**
+     * Translates a recipe list to the correct format:
+     * "Category, Item, Amount"
+     *
+     * @return the translated recipe list
+     */
+    private String translateRecipeListToCorrectFormat(List<String> recipeList) {
+
+        List<Category> categories = categoryRepository.findAll();
+
+
+
+        String query = "Write this shopping list with csv format " +
+                "with the attributes category,ingredient,quantity." +
+                " If no quantity is specified, use '1'." +
+                " Use the categories ";
+
+
+        for (Category category : categories) {
+            query += category.getDescription() + ", ";
+        }
+
+
+        query += " and 'other'. Example: 'Meat,Beef,500g'. Here is the list: ";
+
+        query += recipeList.toString();
+
+        return aiServices.getChatCompletion(query);
 
     }
 }

@@ -113,7 +113,6 @@ public class RecipeServices {
             String menu = aiServices.getChatCompletion(query);
 
             saveWeeklyMenu(userEmail, menu);
-            // TODO Fill a shopping list
 
             return menu;
         } catch (IllegalArgumentException e){
