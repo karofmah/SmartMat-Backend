@@ -15,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +86,7 @@ public class SubUserIntegrationTest {
                 .accessLevel(true)
                 .name("subUser1Name")
                 .masterUser(user1)
+                .pinCode(1234)
                 .build();
 
         var subUser2 = SubUser.builder()
@@ -108,6 +108,7 @@ public class SubUserIntegrationTest {
                 .accessLevel(true)
                 .name("subUser4Name")
                 .masterUser(user1)
+                .pinCode(1234)
                 .build();
 
         userRepository.save(user1);
@@ -119,12 +120,6 @@ public class SubUserIntegrationTest {
 
     }
 
-    /*@AfterEach
-    @DisplayName("Teardown of user table and subuser table")
-    public void teardown() {
-        userRepository.deleteAll();
-        subUserRepository.deleteAll();
-    }*/
 
     @Nested
     class TestGetUsersFromMaster {
@@ -138,14 +133,14 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<SubUserDto>>() {});
+            List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertEquals(3, retrievedSubUsers.size());
         }
 
         @Test
         @DisplayName("Returns error when wrong master is given")
         public void returnErrorWhenGivenWrongParam() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster")
+            mockMvc.perform(get("/api/subusers/getUsersFromMaster")
                     .param("email", "invalidEmail"))
                     .andExpect(status().isBadRequest())
                     .andReturn();
@@ -172,7 +167,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when masteruser doesnt exist")
         public void returnErrorWhenWrongMaster() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
+             mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
                             .param("email", "invalidMail")
                             .param("name", "subUser1Name"))
                     .andExpect(status().isBadRequest())
@@ -182,7 +177,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when subuser doesnt correlate to a master")
         public void returnErrorWhenSubuserMismatchMaster() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
+             mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
                             .param("email", "test1@ntnu.no")
                             .param("name", "subUser3Name"))
                     .andExpect(status().isBadRequest())
@@ -203,7 +198,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+             mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -220,7 +215,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+             mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
@@ -237,7 +232,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+             mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
@@ -254,7 +249,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+             mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
@@ -270,7 +265,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+             mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
@@ -286,7 +281,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
+             mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
@@ -307,7 +302,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(delete("/api/subusers/deleteSubUser")
+             mockMvc.perform(delete("/api/subusers/deleteSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -323,7 +318,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            MvcResult result = mockMvc.perform(delete("/api/subusers/deleteSubUser")
+             mockMvc.perform(delete("/api/subusers/deleteSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())

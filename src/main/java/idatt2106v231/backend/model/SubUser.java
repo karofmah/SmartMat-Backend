@@ -7,9 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 @Builder
 @Entity
@@ -23,6 +20,9 @@ public class SubUser {
 
     @Column
     private boolean accessLevel;
+
+    @Column
+    private int pinCode;
 
     @Column
     private String name;
