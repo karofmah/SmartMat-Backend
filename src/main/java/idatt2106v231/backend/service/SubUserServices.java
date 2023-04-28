@@ -14,25 +14,28 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class to manage SubUser objects.
+ */
 @Service
 public class SubUserServices {
 
-    @Autowired
     private SubUserRepository subUserRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     private final ModelMapper mapper = new ModelMapper();
 
-    public SubUserServices() {
-        TypeMap<SubUser, SubUserCreationDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserCreationDto.class);
-        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserCreationDto::setMasterUserEmail));
-
+    /**
+     * Sets the subuser repository to use for database access.
+     *
+     * @param subUserRepository the
+     */
+    @Autowired
+    public void setSubUserRepository(SubUserRepository subUserRepository) {
+        this.subUserRepository = subUserRepository;
     }
 
     public List<SubUserDto> getSubUsersByMaster(String email) { //sjekk
-        return subUserRepository.findAllByMasterUserEmail(email).stream()
+        return subUserRepository.findAllByUserEmail(email).stream()
                 .map(obj -> mapper.map(obj, SubUserDto.class)).toList();
     }
 
@@ -44,7 +47,6 @@ public class SubUserServices {
     public boolean saveSubUser(SubUserCreationDto subUserCreationDto) {
         try {
             SubUser subUser = mapper.map(subUserCreationDto, SubUser.class);
-            subUser.setMasterUser(userRepository.findByEmail(subUserCreationDto.getMasterUserEmail()).get());
             subUserRepository.save(subUser);
             return true;
         } catch (Exception e) {
@@ -61,6 +63,17 @@ public class SubUserServices {
         }
     }
 
+    public boolean updateSubUser(SubUserDto subDto) {
+        try {
+            SubUser subUser = mapper.map(subDto, SubUser.class);
+            subUser.setUser(subUserRepository.findById(subDto.getSubUserId()).get().getUser());
+            subUserRepository.save(subUser);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public boolean pinCodeValid(SubUserValidationDto subDto){
         try{
             SubUser subUser = subUserRepository.findById(subDto.getSubUserId()).get();
@@ -71,7 +84,7 @@ public class SubUserServices {
     }
 
     public boolean subUserExists(String name, String email) {
-        return subUserRepository.findByMasterUserEmailAndName(email, name).isPresent();
+        return subUserRepository.findByUserEmailAndName(email, name).isPresent();
     }
 
     public boolean subUserExists(int subUserId) {
