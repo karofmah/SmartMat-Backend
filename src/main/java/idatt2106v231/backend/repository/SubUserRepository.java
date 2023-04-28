@@ -6,11 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface SubUserRepository extends JpaRepository<SubUser, String> {
+public interface SubUserRepository extends JpaRepository<SubUser, Integer> {
 
     Optional<SubUser> findDistinctByName(String name);
 
     List<SubUser> findAllByMasterUserEmail(String email);
 
     Optional<SubUser> findByMasterUserEmailAndName(String email, String name);
+
+    boolean existsBySubUserId(int subUserId);
 }

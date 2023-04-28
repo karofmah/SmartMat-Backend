@@ -23,7 +23,8 @@ public class SubUser {
     private int subUserId;
 
     @Column
-    private boolean accessLevel;
+    @Builder.Default
+    private boolean accessLevel = false;
 
     @Column
     private int pinCode;

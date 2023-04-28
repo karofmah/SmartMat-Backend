@@ -33,16 +33,12 @@ public class SubUserServices {
     }
 
     public List<SubUserDto> getSubUsersByMaster(String email) {
-
-        List<SubUser> subUsers = subUserRepository.findAllByMasterUserEmail(email);
-        List<SubUserDto> list = new ArrayList<>();
-        subUsers.forEach(obj -> list.add(mapper.map(obj, SubUserDto.class)));
-        return list;
+        return subUserRepository.findAllByMasterUserEmail(email).stream()
+                .map(obj -> mapper.map(obj, SubUserDto.class)).toList();
     }
 
-    public SubUserDto getSubUserByMasterAndName(String email, String name) {
-
-        Optional<SubUser> subUser = subUserRepository.findByMasterUserEmailAndName(email, name);
+    public SubUserDto getSubUser(int subUserId) {
+        Optional<SubUser> subUser = subUserRepository.findById(subUserId);
         return mapper.map(subUser.get(), SubUserDto.class);
     }
 
@@ -57,9 +53,9 @@ public class SubUserServices {
         }
     }
 
-    public boolean deleteSubUser(SubUserDto subUser) {
+    public boolean deleteSubUser(int subUserId) {
         try {
-            subUserRepository.delete(subUserRepository.findByMasterUserEmailAndName(subUser.getMasterUser(), subUser.getName()).get());
+            subUserRepository.deleteById(subUserId);
             return true;
         } catch (Exception e) {
             return false;
@@ -68,5 +64,9 @@ public class SubUserServices {
 
     public boolean subUserExists(String name, String email) {
         return subUserRepository.findByMasterUserEmailAndName(email, name).isPresent();
+    }
+
+    public boolean subUserExists(int subUserId) {
+        return subUserRepository.existsBySubUserId(subUserId);
     }
 }

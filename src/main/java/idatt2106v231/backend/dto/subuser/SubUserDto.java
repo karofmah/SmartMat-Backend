@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubUserDto {
+    private int subUserId;
     private String name;
     private Boolean accessLevel;
     private String masterUser;

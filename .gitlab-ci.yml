@@ -23,7 +23,6 @@ test:
     - echo "Running tests"
     - mvn clean test
 
-
 pages:
   stage: package
   script:
