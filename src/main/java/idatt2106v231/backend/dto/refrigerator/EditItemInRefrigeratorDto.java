@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemInRefrigeratorCreationDto {
+public class EditItemInRefrigeratorDto {
 
     private String itemName;
     private int refrigeratorId;

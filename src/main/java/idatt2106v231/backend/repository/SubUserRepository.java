@@ -13,4 +13,6 @@ public interface SubUserRepository extends JpaRepository<SubUser, Integer> {
     List<SubUser> findAllByMasterUserEmail(String email);
 
     Optional<SubUser> findByMasterUserEmailAndName(String email, String name);
+
+    boolean existsBySubUserId(int subUserId);
 }

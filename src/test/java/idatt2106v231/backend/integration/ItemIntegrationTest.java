@@ -10,8 +10,6 @@ import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -28,11 +26,18 @@ import java.util.Optional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
+        ,properties = {
+        "spring.config.name=test3",
+        "spring.datasource.url=jdbc:h2:mem:test3;NON_KEYWORDS=YEAR",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=update",
+})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+
 public class ItemIntegrationTest {
 
     @Autowired
@@ -48,15 +53,12 @@ public class ItemIntegrationTest {
     private CategoryRepository categoryRepository;
 
     @BeforeAll
-    @Transactional
     @DisplayName("Add test data to test database")
     public void setup() {
 
         Category category = Category.builder().description("category").build();
-
         categoryRepository.save(category);
 
-        System.out.println(category.getCategoryId());
         Item item1 = Item.builder().name("test1").category(category).build();
         Item item2 = Item.builder().name("test2").category(category).build();
         Item item3 = Item.builder().name("test3").category(category).build();
@@ -86,7 +88,6 @@ public class ItemIntegrationTest {
             });
 
 
-            System.out.println(actualItems);
             Assertions.assertEquals(itemRepository.findAll().size(), actualItems.size());
 
         }
@@ -251,11 +252,14 @@ public class ItemIntegrationTest {
     }
     @Nested
     class DeleteItem{
+
         @Test
         @WithMockUser(username = "USER")
         @Transactional
         @DisplayName("Test deletion of item")
         public void deleteItemIsOk() throws Exception {
+            int size = itemRepository.findAll().size();
+
 
             MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/3")
                             .accept(MediaType.APPLICATION_JSON))
@@ -265,7 +269,7 @@ public class ItemIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(2,itemRepository.findAll().size());
+            Assertions.assertEquals(size-1,itemRepository.findAll().size());
             Assertions.assertEquals("Item removed from database",responseString);
         }
 
@@ -275,6 +279,9 @@ public class ItemIntegrationTest {
         @DisplayName("Test deletion of item when item is not found in database")
         public void deleteItemIsNotFound() throws Exception {
 
+            int size = itemRepository.findAll().size();
+
+
             MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/4")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
@@ -282,6 +289,8 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals(size,itemRepository.findAll().size());
             Assertions.assertEquals("Item does not exist",responseString);
 
 

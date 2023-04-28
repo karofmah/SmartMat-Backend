@@ -94,8 +94,8 @@ public class ItemController {
         if (!services.checkIfItemExists(name)){
             response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
-
-        }else {
+        }
+        else {
             response = getItem(services.getItemByName(name));
         }
         return response;
