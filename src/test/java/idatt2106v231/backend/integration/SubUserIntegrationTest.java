@@ -123,7 +123,6 @@ public class SubUserIntegrationTest {
 
     @Nested
     class TestGetUsersFromMaster {
-
         @Test
         @DisplayName("Retrieves the correct number of subusers")
         public void retrieveSubUsersFromMaster() throws Exception {
@@ -142,20 +141,18 @@ public class SubUserIntegrationTest {
         public void returnErrorWhenGivenWrongParam() throws Exception {
             mockMvc.perform(get("/api/subusers/getUsersFromMaster")
                     .param("email", "invalidEmail"))
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isNotFound())
                     .andReturn();
         }
     }
 
     @Nested
-    class TestGetUserByNameAndMaster {
+    class TestGetUser {
 
         @Test
         @DisplayName("Returns correct user")
         public void returnCorrectUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
-                    .param("email", "test1@ntnu.no")
-                    .param("name", "subUser1Name"))
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUser/1"))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -165,24 +162,13 @@ public class SubUserIntegrationTest {
         }
 
         @Test
-        @DisplayName("Returns error when masteruser doesnt exist")
-        public void returnErrorWhenWrongMaster() throws Exception {
-             mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
-                            .param("email", "invalidMail")
-                            .param("name", "subUser1Name"))
-                    .andExpect(status().isBadRequest())
+        @DisplayName("Returns incorrect user")
+        public void returnIncorrectUser() throws Exception {
+            mockMvc.perform(get("/api/subusers/getUser/13"))
+                    .andExpect(status().isNotFound())
                     .andReturn();
         }
 
-        @Test
-        @DisplayName("Returns error when subuser doesnt correlate to a master")
-        public void returnErrorWhenSubuserMismatchMaster() throws Exception {
-             mockMvc.perform(get("/api/subusers/getUserByNameAndMaster")
-                            .param("email", "test1@ntnu.no")
-                            .param("name", "subUser3Name"))
-                    .andExpect(status().isBadRequest())
-                    .andReturn();
-        }
     }
 
     @Nested
@@ -218,7 +204,7 @@ public class SubUserIntegrationTest {
              mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isNotFound())
                     .andReturn();
         }
 
@@ -243,7 +229,6 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when masteruser is undefined")
         public void addSubUserMasterUndefined() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("invalidMasterUser");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -271,22 +256,6 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isBadRequest())
                     .andReturn();
         }
-
-        @Test
-        @DisplayName("Returns error when accesslevel is undefined")
-        public void addSubUserAccesslevelUndefined() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
-            testSubUser.setName("testSubUser");
-
-            String userJson = objectMapper.writeValueAsString(testSubUser);
-
-             mockMvc.perform(post("/api/subusers/addSubUser")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(userJson))
-                    .andExpect(status().isBadRequest())
-                    .andReturn();
-        }
     }
 
     @Nested
@@ -295,16 +264,9 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns ok when requirements are met")
         public void deleteSubUserAllArgsOk() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
-            testSubUser.setName("subUser4Name");
-            testSubUser.setAccessLevel(true);
 
-            String userJson = objectMapper.writeValueAsString(testSubUser);
-
-             mockMvc.perform(delete("/api/subusers/deleteSubUser")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(userJson))
+             mockMvc.perform(delete("/api/subusers/deleteSubUser/4")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
         }
@@ -321,7 +283,7 @@ public class SubUserIntegrationTest {
              mockMvc.perform(delete("/api/subusers/deleteSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isNotFound())
                     .andReturn();
         }
     }
