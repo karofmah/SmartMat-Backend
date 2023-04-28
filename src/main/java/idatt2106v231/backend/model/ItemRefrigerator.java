@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -38,6 +39,10 @@ public class ItemRefrigerator {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
     private Refrigerator refrigerator;
+
+    @OneToMany(mappedBy = "itemRefrigerator")
+    private List<ItemExpirationDate> itemExpirationDates;
+
 
     /**
      * Method to update amount
