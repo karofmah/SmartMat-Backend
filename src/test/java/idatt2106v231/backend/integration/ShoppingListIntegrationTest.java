@@ -221,6 +221,25 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @DisplayName("Returns conflict when item already exists in the shoppinglist")
+        public void addItemAlreadyExists() throws Exception {
+            var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
+                    .shoppingListId(1)
+                    .itemName("Cheese")
+                    .amount(1)
+                    .measurementType(Measurement.L)
+                    .build();
+
+            String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
+
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(shoppingListJson))
+                    .andExpect(status().isConflict())
+                    .andReturn();
+        }
+
+        @Test
         @DisplayName("Returns error when item is invalid")
         public void addItemItemIsInvalid() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()

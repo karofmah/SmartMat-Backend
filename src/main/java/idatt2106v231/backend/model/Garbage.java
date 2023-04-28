@@ -19,7 +19,7 @@ public class Garbage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer garbageRefrigeratorId;
+    private Integer garbageId;
 
     @Column
     @NotNull

@@ -124,4 +124,8 @@ public class ShoppingListServices {
     public boolean shoppingListExists(int shoppingListId) {
         return shoppingListRepository.findById(shoppingListId).isPresent();
     }
+
+    public boolean itemExistsInShoppingList(int shoppingListId, String itemName) {
+        return itemShoppingListRepository.findByItemNameAndShoppingList_ShoppingListId(itemName, shoppingListId).isPresent();
+    }
 }

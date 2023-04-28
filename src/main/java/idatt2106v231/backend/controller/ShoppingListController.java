@@ -66,7 +66,13 @@ public class ShoppingListController {
             logger.info(response.getBody() + "");
             return response;
         }
-        //TODO sjekke om item ligger inne fra før?
+
+        if(shoppingListServices.itemExistsInShoppingList(itemInShoppingListCreationDto.getShoppingListId(), itemInShoppingListCreationDto.getItemName())) {
+            response = new ResponseEntity<>("Item already exists in shoppinglist", HttpStatus.CONFLICT);
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
         shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
         response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
 
