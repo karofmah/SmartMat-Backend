@@ -216,6 +216,8 @@ public class SubUserIntegrationTest {
             testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
             testSubUser.setAccessLevel(true);
+            testSubUser.setPinCode(1234);
+
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
@@ -264,6 +266,7 @@ public class SubUserIntegrationTest {
             SubUserDto testSubUser = new SubUserDto();
             testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
+
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
@@ -330,7 +333,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Tests validation of pin code when pin code is incorrect")
         public void validatePinCodeIsNotFound() throws Exception {
 
-            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
 
@@ -361,7 +364,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Pin code is not specified",responseString);
+            Assertions.assertEquals("Data is not valid",responseString);
         }
     }
     }

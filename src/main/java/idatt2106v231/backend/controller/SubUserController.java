@@ -147,14 +147,15 @@ public class SubUserController {
 
     @PostMapping("/validate")
     public ResponseEntity<Object> validatePinCode(@RequestBody SubUserDto subUser){
-        ResponseEntity<Object> response;
-        System.out.println(subUser);
+        ResponseEntity<Object> response=validateDto(subUser);
+
+        if(response.getStatusCode() != HttpStatus.OK) {
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
         if(subUserServices.pinCodeValid(subUser)){
             response=new ResponseEntity<>("Pin code is correct",HttpStatus.OK);
-        }else if(subUser.getPinCode()<=0){
-            System.out.println(subUser);
-            System.out.println(subUser.getPinCode());
-            response=new ResponseEntity<>("Pin code is not specified",HttpStatus.BAD_REQUEST);
         }else{
             response=new ResponseEntity<>("Pin code is incorrect",HttpStatus.NOT_FOUND);
         }
@@ -167,11 +168,11 @@ public class SubUserController {
 
     private ResponseEntity<Object> validateDto(SubUserDto subDto) {
         ResponseEntity<Object> response;
-        if (subDto.getMasterUser() == null || subDto.getMasterUser().isEmpty() ||
-                subDto.getName() == null || subDto.getName().isEmpty()) {
+        if (subDto.getMasterUserEmail() == null || subDto.getMasterUserEmail().isEmpty() ||
+                subDto.getName() == null || subDto.getName().isEmpty() || subDto.getAccessLevel()==null ||(subDto.getAccessLevel() && subDto.getPinCode()<=0)) {
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
-        else if (!userServices.checkIfUserExists(subDto.getMasterUser())) {
+        else if (!userServices.checkIfUserExists(subDto.getMasterUserEmail())) {
             response = new ResponseEntity<>("Masteruser not found", HttpStatus.NOT_FOUND);
         }
         else {
