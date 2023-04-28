@@ -1,14 +1,10 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
-import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.enums.Measurement;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemShoppingList;
-import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.ItemShoppingListRepository;
 import idatt2106v231.backend.repository.ShoppingListRepository;
@@ -18,7 +14,6 @@ import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
