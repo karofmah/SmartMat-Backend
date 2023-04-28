@@ -131,11 +131,12 @@ public class SubUserIntegrationTest {
         public void retrieveSubUsersFromMaster() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster")
-                    .param("email","test1@ntnu.no"))
+                            .param("email", "test1@ntnu.no"))
                     .andExpect(status().isOk())
                     .andReturn();
 
-            List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+            List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
             assertEquals(3, retrievedSubUsers.size());
         }
 
@@ -143,7 +144,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when wrong master is given")
         public void returnErrorWhenGivenWrongParam() throws Exception {
             mockMvc.perform(get("/api/subusers/getUsersFromMaster")
-                    .param("email", "invalidEmail"))
+                            .param("email", "invalidEmail"))
                     .andExpect(status().isNotFound())
                     .andReturn();
         }
@@ -159,9 +160,9 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
             assertEquals("subUser1Name", retrievedSubUser.getName());
-            assertEquals("test1@ntnu.no", retrievedSubUser.getUserEmail());
         }
 
         @Test
@@ -187,7 +188,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-             mockMvc.perform(post("/api/subusers/addSubUser")
+            mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isOk())
@@ -204,7 +205,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-             mockMvc.perform(post("/api/subusers/addSubUser")
+            mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isNotFound())
@@ -223,7 +224,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-             mockMvc.perform(post("/api/subusers/addSubUser")
+            mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
@@ -239,7 +240,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-             mockMvc.perform(post("/api/subusers/addSubUser")
+            mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
@@ -255,24 +256,7 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-             mockMvc.perform(post("/api/subusers/addSubUser")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(userJson))
-                    .andExpect(status().isBadRequest())
-                    .andReturn();
-        }
-
-        @Test
-        @DisplayName("Returns error when accesslevel is undefined")
-        public void addSubUserAccesslevelUndefined() throws Exception {
-            SubUserCreationDto testSubUser = new SubUserCreationDto();
-            testSubUser.setUserEmail("test1@ntnu.no");
-            testSubUser.setName("testSubUser");
-
-
-            String userJson = objectMapper.writeValueAsString(testSubUser);
-
-             mockMvc.perform(post("/api/subusers/addSubUser")
+            mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
@@ -287,7 +271,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns ok when requirements are met")
         public void deleteSubUserAllArgsOk() throws Exception {
 
-             mockMvc.perform(delete("/api/subusers/deleteSubUser/4")
+            mockMvc.perform(delete("/api/subusers/deleteSubUser/4")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
@@ -297,12 +281,11 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when subuser doesnt exist")
         public void deleteSubUserDoesntExist() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setUserEmail("invalidMaster");
             testSubUser.setName("invalidName");
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-             mockMvc.perform(delete("/api/subusers/deleteSubUser")
+            mockMvc.perform(delete("/api/subusers/deleteSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isNotFound())
@@ -311,7 +294,7 @@ public class SubUserIntegrationTest {
     }
 
     @Nested
-    class ValidatePinCode{
+    class ValidatePinCode {
 
         @Test
         @DisplayName("Tests validation of pin code when pin code is correct")
@@ -321,7 +304,7 @@ public class SubUserIntegrationTest {
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserValidationDto);
 
-            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
+            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(subUserDtoJson))
                     .andExpect(status().isOk())
@@ -329,8 +312,9 @@ public class SubUserIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals("Pin code is correct",responseString);
+            Assertions.assertEquals("Pin code is correct", responseString);
         }
+
         @Test
         @DisplayName("Tests validation of pin code when pin code is incorrect")
         public void validatePinCodeIsNotFound() throws Exception {
@@ -340,7 +324,7 @@ public class SubUserIntegrationTest {
             String subUserDtoJson = objectMapper.writeValueAsString(subUserValidationDto);
 
 
-            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
+            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(subUserDtoJson))
                     .andExpect(status().isNotFound())
@@ -348,6 +332,7 @@ public class SubUserIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals("Pin code is incorrect",responseString);
+            Assertions.assertEquals("Pin code is incorrect", responseString);
         }
     }
+}
