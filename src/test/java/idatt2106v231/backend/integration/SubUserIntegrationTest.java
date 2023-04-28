@@ -3,7 +3,9 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
+import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
 import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.model.User;
@@ -178,7 +180,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns ok when requirements are met")
         public void addSubUserAllArgsOk() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
+            SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
@@ -195,7 +197,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when masteruser doesnt exist")
         public void addSubUserMasterDoesntExist() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
+            SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("invalidMaster");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
@@ -212,7 +214,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when subuser already exist")
         public void addSubUserSubUserExists() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
+            SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
             testSubUser.setAccessLevel(true);
@@ -231,7 +233,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when masteruser is undefined")
         public void addSubUserMasterUndefined() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
+            SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -247,7 +249,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when name is undefined")
         public void addSubUserNameUndefined() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
+            SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setAccessLevel(false);
 
@@ -263,7 +265,7 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Returns error when accesslevel is undefined")
         public void addSubUserAccesslevelUndefined() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
+            SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
 
@@ -315,11 +317,11 @@ public class SubUserIntegrationTest {
         @DisplayName("Tests validation of pin code when pin code is correct")
         public void validatePinCodeIsOk() throws Exception {
 
-            SubUserDto subUserDto=SubUserDto.builder().userEmail("test1@ntnu.no").name("subUser1Name").pinCode(1234).accessLevel(true).build();
+            SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder().subUserId(1).pinCode(1234).build();
 
-            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserValidationDto);
 
-            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(subUserDtoJson))
                     .andExpect(status().isOk())
@@ -333,12 +335,12 @@ public class SubUserIntegrationTest {
         @DisplayName("Tests validation of pin code when pin code is incorrect")
         public void validatePinCodeIsNotFound() throws Exception {
 
-            SubUserDto subUserDto=SubUserDto.builder().userEmail("test1@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
+            SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder().subUserId(1).pinCode(2345).build();
 
-            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserValidationDto);
 
 
-            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(subUserDtoJson))
                     .andExpect(status().isNotFound())
@@ -348,23 +350,4 @@ public class SubUserIntegrationTest {
 
             Assertions.assertEquals("Pin code is incorrect",responseString);
         }
-        @Test
-        @DisplayName("Tests validation of pin code when pin code is not specified")
-        public void validatePinCodeIsBadRequest() throws Exception {
-
-            SubUserDto subUserDto=SubUserDto.builder().userEmail("test1@ntnu.no").name("subUser1Name").accessLevel(true).build();
-
-            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
-
-
-            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(subUserDtoJson))
-                    .andExpect(status().isBadRequest())
-                    .andReturn();
-
-            String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Data is not valid",responseString);
-        }
-    }
     }

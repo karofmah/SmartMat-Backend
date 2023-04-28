@@ -1,6 +1,8 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
 import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.repository.SubUserRepository;
 import idatt2106v231.backend.repository.UserRepository;
@@ -32,19 +34,19 @@ public class SubUserServices {
         this.subUserRepository = subUserRepository;
     }
 
-    public List<SubUserDto> getSubUsersByMaster(String email) {
+    public List<SubUserDto> getSubUsersByMaster(String email) { //sjekk
         return subUserRepository.findAllByUserEmail(email).stream()
                 .map(obj -> mapper.map(obj, SubUserDto.class)).toList();
     }
 
-    public SubUserDto getSubUser(int subUserId) {
+    public SubUserDto getSubUser(int subUserId) { //sjekk
         Optional<SubUser> subUser = subUserRepository.findById(subUserId);
         return mapper.map(subUser.get(), SubUserDto.class);
     }
 
-    public boolean saveSubUser(SubUserDto subDto) {
+    public boolean saveSubUser(SubUserCreationDto subUserCreationDto) {
         try {
-            SubUser subUser = mapper.map(subDto, SubUser.class);
+            SubUser subUser = mapper.map(subUserCreationDto, SubUser.class);
             subUserRepository.save(subUser);
             return true;
         } catch (Exception e) {
@@ -72,10 +74,10 @@ public class SubUserServices {
         }
     }
 
-    public boolean pinCodeValid(SubUserDto subUserDto){
+    public boolean pinCodeValid(SubUserValidationDto subDto){
         try{
-            SubUser subUser=subUserRepository.findDistinctByName(subUserDto.getName()).get();
-            return subUser.getPinCode()==subUserDto.getPinCode();
+            SubUser subUser = subUserRepository.findById(subDto.getSubUserId()).get();
+            return subUser.getPinCode() == subDto.getPinCode();
         }catch (Exception e){
             return false;
         }

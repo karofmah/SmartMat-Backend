@@ -1,6 +1,8 @@
 package idatt2106v231.backend.controller;
 
+import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
 import idatt2106v231.backend.service.SubUserServices;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -99,7 +101,7 @@ public class SubUserController {
             @ApiResponse(responseCode = "500", description = "Failed to save subuser")
 
     })
-    public ResponseEntity<Object> addSubUser(@RequestBody SubUserDto subDto) {
+    public ResponseEntity<Object> addSubUser(@RequestBody SubUserCreationDto subDto) {
         ResponseEntity<Object> response = validateDto(subDto);
 
         if(response.getStatusCode() != HttpStatus.OK) {
@@ -146,12 +148,12 @@ public class SubUserController {
         return response;
     }
 
-   /*@PostMapping("/validate")
+    @PostMapping("/validatePinCode")
+    public ResponseEntity<Object> validatePinCode(@RequestBody SubUserValidationDto subUser){
+        ResponseEntity<Object> response;
 
-    public ResponseEntity<Object> validatePinCode(@RequestBody SubUserDto subUser){
-        ResponseEntity<Object> response = validateDto(subUser);
-
-        if(response.getStatusCode() != HttpStatus.OK) {
+        if (!subUserServices.subUserExists(subUser.getSubUserId())) {
+            response = new ResponseEntity<>("Subuser not found", HttpStatus.NOT_FOUND);
             logger.info(response.getBody() + "");
             return response;
         }
@@ -164,7 +166,7 @@ public class SubUserController {
         logger.info(response.getBody() + "");
         return response;
     }
-   */
+
 
     @PostMapping("/updateSubuser")
     @Operation(summary = "Update a subuser")
@@ -190,7 +192,7 @@ public class SubUserController {
         return response;
     }
 
-    private ResponseEntity<Object> validateDto(SubUserDto subDto) {
+    private ResponseEntity<Object> validateDto(SubUserCreationDto subDto) {
         ResponseEntity<Object> response;
         if (subDto.getUserEmail() == null || subDto.getUserEmail().isEmpty() ||
                 subDto.getName() == null || subDto.getName().isEmpty()) {
