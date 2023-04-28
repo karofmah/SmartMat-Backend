@@ -1,23 +1,19 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
-import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.enums.Measurement;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemShoppingList;
-import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.ItemShoppingListRepository;
 import idatt2106v231.backend.repository.ShoppingListRepository;
+import idatt2106v231.backend.repository.SubUserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,6 +27,8 @@ public class ShoppingListServices {
     //@Autowired
     private final ItemShoppingListRepository itemShoppingListRepository;
 
+    private final SubUserRepository subUserRepository;
+
     private final ModelMapper mapper = new ModelMapper();
 
     /*@Autowired
@@ -39,12 +37,14 @@ public class ShoppingListServices {
     }*/
 
     @Autowired
-    public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository, ItemShoppingListRepository itemShoppingListRepository) {
+    public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository, ItemShoppingListRepository itemShoppingListRepository, SubUserRepository subUserRepository) {
         this.itemRepository = itemRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.itemShoppingListRepository = itemShoppingListRepository;
+        this.subUserRepository = subUserRepository;
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
+        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getSubUser().isAccessLevel(), ItemShoppingListDto::setSubUserAccessLevel));
         TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
         //propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getShoppingList().getShoppingListId(), ItemShoppingList::setShoppingList));
         //propertyMapper2.addMappings(mapper -> mapper.map(obj -> this.itemRepository.findByName(obj.getItemName()).get(), ItemShoppingList::setItem));
@@ -91,9 +91,9 @@ public class ShoppingListServices {
                             .amount(itemInShoppingListCreationDto.getAmount())
                             .measurement(Measurement.L)
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
+                            .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .build();
             itemShoppingListRepository.save(itemShoppingList);
-            //itemShoppingListRepository.save(mapper.map(itemShoppingListDto, ItemShoppingList.class));
             return true;
         } catch (Exception e) {
             return false;

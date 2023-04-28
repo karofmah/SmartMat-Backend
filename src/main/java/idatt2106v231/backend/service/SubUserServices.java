@@ -72,6 +72,15 @@ public class SubUserServices {
         }
     }
 
+    public boolean pinCodeValid(SubUserDto subUserDto){
+        try{
+            SubUser subUser=subUserRepository.findDistinctByName(subUserDto.getName()).get();
+            return subUser.getPinCode()==subUserDto.getPinCode();
+        }catch (Exception e){
+            return false;
+        }
+    }
+
     public boolean subUserExists(String name, String email) {
         return subUserRepository.findByUserEmailAndName(email, name).isPresent();
     }

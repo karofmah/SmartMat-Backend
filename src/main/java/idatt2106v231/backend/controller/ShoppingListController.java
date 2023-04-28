@@ -1,8 +1,6 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
-import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.service.ItemServices;
 import idatt2106v231.backend.service.ShoppingListServices;
 import idatt2106v231.backend.service.SubUserServices;
@@ -10,7 +8,6 @@ import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +63,12 @@ public class ShoppingListController {
             logger.info(response.getBody() + "");
             return response;
         }
+
+        /*if(itemInShoppingListCreationDto.getMasterUserEmail() == null || itemInShoppingListCreationDto.getSubUserName() == null) {
+            response = new ResponseEntity<>("Subuser is not defined", HttpStatus.BAD_REQUEST);
+            logger.info(response.getBody() + "");
+            return response;
+        }*/
 
         if(shoppingListServices.itemExistsInShoppingList(itemInShoppingListCreationDto.getShoppingListId(), itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item already exists in shoppinglist", HttpStatus.CONFLICT);

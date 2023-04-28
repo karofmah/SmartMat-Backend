@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 @Entity
 @Table
-@DynamicUpdate
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubUser {
@@ -37,4 +38,8 @@ public class SubUser {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "masterUserId", referencedColumnName = "email")
     private User user;
+
+    @OneToMany(mappedBy = "subUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemShoppingList> itemShoppingList = new ArrayList<>();
+
 }

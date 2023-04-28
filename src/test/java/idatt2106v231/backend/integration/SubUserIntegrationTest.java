@@ -122,7 +122,8 @@ public class SubUserIntegrationTest {
 
 
     @Nested
-    class TestGetUsersFromMaster {
+    class GetUsersFromMaster {
+
         @Test
         @DisplayName("Retrieves the correct number of subusers")
         public void retrieveSubUsersFromMaster() throws Exception {
@@ -147,7 +148,7 @@ public class SubUserIntegrationTest {
     }
 
     @Nested
-    class TestGetUser {
+    class GetUser {
 
         @Test
         @DisplayName("Returns correct user")
@@ -172,7 +173,7 @@ public class SubUserIntegrationTest {
     }
 
     @Nested
-    class TestAddSubUser {
+    class AddSubUser {
 
         @Test
         @DisplayName("Returns ok when requirements are met")
@@ -215,6 +216,8 @@ public class SubUserIntegrationTest {
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
             testSubUser.setAccessLevel(true);
+            testSubUser.setPinCode(1234);
+
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
@@ -256,10 +259,27 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isBadRequest())
                     .andReturn();
         }
+
+        @Test
+        @DisplayName("Returns error when accesslevel is undefined")
+        public void addSubUserAccesslevelUndefined() throws Exception {
+            SubUserDto testSubUser = new SubUserDto();
+            testSubUser.setUserEmail("test1@ntnu.no");
+            testSubUser.setName("testSubUser");
+
+
+            String userJson = objectMapper.writeValueAsString(testSubUser);
+
+             mockMvc.perform(post("/api/subusers/addSubUser")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(userJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+        }
     }
 
     @Nested
-    class TestDeleteUser {
+    class DeleteUser {
 
         @Test
         @DisplayName("Returns ok when requirements are met")
@@ -287,4 +307,64 @@ public class SubUserIntegrationTest {
                     .andReturn();
         }
     }
-}
+
+    @Nested
+    class ValidatePinCode{
+
+        @Test
+        @DisplayName("Tests validation of pin code when pin code is correct")
+        public void validatePinCodeIsOk() throws Exception {
+
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").pinCode(1234).accessLevel(true).build();
+
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(subUserDtoJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Pin code is correct",responseString);
+        }
+        @Test
+        @DisplayName("Tests validation of pin code when pin code is incorrect")
+        public void validatePinCodeIsNotFound() throws Exception {
+
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
+
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+
+
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(subUserDtoJson))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Pin code is incorrect",responseString);
+        }
+        @Test
+        @DisplayName("Tests validation of pin code when pin code is not specified")
+        public void validatePinCodeIsBadRequest() throws Exception {
+
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").accessLevel(true).build();
+
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+
+
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(subUserDtoJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Data is not valid",responseString);
+        }
+    }
+    }
