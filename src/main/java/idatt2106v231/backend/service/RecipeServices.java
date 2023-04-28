@@ -2,6 +2,7 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.model.WeeklyMenu;
+import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.repository.WeekMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class RecipeServices {
     private AiServices aiServices;
     private RefrigeratorServices refrigeratorServices;
     private WeekMenuRepository weekMenuRepository;
+    private UserRepository userRepository;
 
     /**
      * Sets the AI Service for AI queries.
@@ -50,6 +52,15 @@ public class RecipeServices {
     }
 
     /**
+     * Sets user repository
+     * @param userRepository the user repository
+     */
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    /**
      * This method generates a random recipe based on items in a refrigerator.
      *
      * @param refrigeratorId the id of the refrigerator to generate a recipe from.
@@ -57,6 +68,7 @@ public class RecipeServices {
      */
     public String generateRecipe(int refrigeratorId) {
         try {
+
             List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
@@ -83,11 +95,12 @@ public class RecipeServices {
             String query = "I need a weekly menu (7 days) for " + numPeople + " people. " +
                     "It should be structured like this: " +
                     "'Monday: dish name', then a list of ingredients," +
-                    "then the directions. Add a combined shopping list at the end. Keep the recipes basic.";
+                    "then the directions. Add a combined shopping list at the end. Keep the recipes basic. " +
+                    "I have some ingredients in my fridge that I would like to use up: ";
 
-            query += " I have some ingredients in my fridge that I would like to use up: ";
 
-            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(1);
+            int refrigeratorId = refrigeratorServices.getRefrigeratorByUserEmail(userEmail).getRefrigeratorId();
+            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
 
 
             for (ItemInRefrigeratorDto ingredient : ingredients) {
@@ -117,14 +130,19 @@ public class RecipeServices {
         try {
             Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
 
+            WeeklyMenu _weeklyMenu;
             if (weeklyMenu.isPresent()) {
-                WeeklyMenu _weeklyMenu = weeklyMenu.get();
+                _weeklyMenu = weeklyMenu.get();
                 _weeklyMenu.setMenu(menu);
-                weekMenuRepository.save(_weeklyMenu);
-                return true;
             } else {
-                return false;
+                _weeklyMenu = WeeklyMenu.builder()
+                        .user(userRepository.findByEmail(userEmail).get())
+                        .build();
             }
+            _weeklyMenu.setMenu(menu);
+            weekMenuRepository.save(_weeklyMenu);
+            // TODO Move new menu functionality to user creation
+            return true;
         } catch (IllegalArgumentException e){
             return false;
         }
