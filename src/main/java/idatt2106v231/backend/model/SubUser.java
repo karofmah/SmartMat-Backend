@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @Entity
@@ -35,4 +38,8 @@ public class SubUser {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "masterUserId", referencedColumnName = "email")
     private User masterUser;
+
+    @OneToMany(mappedBy = "subUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemShoppingList> itemShoppingList = new ArrayList<>();
+
 }
