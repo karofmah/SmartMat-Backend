@@ -6,8 +6,6 @@ import idatt2106v231.backend.repository.SubUserRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,7 @@ public class SubUserServices {
 
     public SubUserServices() {
         TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
-        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
+        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUserEmail));
 
     }
 
@@ -45,7 +43,7 @@ public class SubUserServices {
     public boolean saveSubUser(SubUserDto subUserDto) {
         try {
             SubUser subUser = mapper.map(subUserDto, SubUser.class);
-            subUser.setMasterUser(userRepository.findByEmail(subUserDto.getMasterUser()).get());
+            subUser.setMasterUser(userRepository.findByEmail(subUserDto.getMasterUserEmail()).get());
             subUserRepository.save(subUser);
             return true;
         } catch (Exception e) {
@@ -58,6 +56,15 @@ public class SubUserServices {
             subUserRepository.deleteById(subUserId);
             return true;
         } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean pinCodeValid(SubUserDto subUserDto){
+        try{
+            SubUser subUser=subUserRepository.findDistinctByName(subUserDto.getName()).get();
+            return subUser.getPinCode()==subUserDto.getPinCode();
+        }catch (Exception e){
             return false;
         }
     }
