@@ -245,4 +245,8 @@ public class ShoppingListServices {
         return aiServices.getChatCompletion(query);
 
     }
+
+    public boolean itemExistsInShoppingList(int shoppingListId, String itemName) {
+        return itemShoppingListRepository.findByItemNameAndShoppingList_ShoppingListId(itemName, shoppingListId).isPresent();
+    }
 }
