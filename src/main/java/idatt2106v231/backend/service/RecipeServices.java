@@ -3,7 +3,7 @@ package idatt2106v231.backend.service;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.UserRepository;
-import idatt2106v231.backend.repository.WeeklyMenuRepository;
+import idatt2106v231.backend.repository.WeekMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class RecipeServices {
 
     private AiServices aiServices;
     private RefrigeratorServices refrigeratorServices;
-    private WeeklyMenuRepository weeklyMenuRepository;
+    private WeekMenuRepository weekMenuRepository;
     private UserRepository userRepository;
 
     /**
@@ -44,11 +44,11 @@ public class RecipeServices {
     /**
      * Sets the week menu repository
      *
-     * @param weeklyMenuRepository the repository to use
+     * @param weekMenuRepository the repository to use
      */
     @Autowired
-    public void setWeeklyMenuRepository(WeeklyMenuRepository weeklyMenuRepository) {
-        this.weeklyMenuRepository = weeklyMenuRepository;
+    public void setWeekMenuRepository(WeekMenuRepository weekMenuRepository) {
+        this.weekMenuRepository = weekMenuRepository;
     }
 
     /**
@@ -130,7 +130,7 @@ public class RecipeServices {
      */
     private boolean saveWeeklyMenu(String userEmail, String menu) {
         try {
-            Optional<WeeklyMenu> weeklyMenu = weeklyMenuRepository.findByUserEmail(userEmail);
+            Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
 
             WeeklyMenu _weeklyMenu;
             if (weeklyMenu.isPresent()) {
@@ -142,7 +142,7 @@ public class RecipeServices {
                         .build();
             }
             _weeklyMenu.setMenu(menu);
-            weeklyMenuRepository.save(_weeklyMenu);
+            weekMenuRepository.save(_weeklyMenu);
             // TODO Move new menu functionality to user creation
             return true;
         } catch (IllegalArgumentException e){
@@ -158,7 +158,7 @@ public class RecipeServices {
      */
     public String getWeeklyMenu(String userEmail) {
         try {
-            Optional<WeeklyMenu> weeklyMenu = weeklyMenuRepository.findByUserEmail(userEmail);
+            Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
             return weeklyMenu.map(WeeklyMenu::getMenu).orElse(null);
         } catch (Exception e) {
             return null;

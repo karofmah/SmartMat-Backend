@@ -25,9 +25,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class, properties = {
+        "spring.config.name=test6",
+        "spring.datasource.url=jdbc:h2:mem:test6;NON_KEYWORDS=YEAR",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=update",})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ShoppingListTest {
+public class ShoppingListIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;

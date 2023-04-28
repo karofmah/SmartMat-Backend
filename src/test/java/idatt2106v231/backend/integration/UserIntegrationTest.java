@@ -3,14 +3,11 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.dto.user.UserUpdateDto;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -18,13 +15,22 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
+        ,properties = {
+        "spring.config.name=test5",
+        "spring.datasource.url=jdbc:h2:mem:test5;NON_KEYWORDS=YEAR",
+        "spring.datasource.username=sa",
+        "spring.datasource.password=",
+        "spring.datasource.driver-class-name=org.h2.Driver",
+        "spring.jpa.hibernate.ddl-auto=update",
+
+})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class UserIntegrationTest {
 
     @Autowired
@@ -65,12 +71,10 @@ public class UserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-
             String responseString = result.getResponse().getContentAsString();
-            System.out.println(responseString + "");
-            UserDto retrievedUser = objectMapper.readValue(responseString, new TypeReference<>() {
+            User retrievedUser= objectMapper.readValue(responseString, new TypeReference<>() {
             });
-            Assertions.assertEquals("test@ntnu.no", retrievedUser.getEmail());
+            Assertions.assertEquals("test@ntnu.no",retrievedUser.getEmail());
 
 
         }

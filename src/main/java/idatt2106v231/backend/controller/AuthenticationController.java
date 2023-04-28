@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @CrossOrigin("http://localhost:8000/")
 @RequiredArgsConstructor
 public class AuthenticationController {
@@ -52,11 +52,11 @@ public class AuthenticationController {
     @Operation(summary = "Log in a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User authenticated"),
+            @ApiResponse(responseCode = "226", description = "User already exists"),
+            @ApiResponse(responseCode = "400", description = "One or more fields are missing"),
             @ApiResponse(responseCode = "403", description = "Wrong username or password")
     })
-    public ResponseEntity<Object> authenticate(
-            @RequestBody UserAuthenticationDto request
-    ) {
+    public ResponseEntity<Object> authenticate(@RequestBody UserAuthenticationDto request) {
         logger.info("Attempting to log in with user " + request.getEmail());
         AuthenticationResponse response = service.authenticate(request);
 

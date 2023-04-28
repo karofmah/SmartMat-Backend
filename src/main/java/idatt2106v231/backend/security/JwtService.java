@@ -1,4 +1,4 @@
-package idatt2106v231.backend.config;
+package idatt2106v231.backend.security;
 
 
 import io.jsonwebtoken.Claims;
@@ -37,8 +37,7 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
-        return Jwts
-                .builder()
+        return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))

@@ -12,12 +12,11 @@ import java.util.Optional;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository repository;
+    private final UserRepository repository;
 
     public CustomUserDetailsService(UserRepository repository) {
         this.repository = repository;
     }
-
 
     /**
      * Locates the user based on the username. In the actual implementation, the search
@@ -33,7 +32,6 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = repository.findByEmail(username).get();
-        return user;
+        return repository.findByEmail(username).get();
     }
 }
