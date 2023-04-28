@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubUserDto {
+public class SubUserCreationDto {
     private int subUserId;
     private String name;
-    private Boolean accessLevel;
+    private boolean accessLevel;
     private String masterUserEmail;
     private int pinCode;
 }
