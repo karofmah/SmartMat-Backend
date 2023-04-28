@@ -7,11 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Data
 @Builder
 @Entity
 @Table
+@DynamicUpdate
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubUser {
@@ -34,5 +36,5 @@ public class SubUser {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "masterUserId", referencedColumnName = "email")
-    private User masterUser;
+    private User user;
 }

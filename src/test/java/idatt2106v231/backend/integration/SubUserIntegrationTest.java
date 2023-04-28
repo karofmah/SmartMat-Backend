@@ -85,7 +85,7 @@ public class SubUserIntegrationTest {
                 .subUserId(1)
                 .accessLevel(true)
                 .name("subUser1Name")
-                .masterUser(user1)
+                .user(user1)
                 .pinCode(1234)
                 .build();
 
@@ -93,21 +93,21 @@ public class SubUserIntegrationTest {
                 .subUserId(2)
                 .accessLevel(false)
                 .name("subUser2Name")
-                .masterUser(user1)
+                .user(user1)
                 .build();
 
         var subUser3 = SubUser.builder()
                 .subUserId(3)
                 .accessLevel(false)
                 .name("subUser3Name")
-                .masterUser(user2)
+                .user(user2)
                 .build();
 
         var subUser4 = SubUser.builder()
                 .subUserId(4)
                 .accessLevel(true)
                 .name("subUser4Name")
-                .masterUser(user1)
+                .user(user1)
                 .pinCode(1234)
                 .build();
 
@@ -158,7 +158,7 @@ public class SubUserIntegrationTest {
 
             SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertEquals("subUser1Name", retrievedSubUser.getName());
-            assertEquals("test1@ntnu.no", retrievedSubUser.getMasterUser());
+            assertEquals("test1@ntnu.no", retrievedSubUser.getUserEmail());
         }
 
         @Test
@@ -178,7 +178,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns ok when requirements are met")
         public void addSubUserAllArgsOk() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -195,7 +195,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when masteruser doesnt exist")
         public void addSubUserMasterDoesntExist() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("invalidMaster");
+            testSubUser.setUserEmail("invalidMaster");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -212,7 +212,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when subuser already exist")
         public void addSubUserSubUserExists() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
             testSubUser.setAccessLevel(true);
 
@@ -245,7 +245,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when name is undefined")
         public void addSubUserNameUndefined() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setAccessLevel(false);
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
@@ -275,7 +275,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when subuser doesnt exist")
         public void deleteSubUserDoesntExist() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("invalidMaster");
+            testSubUser.setUserEmail("invalidMaster");
             testSubUser.setName("invalidName");
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
