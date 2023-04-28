@@ -109,25 +109,25 @@ public class ShoppingListIntegrationTest {
         userRepository.save(user3);
 
         var subUser1 = SubUser.builder()
-                .masterUser(user1)
+                .user(user1)
                 .accessLevel(true)
                 .name("Subuser1")
                 .build();
 
         var subUser2 = SubUser.builder()
-                .masterUser(user1)
+                .user(user1)
                 .accessLevel(false)
                 .name("Subuser2")
                 .build();
 
         var subUser3 = SubUser.builder()
-                .masterUser(user2)
+                .user(user2)
                 .accessLevel(true)
                 .name("Subuser3")
                 .build();
 
         var subUser4 = SubUser.builder()
-                .masterUser(user3)
+                .user(user3)
                 .accessLevel(true)
                 .name("Subuser4")
                 .build();

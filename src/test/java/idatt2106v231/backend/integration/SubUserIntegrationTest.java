@@ -315,7 +315,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Tests validation of pin code when pin code is correct")
         public void validatePinCodeIsOk() throws Exception {
 
-            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").pinCode(1234).accessLevel(true).build();
+            SubUserDto subUserDto=SubUserDto.builder().userEmail("test1@ntnu.no").name("subUser1Name").pinCode(1234).accessLevel(true).build();
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
 
@@ -333,7 +333,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Tests validation of pin code when pin code is incorrect")
         public void validatePinCodeIsNotFound() throws Exception {
 
-            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
+            SubUserDto subUserDto=SubUserDto.builder().userEmail("test1@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
 
@@ -352,7 +352,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Tests validation of pin code when pin code is not specified")
         public void validatePinCodeIsBadRequest() throws Exception {
 
-            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").accessLevel(true).build();
+            SubUserDto subUserDto=SubUserDto.builder().userEmail("test1@ntnu.no").name("subUser1Name").accessLevel(true).build();
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
 

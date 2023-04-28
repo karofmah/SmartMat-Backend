@@ -146,9 +146,10 @@ public class SubUserController {
         return response;
     }
 
-    @PostMapping("/validate")
+   /*@PostMapping("/validate")
+
     public ResponseEntity<Object> validatePinCode(@RequestBody SubUserDto subUser){
-        ResponseEntity<Object> response=validateDto(subUser);
+        ResponseEntity<Object> response = validateDto(subUser);
 
         if(response.getStatusCode() != HttpStatus.OK) {
             logger.info(response.getBody() + "");
@@ -156,16 +157,14 @@ public class SubUserController {
         }
 
         if(subUserServices.pinCodeValid(subUser)){
-            response=new ResponseEntity<>("Pin code is correct",HttpStatus.OK);
+            response = new ResponseEntity<>("Pin code is correct",HttpStatus.OK);
         }else{
-            response=new ResponseEntity<>("Pin code is incorrect",HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Pin code is incorrect",HttpStatus.NOT_FOUND);
         }
         logger.info(response.getBody() + "");
         return response;
-
-
     }
-
+   */
 
     @PostMapping("/updateSubuser")
     @Operation(summary = "Update a subuser")
