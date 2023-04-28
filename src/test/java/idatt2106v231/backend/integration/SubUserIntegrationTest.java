@@ -122,7 +122,7 @@ public class SubUserIntegrationTest {
 
 
     @Nested
-    class TestGetUsersFromMaster {
+    class GetUsersFromMaster {
 
         @Test
         @DisplayName("Retrieves the correct number of subusers")
@@ -148,7 +148,7 @@ public class SubUserIntegrationTest {
     }
 
     @Nested
-    class TestGetUserByNameAndMaster {
+    class GetUserByNameAndMaster {
 
         @Test
         @DisplayName("Returns correct user")
@@ -161,7 +161,7 @@ public class SubUserIntegrationTest {
 
             SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertEquals("subUser1Name", retrievedSubUser.getName());
-            assertEquals("test1@ntnu.no", retrievedSubUser.getMasterUser());
+            assertEquals("test1@ntnu.no", retrievedSubUser.getMasterUserEmail());
         }
 
         @Test
@@ -186,13 +186,13 @@ public class SubUserIntegrationTest {
     }
 
     @Nested
-    class TestAddSubUser {
+    class AddSubUser {
 
         @Test
         @DisplayName("Returns ok when requirements are met")
         public void addSubUserAllArgsOk() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -209,7 +209,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when masteruser doesnt exist")
         public void addSubUserMasterDoesntExist() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("invalidMaster");
+            testSubUser.setMasterUserEmail("invalidMaster");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -226,7 +226,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when subuser already exist")
         public void addSubUserSubUserExists() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
             testSubUser.setAccessLevel(true);
 
@@ -243,7 +243,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when masteruser is undefined")
         public void addSubUserMasterUndefined() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("invalidMasterUser");
+            testSubUser.setMasterUserEmail("invalidMasterUser");
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
@@ -260,7 +260,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when name is undefined")
         public void addSubUserNameUndefined() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setAccessLevel(false);
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
@@ -276,7 +276,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when accesslevel is undefined")
         public void addSubUserAccesslevelUndefined() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
@@ -290,13 +290,13 @@ public class SubUserIntegrationTest {
     }
 
     @Nested
-    class TestDeleteUser {
+    class DeleteUser {
 
         @Test
         @DisplayName("Returns ok when requirements are met")
         public void deleteSubUserAllArgsOk() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("test1@ntnu.no");
+            testSubUser.setMasterUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser4Name");
             testSubUser.setAccessLevel(true);
 
@@ -313,7 +313,7 @@ public class SubUserIntegrationTest {
         @DisplayName("Returns error when subuser doesnt exist")
         public void deleteSubUserDoesntExist() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setMasterUser("invalidMaster");
+            testSubUser.setMasterUserEmail("invalidMaster");
             testSubUser.setName("invalidName");
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
@@ -325,4 +325,65 @@ public class SubUserIntegrationTest {
                     .andReturn();
         }
     }
-}
+
+    @Nested
+    class ValidatePinCode{
+
+        @Test
+        @DisplayName("Tests validation of pin code when pin code is correct")
+        public void validatePinCodeIsOk() throws Exception {
+
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").pinCode(1234).accessLevel(true).build();
+
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(subUserDtoJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Pin code is correct",responseString);
+        }
+        @Test
+        @DisplayName("Tests validation of pin code when pin code is incorrect")
+        public void validatePinCodeIsNotFound() throws Exception {
+
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test@ntnu.no").name("subUser1Name").pinCode(123).accessLevel(true).build();
+
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+
+
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(subUserDtoJson))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Pin code is incorrect",responseString);
+        }
+        @Test
+        @DisplayName("Tests validation of pin code when pin code is not specified")
+        public void validatePinCodeIsBadRequest() throws Exception {
+
+            SubUserDto subUserDto=SubUserDto.builder().masterUserEmail("test1@ntnu.no").name("subUser1Name").accessLevel(true).build();
+
+            String subUserDtoJson = objectMapper.writeValueAsString(subUserDto);
+
+
+            MvcResult result= mockMvc.perform(post("http://localhost:8080/api/subusers/validate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(subUserDtoJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Pin code is not specified",responseString);
+        }
+    }
+    }
+

@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class SubUserDto {
     private String name;
     private Boolean accessLevel;
-    private String masterUser;
+    private String masterUserEmail;
+    private int pinCode;
 }

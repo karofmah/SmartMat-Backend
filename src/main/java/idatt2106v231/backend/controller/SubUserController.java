@@ -1,7 +1,6 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.subuser.SubUserDto;
-import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.service.SubUserServices;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/subusers")
@@ -77,11 +74,11 @@ public class SubUserController {
     })
     public ResponseEntity<Object> addSubUser(@RequestBody SubUserDto subUser) {
         ResponseEntity<Object> response;
-        if(subUserServices.subUserExists(subUser.getName(), subUser.getMasterUser())) {
+        if(subUserServices.subUserExists(subUser.getName(), subUser.getMasterUserEmail())) {
             response = new ResponseEntity<>("Subuser already exists", HttpStatus.IM_USED);
-        } else if (!userServices.checkIfUserExists(subUser.getMasterUser())){
+        } else if (!userServices.checkIfUserExists(subUser.getMasterUserEmail())){
             response = new ResponseEntity<>("Masteruser doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(subUser.getMasterUser() == null) {
+        } else if(subUser.getMasterUserEmail() == null) {
             response = new ResponseEntity<>("Masteruser is not defined", HttpStatus.BAD_REQUEST);
         } else if(subUser.getName() == null) {
             response = new ResponseEntity<>("Subuser name is not defined", HttpStatus.BAD_REQUEST);
@@ -103,7 +100,7 @@ public class SubUserController {
     })
     public ResponseEntity<Object> deleteSubUser(@RequestBody SubUserDto subUser) {
         ResponseEntity<Object> response;
-        if(!subUserServices.subUserExists(subUser.getName(), subUser.getMasterUser())) {
+        if(!subUserServices.subUserExists(subUser.getName(), subUser.getMasterUserEmail())) {
             response = new ResponseEntity<>("Subuser doesnt exist", HttpStatus.BAD_REQUEST);
         } else {
             subUserServices.deleteSubUser(subUser);
@@ -111,5 +108,23 @@ public class SubUserController {
         }
         logger.info(response.getBody() + "");
         return response;
+    }
+    @PostMapping("/validate")
+    public ResponseEntity<Object> validatePinCode(@RequestBody SubUserDto subUser){
+        ResponseEntity<Object> response;
+        System.out.println(subUser);
+        if(subUserServices.pinCodeValid(subUser)){
+            response=new ResponseEntity<>("Pin code is correct",HttpStatus.OK);
+        }else if(subUser.getPinCode()<=0){
+            System.out.println(subUser);
+            System.out.println(subUser.getPinCode());
+            response=new ResponseEntity<>("Pin code is not specified",HttpStatus.BAD_REQUEST);
+        }else{
+            response=new ResponseEntity<>("Pin code is incorrect",HttpStatus.NOT_FOUND);
+        }
+        logger.info(response.getBody() + "");
+        return response;
+
+
     }
 }
