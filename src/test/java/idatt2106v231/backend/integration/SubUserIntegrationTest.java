@@ -179,6 +179,7 @@ public class SubUserIntegrationTest {
     class AddSubUser {
 
         @Test
+        @Transactional
         @DisplayName("Returns ok when requirements are met")
         public void addSubUserAllArgsOk() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
@@ -268,6 +269,7 @@ public class SubUserIntegrationTest {
     class DeleteUser {
 
         @Test
+        @Transactional
         @DisplayName("Returns ok when requirements are met")
         public void deleteSubUserAllArgsOk() throws Exception {
 
