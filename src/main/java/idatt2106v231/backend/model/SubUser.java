@@ -37,7 +37,7 @@ public class SubUser {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "masterUserId", referencedColumnName = "email")
-    private User masterUser;
+    private User user;
 
     @OneToMany(mappedBy = "subUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemShoppingList> itemShoppingList = new ArrayList<>();
