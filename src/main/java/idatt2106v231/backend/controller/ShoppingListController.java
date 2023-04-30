@@ -76,8 +76,10 @@ public class ShoppingListController {
             return response;
         }
 
-        shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
-        response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
+        if (shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto)) {
+            response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
+
+        }
 
         logger.info(response.getBody() + "");
         return response;

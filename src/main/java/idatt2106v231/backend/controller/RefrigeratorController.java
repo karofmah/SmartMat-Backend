@@ -119,7 +119,8 @@ public class RefrigeratorController {
         }
 
         if (refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) &&
-                refrigeratorServices.updateItemInRefrigeratorAmount(dto) ) {
+                refrigeratorServices.validMeasurementType(dto.getItemName(), dto.getRefrigeratorId(),dto.getMeasurementType()) &&
+                refrigeratorServices.updateItemInRefrigeratorAmount(dto)) {
             response = new ResponseEntity<>("Item is updated", HttpStatus.OK);
         }
         else if(refrigeratorServices.addItemToRefrigerator(dto)){
@@ -164,7 +165,7 @@ public class RefrigeratorController {
 
     private ResponseEntity<Object> validateItemInRefrigerator(EditItemInRefrigeratorDto dto){
         ResponseEntity<Object> response;
-        if (dto.getRefrigeratorId() == -1 || dto.getItemName().isEmpty() || dto.getAmount() == 0){
+        if (dto.getRefrigeratorId() == -1 || dto.getItemName().isEmpty() || dto.getAmount() == 0 || dto.getMeasurementType()==null){
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
         else if(!refrigeratorServices.refrigeratorExists(dto.getRefrigeratorId())){

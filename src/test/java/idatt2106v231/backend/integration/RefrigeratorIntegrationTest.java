@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
+import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
 import org.h2.jdbcx.JdbcDataSource;
@@ -80,18 +81,18 @@ public class RefrigeratorIntegrationTest {
         userRepository.save(user1);
 
         Category category = Category.builder()
-                .description("category1")
+                .description("Drinks")
                 .build();
 
         categoryRepository.save(category);
 
         Item item1 = Item.builder()
-                .name("test10")
+                .name("milk")
                 .category(category)
                 .build();
 
         Item item2 = Item.builder()
-                .name("test11")
+                .name("orange juice")
                 .category(category)
                 .build();
 
@@ -108,6 +109,7 @@ public class RefrigeratorIntegrationTest {
                 .item(item1)
                 .refrigerator(refrigerator)
                 .amount(2)
+                .measurementType(Measurement.L)
                 .build();
 
 
@@ -169,7 +171,7 @@ public class RefrigeratorIntegrationTest {
         public void addItemToRefrigeratorIsCreated() throws Exception {
 
 
-            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder().itemName("orange juice").refrigeratorId(1).amount(1).measurementType(Measurement.L).build();
 
             String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
 
@@ -183,13 +185,12 @@ public class RefrigeratorIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Optional<ItemRefrigerator> itemOptional = itemRefrigeratorRepository
-                    .findByItemNameAndRefrigeratorRefrigeratorId("test11",1);
+                    .findByItemNameAndRefrigeratorRefrigeratorId("orange juice",1);
             Assertions.assertTrue(itemOptional.isPresent());
             ItemRefrigerator retrievedItem = itemOptional.get();
 
             Assertions.assertEquals("Item is added to refrigerator", responseString);
             Assertions.assertEquals(newItem.getItemName(), retrievedItem.getItem().getName());
-
         }
 
         @Test
@@ -197,7 +198,7 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for adding item to refrigerator when item already exists in that refrigerator")
         public void addItemToRefrigeratorIsOk() throws Exception {
 
-            EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("milk").refrigeratorId(1).amount(1).measurementType(Measurement.L).build();
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -211,10 +212,11 @@ public class RefrigeratorIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Optional<ItemRefrigerator> itemInRefrigerator=itemRefrigeratorRepository
-                    .findByItemNameAndRefrigeratorRefrigeratorId("test10",1);
+                    .findByItemNameAndRefrigeratorRefrigeratorId("milk",1);
             Assertions.assertTrue(itemInRefrigerator.isPresent());
             Assertions.assertEquals("Item is updated", responseString);
             Assertions.assertEquals(3,itemInRefrigerator.get().getAmount());
+            Assertions.assertEquals(Measurement.L,itemInRefrigerator.get().getMeasurementType());
         }
 
         @Nested
@@ -224,7 +226,7 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when item does not exist")
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
 
-                EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("test30").refrigeratorId(1).amount(1).build();
+                EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("cheese").refrigeratorId(1).amount(1).measurementType(Measurement.G).build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -244,7 +246,7 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when refrigerator does not exist ")
             public void addItemToRefrigeratorRefrigeratorIsNotFound() throws Exception {
 
-                EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(30).amount(1).build();
+                EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("milk").refrigeratorId(30).amount(1).measurementType(Measurement.L).build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
 
@@ -265,7 +267,7 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for saving an item to refrigerator when item is not valid")
         public void addItemToRefrigeratorIsBadRequest() throws Exception {
 
-            EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("").refrigeratorId(30).amount(1).build();
+            EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder().itemName("").refrigeratorId(30).amount(1).measurementType(Measurement.UNIT).build();
 
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -294,7 +296,7 @@ public class RefrigeratorIntegrationTest {
 
             int size = itemRefrigeratorRepository.findAll().size();
 
-            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(2).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("milk").refrigeratorId(1).amount(2).measurementType(Measurement.L).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
@@ -319,7 +321,7 @@ public class RefrigeratorIntegrationTest {
             int itemInRefrigeratorSize = itemRefrigeratorRepository.findAll().size();
             int garbageSize=garbageRepository.findAll().size();
 
-            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(2).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("milk").refrigeratorId(1).amount(2).measurementType(Measurement.L).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
@@ -344,7 +346,7 @@ public class RefrigeratorIntegrationTest {
 
             int totalAmount=itemRefrigeratorRepository.findById(1).get().getAmount();
 
-            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("milk").refrigeratorId(1).amount(1).measurementType(Measurement.L).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
@@ -363,12 +365,12 @@ public class RefrigeratorIntegrationTest {
         @Test
         @WithMockUser(username = "USER")
         @Transactional
-        @DisplayName("Test removal of item when refrigerator is not found in database")
+        @DisplayName("Test removal of item when item is not found in refrigerator")
         public void removeItemFromRefrigeratorIsNotFound() throws Exception {
 
             int size = itemRefrigeratorRepository.findAll().size();
 
-            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("orange juice").refrigeratorId(1).amount(1).measurementType(Measurement.L).build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 

@@ -138,7 +138,7 @@ public class RefrigeratorServices {
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
                     .item(itemRepo.findByName(itemRefDto.getItemName()).get())
                     .amount(itemRefDto.getAmount())
-                    .measurementType(Measurement.L)
+                    .measurementType(itemRefDto.getMeasurementType())
                     .build();
             itemRefRepo.save(itemRef);
             return true;
@@ -227,5 +227,9 @@ public class RefrigeratorServices {
      */
     public boolean refrigeratorContainsItem(String itemName, int refrigeratorId){
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
+    }
+
+    public boolean validMeasurementType(String itemName, int refrigeratorId,Measurement measurement){
+        return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).get().getMeasurementType().equals(measurement);
     }
 }

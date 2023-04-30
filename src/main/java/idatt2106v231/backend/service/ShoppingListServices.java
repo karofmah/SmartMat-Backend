@@ -86,10 +86,11 @@ public class ShoppingListServices {
 
     public boolean saveItemToShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         try {
+            System.out.println(itemInShoppingListCreationDto.getMeasurementType());
             var itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(Measurement.L)
+                            .measurement(itemInShoppingListCreationDto.getMeasurementType())
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .build();
