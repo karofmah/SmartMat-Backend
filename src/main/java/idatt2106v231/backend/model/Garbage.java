@@ -1,5 +1,6 @@
 package idatt2106v231.backend.model;
 
+import idatt2106v231.backend.enums.Measurement;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,9 @@ public class Garbage {
     @Column
     @NotNull
     int amount;
+
+    @Column
+    @NotNull Measurement measurementType;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")

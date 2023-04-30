@@ -180,7 +180,14 @@ public class RefrigeratorServices {
      */
     public boolean addToGarbage(EditItemInRefrigeratorDto itemRefDto){
         try {
+            ItemRefrigerator item = itemRefRepo
+                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
+                    .get();
+
             Garbage garbage = mapper.map(itemRefDto, Garbage.class);
+            if (itemRefDto.getAmount() > item.getAmount()) {
+                garbage.setAmount(item.getAmount());
+            }
             garbRepo.save(garbage);
             return true;
         }catch (Exception e){
