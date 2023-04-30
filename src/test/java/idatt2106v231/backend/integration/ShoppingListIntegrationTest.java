@@ -180,7 +180,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingList1 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.KG)
+                .measurementType(Measurement.KG)
                 .shoppingList(shoppingListUser1)
                 .item(item1)
                 .subUser(subUser1)
@@ -188,7 +188,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingList2 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .shoppingList(shoppingListUser1)
                 .item(item2)
                 .subUser(subUser2)
@@ -196,7 +196,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingList3 = ItemShoppingList.builder()
                 .amount(300)
-                .measurement(Measurement.G)
+                .measurementType(Measurement.G)
                 .shoppingList(shoppingListUser1)
                 .item(item3)
                 .subUser(subUser1)
@@ -204,7 +204,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingListUser2 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .shoppingList(shoppingListUser2)
                 .item(item2)
                 .subUser(subUser2)
@@ -212,7 +212,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingListUser3 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .shoppingList(shoppingListUser3)
                 .item(item2)
                 .subUser(subUser4)
@@ -226,15 +226,6 @@ public class ShoppingListIntegrationTest {
         itemShoppingListRepository.save(itemShoppingListUser3);
     }
 
-    /*@AfterEach
-    @DisplayName("Teardown of database")
-    public void teardown() {
-        itemShoppingListRepository.deleteAll();
-        itemRepository.deleteAll();
-        categoryRepository.deleteAll();
-        shoppingListRepository.deleteAll();
-        userRepository.deleteAll();
-    }*/
 
     @Nested
     class TestGetItemsFromShoppingList {
@@ -267,7 +258,7 @@ public class ShoppingListIntegrationTest {
         @Test
         @DisplayName("Return error when supplied invalid user")
         public void returnErrorWithInvalidUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+             mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
                             .param("email","invalidUser"))
                     .andExpect(status().isBadRequest())
                     .andReturn();
@@ -278,6 +269,7 @@ public class ShoppingListIntegrationTest {
     class TestAddItemToShoppingList {
 
         @Test
+        @Transactional
         @DisplayName("Return ok when all requirements are met")
         public void addItemAllArgsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
@@ -290,11 +282,15 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            int size=itemShoppingListRepository.findAll().size();
+             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(shoppingListJson))
                     .andExpect(status().isOk())
                     .andReturn();
+
+             assertEquals(size+1,itemShoppingListRepository.findAll().size());
+             Assertions.assertEquals(itemInShoppingListCreationDto.getMeasurementType(),itemShoppingListRepository.findByItemNameAndShoppingList_ShoppingListId("Milk",2).get().getMeasurementType());
         }
 
         @Test
@@ -304,13 +300,13 @@ public class ShoppingListIntegrationTest {
                     .shoppingListId(1)
                     .itemName("Cheese")
                     .amount(1)
-                    .measurementType(Measurement.L)
+                    .measurementType(Measurement.G)
                     .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isConflict())
@@ -330,7 +326,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
@@ -344,7 +340,7 @@ public class ShoppingListIntegrationTest {
                     .shoppingListId(1)
                     .itemName("Milk")
                     .amount(0)
-                    .measurementType(Measurement.L)
+                    .measurementType(Measurement.KG)
                     .subUserId(1)
                     .build();
 
@@ -370,7 +366,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
@@ -393,7 +389,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
+             mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isOk())

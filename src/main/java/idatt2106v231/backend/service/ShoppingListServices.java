@@ -3,7 +3,6 @@ package idatt2106v231.backend.service;
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
-import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.ItemShoppingList;
 import idatt2106v231.backend.repository.ItemRepository;
 import idatt2106v231.backend.repository.ItemShoppingListRepository;
@@ -87,10 +86,10 @@ public class ShoppingListServices {
     public boolean saveItemToShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         try {
             System.out.println(itemInShoppingListCreationDto.getMeasurementType());
-            var itemShoppingList = ItemShoppingList.builder()
+            ItemShoppingList itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(itemInShoppingListCreationDto.getMeasurementType())
+                            .measurementType(itemInShoppingListCreationDto.getMeasurementType())
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .build();

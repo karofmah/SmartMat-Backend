@@ -58,14 +58,14 @@ public class RefrigeratorController {
 
         if (!userServices.checkIfUserExists(userEmail)){
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
         RefrigeratorDto refrigerator = refrigeratorServices.getRefrigeratorByUserEmail(userEmail);
         if (refrigerator == null){
             response = new ResponseEntity<>("Failed to retrieve refrigerator", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(refrigerator, HttpStatus.OK);
@@ -86,7 +86,7 @@ public class RefrigeratorController {
 
         if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -94,7 +94,7 @@ public class RefrigeratorController {
 
         if (items == null){
             response = new ResponseEntity<>("Failed to retrieve items in refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(items, HttpStatus.OK);

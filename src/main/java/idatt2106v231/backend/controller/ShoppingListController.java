@@ -42,7 +42,7 @@ public class ShoppingListController {
 
         if(!userServices.checkIfUserExists(email)) {
             response = new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         } else {
             response = new ResponseEntity<>(shoppingListServices.getShoppingListByUserEmail(email), HttpStatus.OK);
             logger.info("Retrieving all items in shoppinglist with email: " + email);
@@ -60,7 +60,7 @@ public class ShoppingListController {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -72,7 +72,7 @@ public class ShoppingListController {
 
         if(shoppingListServices.itemExistsInShoppingList(itemInShoppingListCreationDto.getShoppingListId(), itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item already exists in shoppinglist", HttpStatus.CONFLICT);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -81,7 +81,7 @@ public class ShoppingListController {
 
         }
 
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -95,13 +95,13 @@ public class ShoppingListController {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
         shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto);
         response = new ResponseEntity<>("Item deleted from shoppinglist", HttpStatus.OK);
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 

@@ -8,7 +8,6 @@ import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
-import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
