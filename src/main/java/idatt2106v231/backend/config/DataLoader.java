@@ -396,6 +396,7 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Torstein")
                 .user(userList.get(0))
+                .pinCode(1234)
                 .build();
 
         var subUser2 = SubUser.builder()
@@ -408,6 +409,7 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Helene")
                 .user(userList.get(1))
+                .pinCode(2222)
                 .build();
 
         var subUser4 = SubUser.builder()
@@ -420,12 +422,14 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Tim")
                 .user(userList.get(4))
+                .pinCode(9999)
                 .build();
 
         var subUser6 = SubUser.builder()
                 .accessLevel(true)
                 .name("Ella")
                 .user(userList.get(4))
+                .pinCode(9876)
                 .build();
 
         subUserRepo.save(subUser1);
