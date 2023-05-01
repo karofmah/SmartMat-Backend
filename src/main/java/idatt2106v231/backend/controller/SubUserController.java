@@ -71,7 +71,7 @@ public class SubUserController {
             @ApiResponse(responseCode = "404", description = "Subuser not found in database"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve the subuser")
     })
-    public ResponseEntity<Object> getUserByMasterAndName(@PathVariable("subUserId") int subUserId) {
+    public ResponseEntity<Object> getSubUser(@PathVariable("subUserId") int subUserId) {
         ResponseEntity<Object> response;
 
         if (!subUserServices.subUserExists(subUserId)) {

@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public interface SubUserRepository extends JpaRepository<SubUser, Integer> {
 
-    Optional<SubUser> findDistinctByName(String name);
-
     List<SubUser> findAllByUserEmail(String email);
 
     Optional<SubUser> findByUserEmailAndName(String email, String name);
