@@ -65,9 +65,9 @@ public class RecipeController {
         }
     }
 
+    // TODO Remove endpoint
     @Autowired
     AiServices aiServices;
-
     @GetMapping("/askAi")
     public ResponseEntity<String> askAi(@RequestParam String text) {
         try {

@@ -36,6 +36,8 @@ public class ShoppingListServices {
 
     private final ItemServices itemServices;
 
+    private final SubUserServices subUserServices;
+
     private final ModelMapper mapper = new ModelMapper();
 
     /*@Autowired
@@ -46,7 +48,8 @@ public class ShoppingListServices {
     @Autowired
     public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
                                 ItemShoppingListRepository itemShoppingListRepository, AiServices aiServices,
-                                CategoryRepository categoryRepository, ItemServices itemServices, SubUserRepository subUserRepository) {
+                                CategoryRepository categoryRepository, ItemServices itemServices,
+                                SubUserRepository subUserRepository, SubUserServices subUserServices) {
         this.itemRepository = itemRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.itemShoppingListRepository = itemShoppingListRepository;
@@ -54,6 +57,7 @@ public class ShoppingListServices {
         this.aiServices = aiServices;
         this.categoryRepository = categoryRepository;
         this.itemServices = itemServices;
+        this.subUserServices = subUserServices;
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getSubUser().isAccessLevel(), ItemShoppingListDto::setSubUserAccessLevel));
@@ -115,7 +119,10 @@ public class ShoppingListServices {
     public boolean deleteItemFromShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         try {
             ItemShoppingList item = itemShoppingListRepository
-                    .findByItemNameAndShoppingList_ShoppingListId(itemInShoppingListCreationDto.getItemName(), itemInShoppingListCreationDto.getShoppingListId())
+                    .findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(
+                            itemInShoppingListCreationDto.getItemName(),
+                            itemInShoppingListCreationDto.getShoppingListId(),
+                            subUserServices.getAccessLevel(itemInShoppingListCreationDto.getSubUserId()))
                     .get();
             itemShoppingListRepository.delete(item);
             return true;
@@ -242,14 +249,16 @@ public class ShoppingListServices {
     }
 
     /**
-     * Checks if item exists in shopping list
+     * Checks if item exists in shopping list with a specific access level
      *
      * @param shoppingListId the shopping list ID
      * @param itemName the item name
+     * @param accessLevel the specific access level
      * @return if the item exists
      */
-    public boolean itemExistsInShoppingList(int shoppingListId, String itemName) {
-        return itemShoppingListRepository.findByItemNameAndShoppingList_ShoppingListId(itemName, shoppingListId).isPresent();
+    public boolean itemExistsWithAccessLevel(int shoppingListId, String itemName, boolean accessLevel) {
+        return itemShoppingListRepository.findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(
+                itemName, shoppingListId, accessLevel).isPresent();
     }
 
     /**
@@ -260,5 +269,59 @@ public class ShoppingListServices {
      */
     public String getUserEmail(int shoppingListId) {
         return shoppingListRepository.findById(shoppingListId).get().getUser().getEmail();
+    }
+
+    /**
+     * Gets a specific item in a shopping list
+     *
+     * @param itemShoppingListId the ID of the item in the shopping list
+     * @return the item
+     */
+    public ItemShoppingList getItemInShoppingList(int itemShoppingListId) {
+        Optional<ItemShoppingList> itemShoppingList = itemShoppingListRepository.findById(itemShoppingListId);
+        return itemShoppingList.orElse(null);
+    }
+
+    /**
+     * Gets a specific item from a shopping list
+     * @param shoppingListId the id of the shopping list
+     * @param itemName the name of the item
+     * @param subUserAccessLevel the access level of the subUser that added the item
+     * @return the item
+     */
+    public ItemShoppingList getItemInShoppingList(int shoppingListId, String itemName, boolean subUserAccessLevel) {
+        Optional<ItemShoppingList> item = itemShoppingListRepository
+                .findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(itemName, shoppingListId, subUserAccessLevel);
+
+        return item.orElse(null);
+    }
+
+
+    /**
+     * Updates the amount of an already existing item
+     * @param dto the ItemInShoppingListCreationDto
+     * @return if the amount is updated
+     */
+    public boolean updateAmount(ItemInShoppingListCreationDto dto) {
+        try {
+
+            ItemShoppingList currentItem = getItemInShoppingList(dto.getShoppingListId(), dto.getItemName(),
+                    subUserServices.getAccessLevel(dto.getSubUserId()));
+
+            var itemShoppingList = ItemShoppingList.builder()
+                    .itemShoppingListId(currentItem.getItemShoppingListId())
+                    .item(itemRepository.findByName(dto.getItemName()).get())
+                    .amount(currentItem.getAmount() + dto.getAmount())
+                    .measurement(Measurement.L) // TODO Add measurement support
+                    .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
+                    .subUser(subUserRepository.findById(dto.getSubUserId()).get())
+                    .build();
+
+            itemShoppingListRepository.save(itemShoppingList);
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

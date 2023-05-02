@@ -2,8 +2,6 @@ package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.WeeklyMenuShoppingListDto;
-import idatt2106v231.backend.model.SubUser;
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.service.ItemServices;
 import idatt2106v231.backend.service.ShoppingListServices;
 import idatt2106v231.backend.service.SubUserServices;
@@ -76,14 +74,20 @@ public class ShoppingListController {
             return response;
         }*/
 
-        if(shoppingListServices.itemExistsInShoppingList(itemInShoppingListCreationDto.getShoppingListId(), itemInShoppingListCreationDto.getItemName())) {
-            response = new ResponseEntity<>("Item already exists in shoppinglist", HttpStatus.CONFLICT);
-            logger.info(response.getBody() + "");
-            return response;
+
+        if (shoppingListServices.itemExistsWithAccessLevel(
+                itemInShoppingListCreationDto.getShoppingListId(),
+                itemInShoppingListCreationDto.getItemName(),
+                subUserServices.getAccessLevel(itemInShoppingListCreationDto.getSubUserId()))) {
+
+            shoppingListServices.updateAmount(itemInShoppingListCreationDto);
+
+            response = new ResponseEntity<>("Updated amount of the item", HttpStatus.CONFLICT);
+        } else {
+            shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
+            response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
         }
 
-        shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
-        response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
 
         logger.info(response.getBody() + "");
         return response;
