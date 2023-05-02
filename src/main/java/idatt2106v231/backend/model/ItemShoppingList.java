@@ -23,7 +23,7 @@ public class ItemShoppingList {
 
     @Column
     @NotNull
-    private int amount;
+    private double amount;
 
     @Column
     @NotNull
