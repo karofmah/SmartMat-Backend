@@ -170,10 +170,7 @@ public class RefrigeratorIntegrationTest {
 
             System.out.println("Response: " + responseString);
             Assertions.assertEquals("Refrigerator does not exist", responseString);
-
-
         }
-
     }
 
 
@@ -185,7 +182,13 @@ public class RefrigeratorIntegrationTest {
         public void addItemToRefrigeratorIsCreated() throws Exception {
 
 
-            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder().itemName("test11").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder()
+                    .itemName("test11")
+                    .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
+                    .refrigeratorId(1)
+                    .amount(1)
+                    .measurementType(Measurement.KG)
+                    .build();
 
             String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
 
@@ -215,12 +218,10 @@ public class RefrigeratorIntegrationTest {
 
             EditItemInRefrigeratorDto existingItem= EditItemInRefrigeratorDto.builder()
                     .itemName("test10")
-                    //.itemExpirationDateId(5)
                     .refrigeratorId(1)
-                    .itemRefrigeratorId(1)
                     .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
                     .measurementType(Measurement.KG)
-                    .amount(3.5)
+                    .amount(1.5)
                     .build();
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -229,19 +230,18 @@ public class RefrigeratorIntegrationTest {
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(existingRefrigeratorJson))
-                    .andExpect(status().isCreated())
+                    .andExpect(status().isOk())
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
 
             Optional<ItemRefrigerator> itemInRefrigerator=itemRefrigeratorRepository
                     .findById(1);
-            //Legge inn riktig test
 
             Optional<ItemExpirationDate> itemExpirationDate = itemExpirationDateRepository
-                    .findDistinctByItemRefrigerator_ItemRefrigeratorId(2);
+                    .findById(1);
 
-            //Assertions.assertTrue(itemExpirationDate.isPresent());
+            Assertions.assertTrue(itemExpirationDate.isPresent());
             Assertions.assertTrue(itemInRefrigerator.isPresent());
             Assertions.assertEquals("Item is updated", responseString);
             Assertions.assertEquals(3.5, itemExpirationDate.get().getAmount());
@@ -372,9 +372,13 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Test removal of an amount of an item that is less than total from refrigerator")
         public void removeAmountOfItemFromRefrigeratorIsOk() throws Exception {
 
-            /*int totalAmount=itemRefrigeratorRepository.findById(1).get().getAmount();
+            double totalAmount=itemExpirationDateRepository.findById(1).get().getAmount();
 
-            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder().itemName("test10").refrigeratorId(1).amount(1).build();
+            EditItemInRefrigeratorDto itemToRemove= EditItemInRefrigeratorDto.builder()
+                    .itemName("test10")
+                    .refrigeratorId(1)
+                    .amount(0.5)
+                    .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
@@ -387,9 +391,10 @@ public class RefrigeratorIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(totalAmount-1,itemRefrigeratorRepository.findById(1).get().getAmount());
-            Assertions.assertEquals("Item is removed from refrigerator",responseString);*/
+            Assertions.assertEquals(1.5 , itemExpirationDateRepository.findById(1).get().getAmount());
+            Assertions.assertEquals("Item is removed from refrigerator",responseString);
         }
+
         @Test
         @WithMockUser(username = "USER")
         @Transactional
