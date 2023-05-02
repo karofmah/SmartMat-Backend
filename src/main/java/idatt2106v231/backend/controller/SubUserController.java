@@ -168,7 +168,7 @@ public class SubUserController {
     }
 
 
-    @PostMapping("/updateSubuser")
+    @PutMapping("/updateSubuser")
     @Operation(summary = "Update a subuser")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subuser is updated"),
