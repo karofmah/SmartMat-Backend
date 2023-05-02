@@ -1,6 +1,7 @@
 
 package idatt2106v231.backend.controller;
 
+import idatt2106v231.backend.service.AiServices;
 import idatt2106v231.backend.service.RecipeServices;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -58,6 +59,19 @@ public class RecipeController {
             String weeklyMenu = recipeServices.generateWeeklyMenu(userEmail, numPeople);
 
             return new ResponseEntity<>(weeklyMenu, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+    }
+
+    @Autowired
+    AiServices aiServices;
+
+    @GetMapping("/askAi")
+    public ResponseEntity<String> askAi(@RequestParam String text) {
+        try {
+            return new ResponseEntity<>(aiServices.getChatCompletion(text), HttpStatus.OK);
         } catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 

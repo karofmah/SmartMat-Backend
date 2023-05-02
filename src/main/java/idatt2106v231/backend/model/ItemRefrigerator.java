@@ -24,7 +24,7 @@ public class ItemRefrigerator {
 
     @Column
     @NotNull
-    private int amount;
+    private double amount;
 
     @Column
     private Measurement measurementType;

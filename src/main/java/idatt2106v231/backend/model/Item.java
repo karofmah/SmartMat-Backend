@@ -32,10 +32,10 @@ public class Item {
     @NotNull
     private Category category;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemRefrigerator> itemInRefrigerators = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemShoppingList> itemInShoppingList = new ArrayList<>();
 
     @Override

@@ -54,9 +54,15 @@ public class CategoryIntegrationTest {
     @DisplayName("Add test data to test database")
     public void setup() {
 
-        Category category1=Category.builder().description("test").build();
-        Category category2=Category.builder().description("test2").build();
-        Category category3=Category.builder().description("test3").build();
+        var category1 = Category.builder()
+                .description("test")
+                .build();
+        var category2 = Category.builder()
+                .description("test2")
+                .build();
+        var category3 = Category.builder()
+                .description("test3")
+                .build();
 
         categoryRepository.save(category1);
         categoryRepository.save(category2);
@@ -82,7 +88,6 @@ public class CategoryIntegrationTest {
             });
 
             Assertions.assertEquals(categoryRepository.findAll().size(), actualCategories.size());
-
         }
 
         @Test
@@ -90,18 +95,15 @@ public class CategoryIntegrationTest {
         @Transactional
         @DisplayName("Testing the endpoint for retrieving all categories")
         public void getCategoriesNotFound() throws Exception {
-
             categoryRepository.deleteAll();
+
             MvcResult result = mockMvc.perform(get("/api/categories/getAllCategories")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
 
-
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("There are no categories registered in the database", responseString);
-
         }
     }
 
@@ -112,9 +114,11 @@ public class CategoryIntegrationTest {
         @Transactional
         @DisplayName("Testing the endpoint for saving a category to database")
         public void saveCategoryIsCreated() throws Exception {
-            CategoryDto newCategoryDto=CategoryDto.builder().description("newTest").build();
+            CategoryDto newCategoryDto = CategoryDto.builder()
+                    .description("newTest")
+                    .build();
 
-            String newCategoryJson=objectMapper.writeValueAsString(newCategoryDto);
+            String newCategoryJson = objectMapper.writeValueAsString(newCategoryDto);
 
             MvcResult result= mockMvc.perform(post("/api/categories/saveCategory")
                             .accept(MediaType.APPLICATION_JSON)
@@ -131,15 +135,17 @@ public class CategoryIntegrationTest {
 
             Assertions.assertEquals("Category is saved to database", responseString);
             Assertions.assertEquals(newCategoryDto.getDescription(), retrievedCategory.getDescription());
-
         }
+
         @Test
         @Transactional
         @DisplayName("Testing the endpoint for saving a category to database when it already exists")
         public void saveCategoryIsImUsed() throws Exception {
-            CategoryDto existingCategoryDto=CategoryDto.builder().description("test").build();
+            CategoryDto existingCategoryDto = CategoryDto.builder()
+                    .description("test")
+                    .build();
 
-            String existingCategoryJson=objectMapper.writeValueAsString(existingCategoryDto);
+            String existingCategoryJson=  objectMapper.writeValueAsString(existingCategoryDto);
 
             MvcResult result= mockMvc.perform(post("/api/categories/saveCategory")
                             .accept(MediaType.APPLICATION_JSON)
@@ -149,9 +155,7 @@ public class CategoryIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("Category already exists", responseString);
-
         }
     }
 
@@ -179,14 +183,10 @@ public class CategoryIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
-            System.out.println("Category: " + responseString);
             Assertions.assertEquals("Category does not exist",responseString);
-
-
         }
-
     }
+
     @Nested
     class DeleteCategory{
         @Test
@@ -194,10 +194,9 @@ public class CategoryIntegrationTest {
         @Transactional
         @DisplayName("Test deletion of category")
         public void deleteCategoryIsOk() throws Exception {
-
             int size = categoryRepository.findAll().size();
 
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/3")
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/3")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -205,8 +204,8 @@ public class CategoryIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(size-1,categoryRepository.findAll().size());
-            Assertions.assertEquals("Category removed from database",responseString);
+            Assertions.assertEquals(size-1, categoryRepository.findAll().size());
+            Assertions.assertEquals("Category removed from database", responseString);
         }
 
         @Test
@@ -214,11 +213,9 @@ public class CategoryIntegrationTest {
         @Transactional
         @DisplayName("Test deletion of category when category is not found in database")
         public void deleteCategoryIsNotFound() throws Exception {
-
             int size = categoryRepository.findAll().size();
 
-
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/30")
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/categories/deleteCategory/30")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -226,11 +223,8 @@ public class CategoryIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(size,categoryRepository.findAll().size());
-            Assertions.assertEquals("Category does not exist",responseString);
+            Assertions.assertEquals(size, categoryRepository.findAll().size());
+            Assertions.assertEquals("Category does not exist", responseString);
         }
     }
-
-
 }
-
