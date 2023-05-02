@@ -182,6 +182,9 @@ public class SubUserController {
         if (!subUserServices.subUserExists(subDto.getSubUserId())) {
             response = new ResponseEntity<>("Subuser does not exists", HttpStatus.NOT_FOUND);
         }
+        else if(subDto.getName().isEmpty()){
+            response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
+        }
         else if (subUserServices.updateSubUser(subDto)){
             response = new ResponseEntity<>("Subuser updated", HttpStatus.OK);
         }
