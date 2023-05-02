@@ -1,18 +1,19 @@
-package idatt2106v231.backend.dto.subuser;
+package idatt2106v231.backend.dto.shoppinglist;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubUserDto {
+public class WeeklyMenuShoppingListDto {
 
+    private int shoppingListId;
     private int subUserId;
-    private String name;
-    private boolean accessLevel;
-    private int pinCode;
+    private List<String> ingredients;
 }

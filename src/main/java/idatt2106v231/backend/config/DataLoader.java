@@ -4,7 +4,6 @@ import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
-import idatt2106v231.backend.service.RefrigeratorServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -490,37 +489,41 @@ public class DataLoader implements CommandLineRunner {
         var subUser1 = SubUser.builder()
                 .accessLevel(true)
                 .name("Torstein")
-                .masterUser(userList.get(0))
+                .user(userList.get(0))
+                .pinCode(1234)
                 .build();
 
         var subUser2 = SubUser.builder()
                 .accessLevel(false)
                 .name("Ida")
-                .masterUser(userList.get(0))
+                .user(userList.get(0))
                 .build();
 
         var subUser3 = SubUser.builder()
                 .accessLevel(true)
                 .name("Helene")
-                .masterUser(userList.get(1))
+                .user(userList.get(1))
+                .pinCode(2222)
                 .build();
 
         var subUser4 = SubUser.builder()
                 .accessLevel(false)
                 .name("Nils")
-                .masterUser(userList.get(2))
+                .user(userList.get(2))
                 .build();
 
         var subUser5 = SubUser.builder()
                 .accessLevel(true)
                 .name("Tim")
-                .masterUser(userList.get(4))
+                .user(userList.get(4))
+                .pinCode(9999)
                 .build();
 
         var subUser6 = SubUser.builder()
                 .accessLevel(true)
                 .name("Ella")
-                .masterUser(userList.get(4))
+                .user(userList.get(4))
+                .pinCode(9876)
                 .build();
 
         subUserRepo.save(subUser1);
@@ -529,8 +532,6 @@ public class DataLoader implements CommandLineRunner {
         subUserRepo.save(subUser4);
         subUserRepo.save(subUser5);
         subUserRepo.save(subUser6);
-
-
     }
 
     public void setGarbage(){

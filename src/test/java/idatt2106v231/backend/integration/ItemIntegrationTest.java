@@ -83,13 +83,10 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            ObjectMapper mapper = new ObjectMapper();
-            List<ItemDto> actualItems = mapper.readValue(responseString, new TypeReference<>() {
+
+            List<ItemDto> actualItems = objectMapper.readValue(responseString, new TypeReference<>() {
             });
-
-
             Assertions.assertEquals(itemRepository.findAll().size(), actualItems.size());
-
         }
 
         @Test
@@ -97,8 +94,8 @@ public class ItemIntegrationTest {
         @WithMockUser(username = "ADMIN")
         @DisplayName("Testing the endpoint for retrieving all items when no items are in database")
         public void getItemsIsNotFound() throws Exception {
-
             itemRepository.deleteAll();
+
             MvcResult result = mockMvc.perform(get("/api/items/getAllItems")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
@@ -106,9 +103,7 @@ public class ItemIntegrationTest {
 
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("There are no items registered in the database", responseString);
-
         }
     }
 
@@ -120,7 +115,6 @@ public class ItemIntegrationTest {
 
         public void getItemIsOk() throws Exception {
 
-
             MvcResult result = mockMvc.perform(get("/api/items/getItem/1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -129,10 +123,8 @@ public class ItemIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
             ItemDto retrievedItem = objectMapper.readValue(responseString, new TypeReference<>() {
             });
-            System.out.println("Item: " + retrievedItem);
+
             Assertions.assertEquals("test1", retrievedItem.getName());
-
-
         }
 
         @Test
@@ -145,15 +137,9 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
-            System.out.println("Response: " + responseString);
             Assertions.assertEquals("Item does not exist", responseString);
-
-
         }
-
     }
-
 
     @Nested
     class SaveItem {
@@ -161,9 +147,10 @@ public class ItemIntegrationTest {
         @Transactional
         @DisplayName("Testing the endpoint for saving an Item to database")
         public void saveItemIsCreated() throws Exception {
-
-            ItemDto newItemDto = ItemDto.builder().name("newTest").categoryId(1).build();
-
+            ItemDto newItemDto = ItemDto.builder()
+                    .name("newTest")
+                    .categoryId(1)
+                    .build();
 
             String newItemJson = objectMapper.writeValueAsString(newItemDto);
 
@@ -182,15 +169,15 @@ public class ItemIntegrationTest {
 
             Assertions.assertEquals("Item saved to database", responseString);
             Assertions.assertEquals(newItemDto.getName(), retrievedItem.getName());
-
         }
 
         @Test
         @DisplayName("Testing the endpoint for saving an item to database when it already exists")
         public void saveItemIsImUsed() throws Exception {
-
-            ItemDto existingItemDto = ItemDto.builder().name("test1").categoryId(1).build();
-
+            ItemDto existingItemDto = ItemDto.builder()
+                    .name("test1")
+                    .categoryId(1)
+                    .build();
 
             String existingItemJson = objectMapper.writeValueAsString(existingItemDto);
 
@@ -202,17 +189,16 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("Item already exists", responseString);
-
         }
 
         @Test
         @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
         public void saveItemIsNotFound() throws Exception {
-
-            ItemDto existingItemDto = ItemDto.builder().name("test4").categoryId(10).build();
-
+            ItemDto existingItemDto = ItemDto.builder()
+                    .name("test4")
+                    .categoryId(10)
+                    .build();
 
             String existingItemJson = objectMapper.writeValueAsString(existingItemDto);
 
@@ -224,16 +210,15 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("Category does not exist", responseString);
-
         }
+
         @Test
         @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
         public void saveItemIsBadRequest() throws Exception {
-
-            ItemDto existingItemDto = ItemDto.builder().name("").build();
-
+            ItemDto existingItemDto = ItemDto.builder()
+                    .name("")
+                    .build();
 
             String existingItemJson = objectMapper.writeValueAsString(existingItemDto);
 
@@ -245,13 +230,12 @@ public class ItemIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("Data is not specified", responseString);
-
         }
     }
+
     @Nested
-    class DeleteItem{
+    class DeleteItem {
 
         @Test
         @WithMockUser(username = "USER")
@@ -260,8 +244,7 @@ public class ItemIntegrationTest {
         public void deleteItemIsOk() throws Exception {
             int size = itemRepository.findAll().size();
 
-
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/3")
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/3")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -269,8 +252,8 @@ public class ItemIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(size-1,itemRepository.findAll().size());
-            Assertions.assertEquals("Item removed from database",responseString);
+            Assertions.assertEquals(size - 1, itemRepository.findAll().size());
+            Assertions.assertEquals("Item removed from database", responseString);
         }
 
         @Test
@@ -278,11 +261,9 @@ public class ItemIntegrationTest {
         @Transactional
         @DisplayName("Test deletion of item when item is not found in database")
         public void deleteItemIsNotFound() throws Exception {
-
             int size = itemRepository.findAll().size();
 
-
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/4")
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/items/deleteItem/4")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -290,10 +271,8 @@ public class ItemIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(size,itemRepository.findAll().size());
-            Assertions.assertEquals("Item does not exist",responseString);
-
-
+            Assertions.assertEquals(size, itemRepository.findAll().size());
+            Assertions.assertEquals("Item does not exist", responseString);
         }
     }
 }

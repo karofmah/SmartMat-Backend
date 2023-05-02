@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemShoppingListRepository extends JpaRepository<ItemShoppingList, Integer> {
+
     List<ItemShoppingList> findAllByShoppingListShoppingListId(int id);
 
     Optional<ItemShoppingList> findByItemNameAndShoppingList_ShoppingListId(String name, int id);

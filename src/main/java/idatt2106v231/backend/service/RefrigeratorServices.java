@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -206,8 +207,17 @@ public class RefrigeratorServices {
      */
     public boolean addToGarbage(EditItemInRefrigeratorDto itemRefDto){
         try {
-            Garbage garbage = mapper.map(itemRefDto, Garbage.class);
-            garbRepo.save(garbage);
+            Optional<Garbage> garbage = garbRepo.findByRefrigeratorRefrigeratorIdAndDate(itemRefDto.getRefrigeratorId(), YearMonth.now());
+            Garbage gar;
+            if (garbage.isPresent()){
+                gar = garbage.get();
+                gar.updateAmount(itemRefDto.getAmount());
+            }
+            else{
+                gar = mapper.map(itemRefDto, Garbage.class);
+                gar.setDate(YearMonth.now());
+            }
+            garbRepo.save(gar);
             return true;
         }catch (Exception e){
             return false;

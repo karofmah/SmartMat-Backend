@@ -28,7 +28,7 @@ public class Refrigerator {
     @JoinColumn(name = "user_email", referencedColumnName = "email")
     private User user;
 
-    @OneToMany(mappedBy = "refrigerator")
+    @OneToMany(mappedBy = "refrigerator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemRefrigerator> itemsInRefrigerator = new ArrayList<>();
 
     @OneToMany(mappedBy = "refrigerator")

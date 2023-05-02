@@ -23,7 +23,7 @@ public class ItemShoppingList {
 
     @Column
     @NotNull
-    private int amount;
+    private double amount;
 
     @Column
     @NotNull
@@ -36,4 +36,8 @@ public class ItemShoppingList {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "itemId", referencedColumnName = "itemId")
     private Item item;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "subUserId", referencedColumnName = "subUserId")
+    private SubUser subUser;
 }

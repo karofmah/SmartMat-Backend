@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubUserDto {
-
+public class SubUserValidationDto {
     private int subUserId;
-    private String name;
-    private boolean accessLevel;
     private int pinCode;
 }
