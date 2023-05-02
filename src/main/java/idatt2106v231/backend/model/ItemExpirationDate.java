@@ -43,9 +43,9 @@ public class ItemExpirationDate {
     /**
      * Method to update amount
      *
-     * @param amount the amount to add or remove
+     * @param newAmount the amount to add or remove
      */
-    public void updateAmount(double amount){
-        this.amount += amount;
+    public void addAmount(double newAmount){
+        this.amount += newAmount;
     }
 }

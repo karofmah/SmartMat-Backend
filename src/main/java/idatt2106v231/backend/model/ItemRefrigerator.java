@@ -40,7 +40,7 @@ public class ItemRefrigerator {
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
     private Refrigerator refrigerator;
 
-    @OneToMany(mappedBy = "itemRefrigerator")
+    @OneToMany(mappedBy = "itemRefrigerator", cascade = CascadeType.REMOVE)
     private List<ItemExpirationDate> itemExpirationDates;
 
     @Override

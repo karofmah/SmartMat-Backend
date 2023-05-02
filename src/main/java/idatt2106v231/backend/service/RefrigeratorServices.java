@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class to manage Refrigerator objects.
@@ -143,21 +144,20 @@ public class RefrigeratorServices {
      */
     public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         //try {
-            Item item = itemRepo.findByName(itemRefDto.getItemName()).get();
             var itemRef = ItemRefrigerator.builder()
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
-                    .item(item)
+                    .item(itemRepo.findByName(itemRefDto.getItemName()).get())
                     //.amount(itemRefDto.getAmount())
                     //.measurementType(Measurement.L)
                     .build();
-            itemRefRepo.save(itemRef);
+            int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
         //System.out.println(item.getName());
             var itemExpirationDate = ItemExpirationDate.builder()
                     .measurement(itemRefDto.getMeasurementType())
                     .amount(itemRefDto.getAmount())
                     .date(itemRefDto.getDate())
                     //.itemRefrigerator(itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(item.getName(), itemRefDto.getRefrigeratorId()).get())
-                    .itemRefrigerator(itemRefRepo.findById(itemRefDto.getItemRefrigeratorId()).get())
+                    .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
                     .build();
 
         System.out.println(itemRefDto.getDate());
@@ -182,12 +182,13 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            ItemExpirationDate itemExp = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
+            ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
+            //ItemExpirationDate itemExp = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
 
-            if (itemRefDto.getAmount() >= itemRefDto.getAmount()){
+            if (itemRefDto.getAmount() >= itemExpirationDate.getAmount()){
                 itemRefRepo.delete(item);
             }else{
-                itemExp.updateAmount(-itemRefDto.getAmount());
+                itemExpirationDate.addAmount(-itemRefDto.getAmount());
                 itemRefRepo.save(item);
             }
             return true;
@@ -225,10 +226,25 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            ItemExpirationDate itemExpirationDate = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
-            itemExpirationDate.updateAmount(itemRefDto.getAmount());
-            itemRefRepo.save(itemRefrigerator);
-            return true;
+            List<ItemExpirationDate> allEqualItemsInRefrigerator = itemExpRepo.findAllByItemRefrigerator_ItemRefrigeratorId(itemRefrigerator.getItemRefrigeratorId());
+
+            for(ItemExpirationDate itemExpDate : allEqualItemsInRefrigerator) {
+                if(itemExpDate.getDate().equals(itemRefDto.getDate()) || itemExpDate.getDate() == null) {
+                    itemExpDate.addAmount(itemRefDto.getAmount());
+                    return true;
+                }
+            }
+
+            return false;
+
+            /*if(itemExpRepo.findByItemRefrigerator_ItemRefrigeratorId(itemRefrigerator.getItemRefrigeratorId()).isPresent()) {
+                &&
+            }*/
+            //ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
+            //ItemExpirationDate itemExpirationDate = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
+            //itemExpirationDate.updateAmount(itemRefDto.getAmount());
+            //itemRefRepo.save(itemRefrigerator);
+            //return true;
         }catch (Exception e){
             return false;
         }

@@ -14,9 +14,10 @@ import java.util.Date;
 public class EditItemInRefrigeratorDto {
 
     private String itemName;
-    private int itemRefrigeratorId;
+    //private int itemRefrigeratorId;
+    //private int itemId;
     private int refrigeratorId;
-    private int itemExpirationDateId;
+    //private int itemExpirationDateId;
     private double amount;
     private Measurement measurementType;
     private Date date; //Sjekker om dette går
