@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -22,12 +23,12 @@ public class ItemRefrigerator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int itemRefrigeratorId;
 
-    @Column
+    /*@Column
     @NotNull
-    private double amount;
+    private int amount;*/
 
-    @Column
-    private Measurement measurementType;
+    /*@Column
+    private Measurement measurementType;*/
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
@@ -39,14 +40,8 @@ public class ItemRefrigerator {
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
     private Refrigerator refrigerator;
 
-    /**
-     * Method to update amount
-     *
-     * @param amount the amount to add or remove
-     */
-    public void updateAmount(int amount){
-        this.amount += amount;
-    }
+    @OneToMany(mappedBy = "itemRefrigerator", cascade = CascadeType.REMOVE)
+    private List<ItemExpirationDate> itemExpirationDates;
 
     @Override
     public boolean equals(Object o) {

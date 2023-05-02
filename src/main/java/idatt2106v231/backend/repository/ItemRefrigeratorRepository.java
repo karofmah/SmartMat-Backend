@@ -12,5 +12,7 @@ public interface ItemRefrigeratorRepository extends CrudRepository<ItemRefrigera
 
     Optional<ItemRefrigerator> findByItemNameAndRefrigeratorRefrigeratorId(String itemName, int refrigeratorId);
 
+    //Optional<ItemRefrigerator> findTopByOrderByItemRefrigeratorIdDesc(int itemRefrigeratorId);
+
     List<ItemRefrigerator> findAll();
 }
