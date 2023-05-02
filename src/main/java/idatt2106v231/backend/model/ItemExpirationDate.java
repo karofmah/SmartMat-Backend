@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.Date;
+
 @Data
 @ToString
 @Builder
@@ -29,10 +31,21 @@ public class ItemExpirationDate {
     private double amount;
 
     @Column
-    private java.sql.Date date;
+    @Temporal(TemporalType.DATE)
+    //Prøver java.util, mulig må bruke java.sql
+    private Date date;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "itemRefrigeratorId", referencedColumnName = "itemRefrigeratorId")
     private ItemRefrigerator itemRefrigerator;
+
+    /**
+     * Method to update amount
+     *
+     * @param amount the amount to add or remove
+     */
+    public void updateAmount(double amount){
+        this.amount += amount;
+    }
 }

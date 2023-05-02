@@ -5,6 +5,8 @@ import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Garbage;
+import idatt2106v231.backend.model.Item;
+import idatt2106v231.backend.model.ItemExpirationDate;
 import idatt2106v231.backend.model.ItemRefrigerator;
 import idatt2106v231.backend.repository.*;
 import org.modelmapper.ModelMapper;
@@ -23,6 +25,7 @@ public class RefrigeratorServices {
     private ItemRepository itemRepo;
     private ItemRefrigeratorRepository itemRefRepo;
     private GarbageRepository garbRepo;
+    private ItemExpirationDateRepository itemExpRepo;
 
     private final ModelMapper mapper = new ModelMapper();
 
@@ -56,11 +59,17 @@ public class RefrigeratorServices {
         this.itemRefRepo = itemRefRepo;
     }
 
+    @Autowired
+    public void setItemExpRepo(ItemExpirationDateRepository itemExpRepo) {
+        this.itemExpRepo = itemExpRepo;
+    }
+
     /**
      * Sets the garbage repository to use for database access.
      *
      * @param garbRepo the garbage repository to use
      */
+
     @Autowired
     public void setGarbRepo(GarbageRepository garbRepo) {
         this.garbRepo = garbRepo;
@@ -133,18 +142,32 @@ public class RefrigeratorServices {
      * @return true if the item is added to the refrigerator
      */
     public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto){
-        try {
+        //try {
+            Item item = itemRepo.findByName(itemRefDto.getItemName()).get();
             var itemRef = ItemRefrigerator.builder()
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
-                    .item(itemRepo.findByName(itemRefDto.getItemName()).get())
-                    .amount(itemRefDto.getAmount())
-                    .measurementType(Measurement.L)
+                    .item(item)
+                    //.amount(itemRefDto.getAmount())
+                    //.measurementType(Measurement.L)
                     .build();
             itemRefRepo.save(itemRef);
+        //System.out.println(item.getName());
+            var itemExpirationDate = ItemExpirationDate.builder()
+                    .measurement(itemRefDto.getMeasurementType())
+                    .amount(itemRefDto.getAmount())
+                    .date(itemRefDto.getDate())
+                    //.itemRefrigerator(itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(item.getName(), itemRefDto.getRefrigeratorId()).get())
+                    .itemRefrigerator(itemRefRepo.findById(itemRefDto.getItemRefrigeratorId()).get())
+                    .build();
+
+        System.out.println(itemRefDto.getDate());
+        //System.out.println(itemRefRepo.findById(itemRefDto.getItemRefrigeratorId()).get().getItem().getName());
+            itemExpRepo.save(itemExpirationDate);
             return true;
-        }catch (Exception e){
+        /*}catch (Exception e){
+            System.out.println(e);
             return false;
-        }
+        }*/
     }
 
     /**
@@ -159,10 +182,12 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            if (itemRefDto.getAmount() >= item.getAmount()){
+            ItemExpirationDate itemExp = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
+
+            if (itemRefDto.getAmount() >= itemRefDto.getAmount()){
                 itemRefRepo.delete(item);
             }else{
-                item.updateAmount(-itemRefDto.getAmount());
+                itemExp.updateAmount(-itemRefDto.getAmount());
                 itemRefRepo.save(item);
             }
             return true;
@@ -172,7 +197,7 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to ass waste in the garbage table in the database,
+     * Method to add waste in the garbage table in the database,
      * and delete the item from the refrigerator.
      *
      * @param itemRefDto the garbage
@@ -200,7 +225,8 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            itemRefrigerator.updateAmount(itemRefDto.getAmount());
+            ItemExpirationDate itemExpirationDate = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
+            itemExpirationDate.updateAmount(itemRefDto.getAmount());
             itemRefRepo.save(itemRefrigerator);
             return true;
         }catch (Exception e){

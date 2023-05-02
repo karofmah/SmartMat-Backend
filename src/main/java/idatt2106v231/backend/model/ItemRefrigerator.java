@@ -23,12 +23,12 @@ public class ItemRefrigerator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int itemRefrigeratorId;
 
-    @Column
+    /*@Column
     @NotNull
-    private int amount;
+    private int amount;*/
 
-    @Column
-    private Measurement measurementType;
+    /*@Column
+    private Measurement measurementType;*/
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
@@ -42,16 +42,6 @@ public class ItemRefrigerator {
 
     @OneToMany(mappedBy = "itemRefrigerator")
     private List<ItemExpirationDate> itemExpirationDates;
-
-
-    /**
-     * Method to update amount
-     *
-     * @param amount the amount to add or remove
-     */
-    public void updateAmount(int amount){
-        this.amount += amount;
-    }
 
     @Override
     public boolean equals(Object o) {
