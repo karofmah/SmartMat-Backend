@@ -203,6 +203,7 @@ public class ShoppingListServices {
                 System.out.println("Item added to shopping list");
             } else {
                 System.out.println("Failed to add item to shopping list");
+                return false;
             }
 
         }
@@ -240,7 +241,24 @@ public class ShoppingListServices {
 
     }
 
+    /**
+     * Checks if item exists in shopping list
+     *
+     * @param shoppingListId the shopping list ID
+     * @param itemName the item name
+     * @return if the item exists
+     */
     public boolean itemExistsInShoppingList(int shoppingListId, String itemName) {
         return itemShoppingListRepository.findByItemNameAndShoppingList_ShoppingListId(itemName, shoppingListId).isPresent();
+    }
+
+    /**
+     * Gets user email by shopping list ID
+     *
+     * @param shoppingListId shopping list ID
+     * @return the user email
+     */
+    public String getUserEmail(int shoppingListId) {
+        return shoppingListRepository.findById(shoppingListId).get().getUser().getEmail();
     }
 }

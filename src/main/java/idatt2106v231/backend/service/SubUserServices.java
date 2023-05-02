@@ -3,7 +3,9 @@ package idatt2106v231.backend.service;
 import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
+import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.model.SubUser;
+import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.SubUserRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -89,5 +91,10 @@ public class SubUserServices {
 
     public boolean subUserExists(int subUserId) {
         return subUserRepository.existsBySubUserId(subUserId);
+    }
+
+    public User getMasterUser(int subUserId) {
+        Optional<SubUser> subUser = subUserRepository.findById(subUserId);
+        return subUser.map(SubUser::getUser).orElse(null);
     }
 }
