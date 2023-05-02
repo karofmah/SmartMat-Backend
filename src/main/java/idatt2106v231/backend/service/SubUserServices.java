@@ -92,7 +92,7 @@ public class SubUserServices {
     }
 
     public User getMasterUser(int subUserId) {
-        Optional<SubUser> subUser = subUserRepository.findById(subUserId);
+        Optional<SubUser> subUser = subUserRepo.findById(subUserId);
         return subUser.map(SubUser::getUser).orElse(null);
     }
 }
