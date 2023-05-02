@@ -17,6 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -159,6 +162,38 @@ public class RefrigeratorController {
             response = new ResponseEntity<>("Item is not removed from refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         logger.info((String) response.getBody());
+        return response;
+    }
+
+    @GetMapping("/getItemInRefrigeratorByExpirationDate/{refrigeratorId}")
+    @Operation(summary = "Get items refrigerator by refrigerator and expirationdate")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Return the items in the refrigerator"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve refrigerator")
+    })
+    public ResponseEntity<Object> getItemsInRefrigeratorByExpirationDate(@PathVariable("refrigeratorId") int refrigeratorId) throws ParseException {
+        ResponseEntity<Object> response;
+
+        if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
+            response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+            return response;
+        }
+        SimpleDateFormat start = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat end = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = new Date();
+
+        List<ItemInRefrigeratorDto> items = refrigeratorServices.getItemsInRefrigeratorByExpirationDate();
+
+        if (items == null){
+            response = new ResponseEntity<>("Failed to retrieve items in refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info(response.getBody() + "");
+        }
+        else {
+            response = new ResponseEntity<>(items, HttpStatus.OK);
+            logger.info("Refrigerator retrieved");
+        }*/
         return response;
     }
 

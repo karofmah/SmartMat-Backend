@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,6 +133,17 @@ public class RefrigeratorServices {
                     .filter(obj -> obj.getItem().getCategoryId() == categoryId)
                     .toList();
         }catch (Exception e) {
+            return null;
+        }
+    }
+
+    public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByExpirationDate(Date start, Date end, int refrigeratorId) {
+        try {
+            return itemExpRepo.findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(refrigeratorId, start, end)
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
+                    .toList();
+        } catch(Exception e) {
             return null;
         }
     }
