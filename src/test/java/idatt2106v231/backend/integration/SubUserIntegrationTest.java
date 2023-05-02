@@ -135,8 +135,8 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-            });
+            List<SubUserDto> retrievedSubUsers = objectMapper.readValue(result.getResponse().getContentAsString(),
+                    new TypeReference<>() {});
             assertEquals(3, retrievedSubUsers.size());
         }
 
@@ -160,8 +160,8 @@ public class SubUserIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-            });
+            SubUserDto retrievedSubUser = objectMapper.readValue(result.getResponse().getContentAsString(),
+                    new TypeReference<>() {});
             assertEquals("subUser1Name", retrievedSubUser.getName());
         }
 
@@ -301,8 +301,10 @@ public class SubUserIntegrationTest {
         @Test
         @DisplayName("Tests validation of pin code when pin code is correct")
         public void validatePinCodeIsOk() throws Exception {
-
-            SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder().subUserId(1).pinCode(1234).build();
+            SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder()
+                    .subUserId(1)
+                    .pinCode(1234)
+                    .build();
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserValidationDto);
 
@@ -313,18 +315,18 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("Pin code is correct", responseString);
         }
 
         @Test
         @DisplayName("Tests validation of pin code when pin code is incorrect")
         public void validatePinCodeIsNotFound() throws Exception {
-
-            SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder().subUserId(1).pinCode(2345).build();
+            SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder()
+                    .subUserId(1)
+                    .pinCode(2345)
+                    .build();
 
             String subUserDtoJson = objectMapper.writeValueAsString(subUserValidationDto);
-
 
             MvcResult result = mockMvc.perform(post("http://localhost:8080/api/subusers/validatePinCode")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -333,7 +335,6 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
             Assertions.assertEquals("Pin code is incorrect", responseString);
         }
     }
