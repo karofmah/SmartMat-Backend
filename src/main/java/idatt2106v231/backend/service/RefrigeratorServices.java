@@ -140,7 +140,7 @@ public class RefrigeratorServices {
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
                     .item(itemRepo.findByName(itemRefDto.getItemName()).get())
                     .amount(itemRefDto.getAmount())
-                    .measurementType(Measurement.L)
+                    .measurementType(itemRefDto.getMeasurementType())
                     .build();
             itemRefRepo.save(itemRef);
             return true;
@@ -182,11 +182,21 @@ public class RefrigeratorServices {
      */
     public boolean addToGarbage(EditItemInRefrigeratorDto itemRefDto){
         try {
+            ItemRefrigerator item = itemRefRepo
+                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
+                    .get();
+
+            int amountToRemove = itemRefDto.getAmount();
+
+            if (amountToRemove > item.getAmount()) {
+                amountToRemove = item.getAmount();
+            }
+
             Optional<Garbage> garbage = garbRepo.findByRefrigeratorRefrigeratorIdAndDate(itemRefDto.getRefrigeratorId(), YearMonth.now());
             Garbage gar;
             if (garbage.isPresent()){
                 gar = garbage.get();
-                gar.updateAmount(itemRefDto.getAmount());
+                gar.updateAmount(amountToRemove);
             }
             else{
                 gar = mapper.map(itemRefDto, Garbage.class);
@@ -238,5 +248,9 @@ public class RefrigeratorServices {
      */
     public boolean refrigeratorContainsItem(String itemName, int refrigeratorId){
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
+    }
+
+    public boolean validMeasurementType(String itemName, int refrigeratorId,Measurement measurement){
+        return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).get().getMeasurementType().equals(measurement);
     }
 }

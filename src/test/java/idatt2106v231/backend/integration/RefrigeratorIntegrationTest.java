@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
+import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
 import org.junit.jupiter.api.*;
@@ -78,16 +79,16 @@ public class RefrigeratorIntegrationTest {
                 .build();
 
         Category category = Category.builder()
-                .description("category1")
+                .description("Drinks")
                 .build();
 
         Item item1 = Item.builder()
-                .name("test10")
+                .name("milk")
                 .category(category)
                 .build();
 
         Item item2 = Item.builder()
-                .name("test11")
+                .name("orange juice")
                 .category(category)
                 .build();
 
@@ -100,6 +101,7 @@ public class RefrigeratorIntegrationTest {
                 .item(item1)
                 .refrigerator(refrigerator)
                 .amount(2)
+                .measurementType(Measurement.L)
                 .build();
 
         Garbage garbage = Garbage.builder()
@@ -166,6 +168,9 @@ public class RefrigeratorIntegrationTest {
                     .amount(1)
                     .build();
 
+
+            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder().itemName("orange juice").refrigeratorId(1).amount(1).measurementType(Measurement.L).build();
+
             String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
 
             MvcResult result = mockMvc.perform(post("/api/refrigerators/addItemInRefrigerator")
@@ -177,6 +182,8 @@ public class RefrigeratorIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
+            Optional<ItemRefrigerator> itemOptional = itemRefrigeratorRepository
+                    .findByItemNameAndRefrigeratorRefrigeratorId("orange juice",1);
             Optional<ItemRefrigerator> itemOptional = itemRefRepo
                     .findByItemNameAndRefrigeratorRefrigeratorId("test11",1);
 
@@ -185,7 +192,6 @@ public class RefrigeratorIntegrationTest {
 
             Assertions.assertEquals("Item is added to refrigerator", responseString);
             Assertions.assertEquals(newItem.getItemName(), retrievedItem.getItem().getName());
-
         }
 
         @Test
@@ -193,9 +199,10 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for adding item to refrigerator when item already exists in that refrigerator")
         public void addItemToRefrigeratorIsOk() throws Exception {
             EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
-                    .itemName("test10")
+                    .itemName("milk")
                     .refrigeratorId(1)
                     .amount(1)
+                    .measurementType(Measurement.L)
                     .build();
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -209,11 +216,13 @@ public class RefrigeratorIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Optional<ItemRefrigerator> itemInRefrigerator= itemRefRepo
-                    .findByItemNameAndRefrigeratorRefrigeratorId("test10",1);
+            Optional<ItemRefrigerator> itemInRefrigerator = itemRefRepo
+                    .findByItemNameAndRefrigeratorRefrigeratorId("milk",1);
+
             Assertions.assertTrue(itemInRefrigerator.isPresent());
             Assertions.assertEquals("Item is updated", responseString);
             Assertions.assertEquals(3,itemInRefrigerator.get().getAmount());
+            Assertions.assertEquals(Measurement.L,itemInRefrigerator.get().getMeasurementType());
         }
 
         @Nested
@@ -224,9 +233,10 @@ public class RefrigeratorIntegrationTest {
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
 
                 EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
-                        .itemName("test30")
+                        .itemName("cheese")
                         .refrigeratorId(1)
                         .amount(1)
+                        .measurementType(Measurement.G)
                         .build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -271,6 +281,7 @@ public class RefrigeratorIntegrationTest {
                     .itemName("")
                     .refrigeratorId(30)
                     .amount(1)
+                    .measurementType(Measurement.UNIT)
                     .build();
 
             String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -296,9 +307,10 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Test removal of item from refrigerator")
         public void removeItemFromRefrigeratorIsOk() throws Exception {
             EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
-                    .itemName("test10")
+                    .itemName("milk")
                     .refrigeratorId(1)
                     .amount(2)
+                    .measurementType(Measurement.L)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
@@ -326,11 +338,11 @@ public class RefrigeratorIntegrationTest {
             int itemInRefrigeratorSize = itemRefRepo.findAll().size();
             int garbageSize = garbageRepo.findAll().size();
 
-            EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto
-                    .builder()
-                    .itemName("test10")
+            EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
+                    .itemName("milk")
                     .refrigeratorId(1)
                     .amount(2)
+                    .measurementType(Measurement.L)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
@@ -359,14 +371,15 @@ public class RefrigeratorIntegrationTest {
             double totalAmount = itemRefRepo.findById(1).get().getAmount();
 
             EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
-                    .itemName("test10")
+                    .itemName("milk")
                     .refrigeratorId(1)
                     .amount(1)
+                    .measurementType(Measurement.L)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(itemToRemoveJson))
@@ -382,15 +395,15 @@ public class RefrigeratorIntegrationTest {
         @Test
         @WithMockUser(username = "USER")
         @Transactional
-        @DisplayName("Test removal of item when refrigerator is not found in database")
+        @DisplayName("Test removal of item when item is not found in refrigerator")
         public void removeItemFromRefrigeratorIsNotFound() throws Exception {
-
             int size = itemRefRepo.findAll().size();
 
             EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
-                    .itemName("test11")
+                    .itemName("orange juice")
                     .refrigeratorId(1)
                     .amount(1)
+                    .measurementType(Measurement.L)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
