@@ -4,6 +4,7 @@ import idatt2106v231.backend.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,7 @@ import java.util.List;
 @Table(name="masterUser")
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate
 public class User implements UserDetails {
 
     @Id

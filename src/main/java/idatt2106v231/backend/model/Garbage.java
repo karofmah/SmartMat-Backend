@@ -2,12 +2,10 @@ package idatt2106v231.backend.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
-import java.time.Year;
+import java.time.YearMonth;
 
 @Data
 @ToString
@@ -15,25 +13,29 @@ import java.time.Year;
 @Entity
 @Table
 @AllArgsConstructor
+@DynamicUpdate
 public class Garbage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer garbageId;
+    private int garbageId;
 
     @Column
     @NotNull
-    int year;
+    private YearMonth date;
 
     @Column
-    @NotNull
-    int amount;
+    private double amount;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
     private Refrigerator refrigerator;
 
-    public Garbage() {
-        this.year = Year.now().getValue();
+    public Garbage(){
+        this.date = YearMonth.now();
+    }
+
+    public void updateAmount(double amount){
+        this.amount += amount;
     }
 }

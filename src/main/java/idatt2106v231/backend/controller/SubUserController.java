@@ -71,7 +71,7 @@ public class SubUserController {
             @ApiResponse(responseCode = "404", description = "Subuser not found in database"),
             @ApiResponse(responseCode = "500", description = "Failed to retrieve the subuser")
     })
-    public ResponseEntity<Object> getUserByMasterAndName(@PathVariable("subUserId") int subUserId) {
+    public ResponseEntity<Object> getSubUser(@PathVariable("subUserId") int subUserId) {
         ResponseEntity<Object> response;
 
         if (!subUserServices.subUserExists(subUserId)) {
@@ -168,7 +168,7 @@ public class SubUserController {
     }
 
 
-    @PostMapping("/updateSubuser")
+    @PutMapping("/updateSubuser")
     @Operation(summary = "Update a subuser")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subuser is updated"),
@@ -181,6 +181,9 @@ public class SubUserController {
 
         if (!subUserServices.subUserExists(subDto.getSubUserId())) {
             response = new ResponseEntity<>("Subuser does not exists", HttpStatus.NOT_FOUND);
+        }
+        else if(subDto.getName().isEmpty()){
+            response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
         else if (subUserServices.updateSubUser(subDto)){
             response = new ResponseEntity<>("Subuser updated", HttpStatus.OK);

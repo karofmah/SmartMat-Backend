@@ -267,7 +267,7 @@ public class ShoppingListIntegrationTest {
         @Test
         @DisplayName("Return error when supplied invalid user")
         public void returnErrorWithInvalidUser() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+            mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
                             .param("email","invalidUser"))
                     .andExpect(status().isBadRequest())
                     .andReturn();
@@ -290,7 +290,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(shoppingListJson))
                     .andExpect(status().isOk())
@@ -310,7 +310,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isConflict())
@@ -330,7 +330,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
@@ -350,7 +350,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
@@ -370,7 +370,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
@@ -393,7 +393,7 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            MvcResult result = mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
+            mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isOk())

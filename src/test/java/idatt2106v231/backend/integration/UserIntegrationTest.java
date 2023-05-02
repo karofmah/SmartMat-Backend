@@ -45,18 +45,16 @@ public class UserIntegrationTest {
     @BeforeAll
     @DisplayName("Add test data to test database")
     public void setup() {
-
-        User user1 = new User();
-
-        user1.setEmail("test@ntnu.no");
-        user1.setFirstName("First name");
-        user1.setLastName("Last name");
-        user1.setPhoneNumber(29185929);
-        user1.setAge(20);
-        user1.setPassword("123");
-        user1.setHousehold(4);
-
-        userRepository.save(user1);
+        var user = User.builder()
+                .email("test@ntnu.no")
+                .firstName("First name")
+                .lastName("Last name")
+                .phoneNumber(29185929)
+                .age(20)
+                .password("123")
+                .household(4)
+                .build();
+        userRepository.save(user);
     }
 
     @Nested
@@ -72,12 +70,10 @@ public class UserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            User retrievedUser= objectMapper.readValue(responseString, new TypeReference<>() {
-            });
+            User retrievedUser= objectMapper.readValue(responseString, new TypeReference<>() {});
             Assertions.assertEquals("test@ntnu.no",retrievedUser.getEmail());
-
-
         }
+
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting invalid user")
@@ -122,6 +118,5 @@ public class UserIntegrationTest {
         Assertions.assertEquals(userUpdateDto.getLastName(), retrievedUser.getLastName());
         Assertions.assertEquals(userUpdateDto.getPhoneNumber(), retrievedUser.getPhoneNumber());
         Assertions.assertEquals(userUpdateDto.getHousehold(), retrievedUser.getHousehold());
-
     }
 }
