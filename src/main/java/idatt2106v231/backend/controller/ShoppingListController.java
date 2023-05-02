@@ -1,6 +1,9 @@
 package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
+import idatt2106v231.backend.dto.shoppinglist.WeeklyMenuShoppingListDto;
+import idatt2106v231.backend.model.SubUser;
+import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.service.ItemServices;
 import idatt2106v231.backend.service.ShoppingListServices;
 import idatt2106v231.backend.service.SubUserServices;
@@ -30,6 +33,9 @@ public class ShoppingListController {
 
     @Autowired
     private ItemServices itemServices;
+
+    @Autowired
+    private SubUserServices subUserServices;
 
     @GetMapping("/getItemsFromShoppingList")
     @Operation(summary = "Get all items from a shoppinglist")
@@ -103,6 +109,29 @@ public class ShoppingListController {
         return response;
     }
 
+    @PostMapping("/addWeeklyMenu")
+    @Operation(summary = "Add ingredients from a weekly menu to a shopping list")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Items added to shopping list"),
+            @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
+    })
+    public ResponseEntity<Object> addWeeklyMenu(@RequestBody WeeklyMenuShoppingListDto dto) {
+        ResponseEntity<Object> response = validateWeeklyMenuShoppingListDto(dto);
+
+        if (response.getStatusCode() != HttpStatus.OK){
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
+        if (shoppingListServices.addWeeklyMenuToShoppingList(dto)) {
+            response = new ResponseEntity<>("Items added to shopping list", HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Failed to add items to shopping list", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        logger.info(response.getBody() + "");
+        return response;
+    }
+
     public ResponseEntity<Object> validateItemShoppingListDto(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response;
 
@@ -114,6 +143,26 @@ public class ShoppingListController {
             response = new ResponseEntity<>("Amount is not specified", HttpStatus.BAD_REQUEST);
         } else if(itemInShoppingListCreationDto.getMeasurementType() == null) {
             response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
+        } else {
+            response = new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        return response;
+    }
+
+    public ResponseEntity<Object> validateWeeklyMenuShoppingListDto(WeeklyMenuShoppingListDto dto) {
+        ResponseEntity<Object> response;
+
+
+        if (!shoppingListServices.shoppingListExists(dto.getShoppingListId())) {
+            response = new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
+        } else if (subUserServices.getMasterUser(dto.getSubUserId()) == null) {
+            response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
+        } else if (!subUserServices.getMasterUser(dto.getSubUserId()).getEmail().equals(
+                shoppingListServices.getUserEmail(dto.getShoppingListId()))) {
+            response = new ResponseEntity<>("Sub user does not have access to this shopping list", HttpStatus.BAD_REQUEST);
+        } else if (dto.getIngredients().size() == 0) {
+            response = new ResponseEntity<>("Ingredients list is empty", HttpStatus.BAD_REQUEST);
         } else {
             response = new ResponseEntity<>(HttpStatus.OK);
         }
