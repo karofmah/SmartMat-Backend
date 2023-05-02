@@ -1,6 +1,8 @@
 package idatt2106v231.backend.controller;
 
+import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
+import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
 import idatt2106v231.backend.service.SubUserServices;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -99,14 +101,14 @@ public class SubUserController {
             @ApiResponse(responseCode = "500", description = "Failed to save subuser")
 
     })
-    public ResponseEntity<Object> addSubUser(@RequestBody SubUserDto subDto) {
+    public ResponseEntity<Object> addSubUser(@RequestBody SubUserCreationDto subDto) {
         ResponseEntity<Object> response = validateDto(subDto);
 
         if(response.getStatusCode() != HttpStatus.OK) {
             logger.info(response.getBody() + "");
             return response;
         }
-        if (subUserServices.subUserExists(subDto.getName(), subDto.getMasterUser())) {
+        if (subUserServices.subUserExists(subDto.getName(), subDto.getUserEmail())) {
             response = new ResponseEntity<>("Subuser already exists", HttpStatus.IM_USED);
         }
         else if (subUserServices.saveSubUser(subDto)){
@@ -121,7 +123,7 @@ public class SubUserController {
     }
 
     @DeleteMapping("/deleteSubUser/{subUserId}")
-    @Operation(summary = "Delete a subuser from a masteruser")
+    @Operation(summary = "Delete a subuser")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Subuser deleted"),
             @ApiResponse(responseCode = "400", description = "Subuser doesnt exist"),
@@ -138,21 +140,65 @@ public class SubUserController {
 
         if (subUserServices.deleteSubUser(subUserId)){
             response = new ResponseEntity<>("Subuser deleted", HttpStatus.OK);
-        }else{
+        }
+        else{
             response = new ResponseEntity<>("Failed to delete subuser", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         logger.info(response.getBody() + "");
         return response;
     }
 
-
-    private ResponseEntity<Object> validateDto(SubUserDto subDto) {
+    @PostMapping("/validatePinCode")
+    public ResponseEntity<Object> validatePinCode(@RequestBody SubUserValidationDto subUser){
         ResponseEntity<Object> response;
-        if (subDto.getMasterUser() == null || subDto.getMasterUser().isEmpty() ||
+
+        if (!subUserServices.subUserExists(subUser.getSubUserId())) {
+            response = new ResponseEntity<>("Subuser not found", HttpStatus.NOT_FOUND);
+            logger.info(response.getBody() + "");
+            return response;
+        }
+
+        if(subUserServices.pinCodeValid(subUser)){
+            response = new ResponseEntity<>("Pin code is correct",HttpStatus.OK);
+        }else{
+            response = new ResponseEntity<>("Pin code is incorrect",HttpStatus.NOT_FOUND);
+        }
+        logger.info(response.getBody() + "");
+        return response;
+    }
+
+
+    @PostMapping("/updateSubuser")
+    @Operation(summary = "Update a subuser")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Subuser is updated"),
+            @ApiResponse(responseCode = "400", description = "Data is not valid"),
+            @ApiResponse(responseCode = "404", description = "Subuser doesnt exist"),
+            @ApiResponse(responseCode = "500", description = "Failed to delete subuser")
+    })
+    public ResponseEntity<Object> updateSubUser(@RequestBody SubUserDto subDto) {
+        ResponseEntity<Object> response;
+
+        if (!subUserServices.subUserExists(subDto.getSubUserId())) {
+            response = new ResponseEntity<>("Subuser does not exists", HttpStatus.NOT_FOUND);
+        }
+        else if (subUserServices.updateSubUser(subDto)){
+            response = new ResponseEntity<>("Subuser updated", HttpStatus.OK);
+        }
+        else{
+            response = new ResponseEntity<>("Failed to update subuser", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        logger.info(response.getBody() + "");
+        return response;
+    }
+
+    private ResponseEntity<Object> validateDto(SubUserCreationDto subDto) {
+        ResponseEntity<Object> response;
+        if (subDto.getUserEmail() == null || subDto.getUserEmail().isEmpty() ||
                 subDto.getName() == null || subDto.getName().isEmpty()) {
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
-        else if (!userServices.checkIfUserExists(subDto.getMasterUser())) {
+        else if (!userServices.checkIfUserExists(subDto.getUserEmail())) {
             response = new ResponseEntity<>("Masteruser not found", HttpStatus.NOT_FOUND);
         }
         else {

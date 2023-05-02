@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,6 +58,9 @@ public class ShoppingListIntegrationTest {
     ItemShoppingListRepository itemShoppingListRepository;
 
     @Autowired
+    SubUserRepository subUserRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @BeforeAll
@@ -88,8 +92,50 @@ public class ShoppingListIntegrationTest {
                 .role(Role.USER)
                 .build();
 
+        var user3 = User.builder()
+                .email("test3@ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .age(3)
+                .firstName("firstName3")
+                .lastName("lastName3")
+                .phoneNumber(3456)
+                .age(33)
+                .household(3)
+                .role(Role.USER)
+                .build();
+
         userRepository.save(user1);
         userRepository.save(user2);
+        userRepository.save(user3);
+
+        var subUser1 = SubUser.builder()
+                .user(user1)
+                .accessLevel(true)
+                .name("Subuser1")
+                .build();
+
+        var subUser2 = SubUser.builder()
+                .user(user1)
+                .accessLevel(false)
+                .name("Subuser2")
+                .build();
+
+        var subUser3 = SubUser.builder()
+                .user(user2)
+                .accessLevel(true)
+                .name("Subuser3")
+                .build();
+
+        var subUser4 = SubUser.builder()
+                .user(user3)
+                .accessLevel(true)
+                .name("Subuser4")
+                .build();
+
+        subUserRepository.save(subUser1);
+        subUserRepository.save(subUser2);
+        subUserRepository.save(subUser3);
+        subUserRepository.save(subUser4);
 
         var category = Category.builder()
                 .description("Dairy")
@@ -124,14 +170,20 @@ public class ShoppingListIntegrationTest {
                 .user(user2)
                 .build();
 
+        var shoppingListUser3 = ShoppingList.builder()
+                .user(user3)
+                .build();
+
         shoppingListRepository.save(shoppingListUser1);
         shoppingListRepository.save(shoppingListUser2);
+        shoppingListRepository.save(shoppingListUser3);
 
         var itemShoppingList1 = ItemShoppingList.builder()
                 .amount(1)
                 .measurement(Measurement.KG)
                 .shoppingList(shoppingListUser1)
                 .item(item1)
+                .subUser(subUser1)
                 .build();
 
         var itemShoppingList2 = ItemShoppingList.builder()
@@ -139,6 +191,7 @@ public class ShoppingListIntegrationTest {
                 .measurement(Measurement.L)
                 .shoppingList(shoppingListUser1)
                 .item(item2)
+                .subUser(subUser2)
                 .build();
 
         var itemShoppingList3 = ItemShoppingList.builder()
@@ -146,6 +199,7 @@ public class ShoppingListIntegrationTest {
                 .measurement(Measurement.G)
                 .shoppingList(shoppingListUser1)
                 .item(item3)
+                .subUser(subUser1)
                 .build();
 
         var itemShoppingListUser2 = ItemShoppingList.builder()
@@ -153,12 +207,23 @@ public class ShoppingListIntegrationTest {
                 .measurement(Measurement.L)
                 .shoppingList(shoppingListUser2)
                 .item(item2)
+                .subUser(subUser2)
                 .build();
+
+        var itemShoppingListUser3 = ItemShoppingList.builder()
+                .amount(1)
+                .measurement(Measurement.L)
+                .shoppingList(shoppingListUser3)
+                .item(item2)
+                .subUser(subUser4)
+                .build();
+
 
         itemShoppingListRepository.save(itemShoppingList1);
         itemShoppingListRepository.save(itemShoppingList2);
         itemShoppingListRepository.save(itemShoppingList3);
         itemShoppingListRepository.save(itemShoppingListUser2);
+        itemShoppingListRepository.save(itemShoppingListUser3);
     }
 
     /*@AfterEach
@@ -188,13 +253,24 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @DisplayName("Retrieve correct accesslevel from item")
+        public void retrieveCorrectAccessLevel() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+                            .param("email","test3@ntnu.no"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            ShoppingListDto shoppinglist = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
+            assertTrue(shoppinglist.getItems().get(0).isSubUserAccessLevel());
+        }
+
+        @Test
         @DisplayName("Return error when supplied invalid user")
         public void returnErrorWithInvalidUser() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
                             .param("email","invalidUser"))
                     .andExpect(status().isBadRequest())
                     .andReturn();
-
         }
     }
 
@@ -209,6 +285,7 @@ public class ShoppingListIntegrationTest {
                     .itemName("Milk")
                     .amount(1)
                     .measurementType(Measurement.L)
+                    .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
@@ -228,6 +305,7 @@ public class ShoppingListIntegrationTest {
                     .itemName("Cheese")
                     .amount(1)
                     .measurementType(Measurement.L)
+                    .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
@@ -247,6 +325,7 @@ public class ShoppingListIntegrationTest {
                     .itemName("invalidItem")
                     .amount(1)
                     .measurementType(Measurement.L)
+                    .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
@@ -266,6 +345,7 @@ public class ShoppingListIntegrationTest {
                     .itemName("Milk")
                     .amount(0)
                     .measurementType(Measurement.L)
+                    .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
@@ -285,6 +365,7 @@ public class ShoppingListIntegrationTest {
                     .itemName("Milk")
                     .amount(1)
                     .measurementType(null)
+                    .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);

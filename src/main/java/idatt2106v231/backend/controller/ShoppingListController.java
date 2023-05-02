@@ -65,6 +65,12 @@ public class ShoppingListController {
             return response;
         }
 
+        /*if(itemInShoppingListCreationDto.getMasterUserEmail() == null || itemInShoppingListCreationDto.getSubUserName() == null) {
+            response = new ResponseEntity<>("Subuser is not defined", HttpStatus.BAD_REQUEST);
+            logger.info(response.getBody() + "");
+            return response;
+        }*/
+
         if(shoppingListServices.itemExistsInShoppingList(itemInShoppingListCreationDto.getShoppingListId(), itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item already exists in shoppinglist", HttpStatus.CONFLICT);
             logger.info(response.getBody() + "");
