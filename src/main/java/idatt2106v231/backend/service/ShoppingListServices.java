@@ -4,16 +4,11 @@ import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
+import idatt2106v231.backend.dto.shoppinglist.WeeklyMenuShoppingListDto;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Category;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemShoppingList;
-import idatt2106v231.backend.model.SubUser;
-import idatt2106v231.backend.repository.CategoryRepository;
-import idatt2106v231.backend.repository.ItemRepository;
-import idatt2106v231.backend.repository.ItemShoppingListRepository;
-import idatt2106v231.backend.repository.ShoppingListRepository;
-import idatt2106v231.backend.repository.SubUserRepository;
+import idatt2106v231.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,9 +101,9 @@ public class ShoppingListServices {
             var itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(Measurement.L)
+                            .measurement(Measurement.L) // TODO Add measurement support
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
-                            .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
+                            .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getSubUserId()).get())
                             .build();
             itemShoppingListRepository.save(itemShoppingList);
             return true;
@@ -145,13 +140,12 @@ public class ShoppingListServices {
     /**
      * Adds a weekly menu recipe list to the shopping list of the user
      *
-     * @param userEmail the user email
-     * @param recipeList the recipe list
+     * @param dto the dto containing user and ingredient information
      * @return if the weekly menu recipe list was added
      */
-    public boolean addWeeklyMenuToShoppingList(String userEmail, List<String> recipeList) {
+    public boolean addWeeklyMenuToShoppingList(WeeklyMenuShoppingListDto dto) {
 
-        String list = translateRecipeListToCorrectFormat(recipeList);
+        String list = translateRecipeListToCorrectFormat(dto.getIngredients());
 
         System.out.println(list); // TODO Remove debug printing
 
@@ -196,13 +190,12 @@ public class ShoppingListServices {
             }
 
 
-            int shoppingListId = getShoppingListByUserEmail(userEmail).getShoppingListId();
-
             ItemInShoppingListCreationDto itemInShoppingListCreationDto = ItemInShoppingListCreationDto
                     .builder()
                     .itemName(name)
+                    .shoppingListId(dto.getShoppingListId())
+                    .subUserId(dto.getSubUserId())
                     .amount(Integer.parseInt(quantity))
-                    .shoppingListId(shoppingListId)
                     .measurementType(measurement)
                     .build();
 
@@ -213,9 +206,7 @@ public class ShoppingListServices {
             }
 
         }
-
         return true;
-
     }
 
     /**

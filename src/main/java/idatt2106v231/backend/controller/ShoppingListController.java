@@ -110,7 +110,7 @@ public class ShoppingListController {
             @ApiResponse(responseCode = "200", description = "Items added to shopping list"),
             @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
     })
-    public ResponseEntity<Object> addItemToShoppingList(@RequestBody WeeklyMenuShoppingListDto dto) {
+    public ResponseEntity<Object> addWeeklyMenuToShoppingList(@RequestBody WeeklyMenuShoppingListDto dto) {
         ResponseEntity<Object> response = validateWeeklyMenuShoppingListDto(dto);
 
         if (response.getStatusCode() != HttpStatus.OK){
@@ -118,7 +118,7 @@ public class ShoppingListController {
             return response;
         }
 
-        shoppingListServices.addWeeklyMenuToShoppingList(dto.getUserEmail(), dto.getIngredients());
+        shoppingListServices.addWeeklyMenuToShoppingList(dto);
         response = new ResponseEntity<>("Ingredients added to shopping list", HttpStatus.OK);
         logger.info(response.getBody() + "");
         return response;
@@ -145,7 +145,7 @@ public class ShoppingListController {
     public ResponseEntity<Object> validateWeeklyMenuShoppingListDto(WeeklyMenuShoppingListDto weeklyMenuShoppingListDto) {
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(weeklyMenuShoppingListDto.getUserEmail())) {
+        if (!shoppingListServices.shoppingListExists(weeklyMenuShoppingListDto.getShoppingListId())) {
             response = new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
         } else if (weeklyMenuShoppingListDto.getIngredients().size() == 0) {
             response = new ResponseEntity<>("Ingredients list is empty", HttpStatus.BAD_REQUEST);

@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class WeeklyMenuShoppingListDto {
 
-    private String userEmail;
+    private int shoppingListId;
+    private int subUserId;
     private List<String> ingredients;
 }
