@@ -5,7 +5,6 @@ import idatt2106v231.backend.repository.GarbageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Year;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -32,10 +31,7 @@ public class GarbageServices {
             return -1;
         }
     }
-/*
-    public List<Garbage> getAllGarbageByIdAndYear(int id, Year year){
-        return garbageRepository.findAllByRefrigeratorRefrigeratorIdAndDate_Year(id, year);
-    }*/
+
     public boolean checkIfGarbagesExists(){
         return !garbageRepository.findAll().isEmpty();
     }
