@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.YearMonth;
 import java.util.List;
 
 @Component
@@ -52,7 +53,9 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*setCategories();
+
+/*
+       setCategories();
         setUsers();
         setRefrigerators();
         setShoppingLists();
@@ -63,6 +66,9 @@ public class DataLoader implements CommandLineRunner {
         setItemsInShoppingList();
         setGarbage();
         setItemExpirationDate();*/
+
+
+
 
     }
 
@@ -541,6 +547,7 @@ public class DataLoader implements CommandLineRunner {
             Garbage garbage = Garbage.builder()
                     .refrigerator(refrigerator)
                     .amount(50)
+                    .date(YearMonth.now())
                     .build();
             garbageRepo.save(garbage);
         }

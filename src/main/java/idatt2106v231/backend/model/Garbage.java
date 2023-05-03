@@ -21,7 +21,7 @@ public class Garbage {
     private int garbageId;
 
     @Column
-    @NotNull
+
     private YearMonth date;
 
     @Column
