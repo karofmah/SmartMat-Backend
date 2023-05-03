@@ -68,12 +68,6 @@ public class ShoppingListController {
             return response;
         }
 
-        /*if(itemInShoppingListCreationDto.getMasterUserEmail() == null || itemInShoppingListCreationDto.getSubUserName() == null) {
-            response = new ResponseEntity<>("Subuser is not defined", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
-            return response;
-        }*/
-
 
         if (shoppingListServices.itemExistsWithAccessLevel(
                 itemInShoppingListCreationDto.getShoppingListId(),
@@ -141,10 +135,12 @@ public class ShoppingListController {
 
         if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
+        } else if (!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+            response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
         } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(itemInShoppingListCreationDto.getAmount() == 0) {
-            response = new ResponseEntity<>("Amount is not specified", HttpStatus.BAD_REQUEST);
+        } else if(itemInShoppingListCreationDto.getAmount() <= 0) {
+            response = new ResponseEntity<>("Invalid amount", HttpStatus.BAD_REQUEST);
         } else if(itemInShoppingListCreationDto.getMeasurementType() == null) {
             response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
         } else {
