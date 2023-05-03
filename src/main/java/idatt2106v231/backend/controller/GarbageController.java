@@ -48,7 +48,6 @@ public class GarbageController {
     })
     public ResponseEntity<Object> calculateTotalAmountByIdYear(@RequestBody GarbageYearDto garbageYearDto) {
 
-
         ResponseEntity <Object> response=validateGarbageYearDto(garbageYearDto);
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
@@ -59,7 +58,32 @@ public class GarbageController {
                 response = new ResponseEntity<>("Total amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
+        logger.info(String.valueOf(response.getBody()));
+        return response;
+    }
+    @GetMapping("/refrigerator/amountEachMonth")
+    @Operation(summary = "Calculate amount of garbage each month in a specific year")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Calculated amount each month"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator does not exist"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator does not have garbages"),
+            @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
+            @ApiResponse(responseCode = "400", description = "Data is not specified"),
 
+    })
+    public ResponseEntity<Object> calculateAmountEachMonth(@RequestBody GarbageYearDto garbageYearDto) {
+
+        ResponseEntity <Object> response=validateGarbageYearDto(garbageYearDto);
+
+        if(response.getStatusCode().equals(HttpStatus.OK)){
+            if (garbageServices.calculateAmountEachMonth(garbageYearDto.getRefrigeratorId(), garbageYearDto.getYear())!=null) {
+                return new ResponseEntity<>(
+                        garbageServices.calculateAmountEachMonth(garbageYearDto.getRefrigeratorId(), garbageYearDto.getYear()),
+                        HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>("Could not calculate amount of garbage each month",HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
         logger.info(String.valueOf(response.getBody()));
         return response;
     }
