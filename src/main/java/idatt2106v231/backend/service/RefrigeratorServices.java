@@ -118,21 +118,25 @@ public class RefrigeratorServices {
      * @param itemRefDto the itemRefrigerator object to add
      * @return true if the item is added to the refrigerator
      */
-    public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto){
+    public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto, boolean refrigeratorContainsItem){
         try {
+            int entityId;
+            if (!refrigeratorContainsItem) {
+                var itemRef = ItemRefrigerator.builder()
+                        .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
+                        .item(itemRepo.findByName(itemRefDto.getItemName()).get())
+                        .measurementType(itemRefDto.getMeasurementType())
+                        .build();
 
-            var itemRef = ItemRefrigerator.builder()
-                    .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
-                    .item(itemRepo.findByName(itemRefDto.getItemName()).get())
-                    .measurementType(itemRefDto.getMeasurementType())
-                    .build();
-
-            int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
+                entityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
+            } else {
+                entityId = itemRefDto.getRefrigeratorId();
+            }
 
             var itemExpirationDate = ItemExpirationDate.builder()
                     .amount(itemRefDto.getAmount())
                     .date(itemRefDto.getDate())
-                    .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
+                    .itemRefrigerator(itemRefRepo.findById(entityId).get())
                     .build();
 
             itemExpRepo.save(itemExpirationDate);
@@ -187,7 +191,12 @@ public class RefrigeratorServices {
             List<ItemExpirationDate> allEqualItemsInRefrigerator = itemExpRepo.findAllByItemRefrigerator_ItemRefrigeratorId(itemRefrigerator.getItemRefrigeratorId());
 
             for(ItemExpirationDate itemExpDate : allEqualItemsInRefrigerator) {
-                if(itemExpDate.getDate().equals(itemRefDto.getDate()) || itemExpDate.getDate() == null) {
+
+                if(itemExpDate.getDate() == null) {
+                    itemExpDate.addAmount(amount);
+                    itemExpRepo.save(itemExpDate);
+                    return true;
+                } else if (itemExpDate.getDate().equals(itemRefDto.getDate())) {
                     itemExpDate.addAmount(amount);
                     itemExpRepo.save(itemExpDate);
                     return true;
@@ -196,6 +205,7 @@ public class RefrigeratorServices {
 
             return false;
         }catch (Exception e){
+            System.out.println(e);
             return false;
         }
     }

@@ -55,7 +55,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-       setCategories();
+        setCategories();
         setUsers();
         setRefrigerators();
         setShoppingLists();

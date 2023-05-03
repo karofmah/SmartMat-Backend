@@ -17,5 +17,5 @@ public class EditItemInRefrigeratorDto {
     private int refrigeratorId;
     private double amount;
     private Measurement measurementType;
-    private Date date; //Sjekker om dette går
+    private Date date;
 }

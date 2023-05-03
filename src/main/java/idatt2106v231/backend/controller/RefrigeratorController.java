@@ -47,6 +47,15 @@ public class RefrigeratorController {
         this.logger = LoggerFactory.getLogger(RefrigeratorController.class);
     }
 
+    /*@PutMapping("/updateDateInItem")
+    @Operation(summary = "Update date in an item in a refrigerator")
+    @ApiResponses(value = {
+
+    })
+    public ResponseEntity<Object> updateDateInItem(@RequestParam ) {
+
+    }*/
+
     @GetMapping("/getRefrigeratorByUser")
     @Operation(summary = "Get refrigerator by user")
     @ApiResponses(value = {
@@ -119,12 +128,13 @@ public class RefrigeratorController {
             return response;
         }
 
-        if (refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) &&
-                refrigeratorServices.updateItemInRefrigeratorAmount(dto)) {
+        boolean refrigeratorContainsItem = refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId());
+
+        if (refrigeratorContainsItem && refrigeratorServices.updateItemInRefrigeratorAmount(dto)) {
             response = new ResponseEntity<>("Item is updated", HttpStatus.OK);
         }
-        else if(refrigeratorServices.addItemToRefrigerator(dto)){
-            response = new ResponseEntity<>("Item is added to refrigerator", HttpStatus.CREATED);
+        else if (refrigeratorServices.addItemToRefrigerator(dto, refrigeratorContainsItem)){
+                response = new ResponseEntity<>("Item is added to refrigerator", HttpStatus.CREATED);
         }
         else {
             response = new ResponseEntity<>("Item is not added to refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
