@@ -121,6 +121,8 @@ public class RefrigeratorServices {
     public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto, boolean refrigeratorContainsItem){
         try {
             int entityId;
+            double amount;
+
             if (!refrigeratorContainsItem) {
                 var itemRef = ItemRefrigerator.builder()
                         .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
@@ -129,12 +131,19 @@ public class RefrigeratorServices {
                         .build();
 
                 entityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
+                amount = itemRefDto.getAmount();
+
             } else {
+                ItemRefrigerator itemRefrigerator = itemRefRepo
+                        .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
+                        .get();
+
+                amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
                 entityId = itemRefDto.getRefrigeratorId();
             }
 
             var itemExpirationDate = ItemExpirationDate.builder()
-                    .amount(itemRefDto.getAmount())
+                    .amount(amount)
                     .date(itemRefDto.getDate())
                     .itemRefrigerator(itemRefRepo.findById(entityId).get())
                     .build();
@@ -192,10 +201,12 @@ public class RefrigeratorServices {
 
             for(ItemExpirationDate itemExpDate : allEqualItemsInRefrigerator) {
 
+                //If the item exists and the date is null
                 if(itemExpDate.getDate() == null) {
                     itemExpDate.addAmount(amount);
                     itemExpRepo.save(itemExpDate);
                     return true;
+                //If item exists and the date is equal to the desired date
                 } else if (itemExpDate.getDate().equals(itemRefDto.getDate())) {
                     itemExpDate.addAmount(amount);
                     itemExpRepo.save(itemExpDate);
