@@ -4,6 +4,9 @@ import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
+import idatt2106v231.backend.model.Garbage;
+import idatt2106v231.backend.model.Item;
+import idatt2106v231.backend.model.ItemExpirationDate;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemRefrigerator;
 import idatt2106v231.backend.repository.*;
@@ -22,6 +25,7 @@ public class RefrigeratorServices {
     private final RefrigeratorRepository refRepo;
     private final ItemRepository itemRepo;
     private final ItemRefrigeratorRepository itemRefRepo;
+    private ItemExpirationDateRepository itemExpRepo;
 
     private final MeasurementServices measurementServices;
 
@@ -109,10 +113,19 @@ public class RefrigeratorServices {
             var itemRef = ItemRefrigerator.builder()
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
                     .item(itemRepo.findByName(itemRefDto.getItemName()).get())
-                    .amount(itemRefDto.getAmount())
-                    .measurementType(itemRefDto.getMeasurementType())
                     .build();
-            itemRefRepo.save(itemRef);
+
+            int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
+
+            var itemExpirationDate = ItemExpirationDate.builder()
+                    .measurement(itemRefDto.getMeasurementType())
+                    .amount(itemRefDto.getAmount())
+                    .date(itemRefDto.getDate())
+                    //.itemRefrigerator(itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(item.getName(), itemRefDto.getRefrigeratorId()).get())
+                    .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
+                    .build();
+
+            itemExpRepo.save(itemExpirationDate);
             return true;
         }catch (Exception e){
             return false;
@@ -133,11 +146,14 @@ public class RefrigeratorServices {
 
             double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
 
-            if (amount >= itemRefrigerator.getAmount()){
+            ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
+
+
+            if (amount >= itemExpirationDate.getAmount()){
                 itemRefRepo.delete(itemRefrigerator);
             }else{
-                itemRefrigerator.updateAmount(-amount);
-                itemRefRepo.save(itemRefrigerator);
+                itemExpirationDate.addAmount(-amount);
+                itemExpRepo.save(itemExpirationDate);
             }
             return true;
         }catch (Exception e){
@@ -158,11 +174,19 @@ public class RefrigeratorServices {
                     .get();
 
             double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
-            System.out.println(amount + "er ny amount");
 
-            itemRefrigerator.updateAmount(amount);
-            itemRefRepo.save(itemRefrigerator);
-            return true;
+            List<ItemExpirationDate> allEqualItemsInRefrigerator = itemExpRepo.findAllByItemRefrigerator_ItemRefrigeratorId(itemRefrigerator.getItemRefrigeratorId());
+
+            for(ItemExpirationDate itemExpDate : allEqualItemsInRefrigerator) {
+                if(itemExpDate.getDate().equals(itemRefDto.getDate()) || itemExpDate.getDate() == null) {
+                    itemExpDate.addAmount(amount);
+                    itemExpRepo.save(itemExpDate);
+                    return true;
+                }
+            }
+
+           // itemRefRepo.save(itemRefrigerator);
+            return false;
         }catch (Exception e){
             return false;
         }

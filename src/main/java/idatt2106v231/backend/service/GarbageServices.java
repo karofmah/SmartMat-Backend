@@ -8,12 +8,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.YearMonth;
 import java.util.Optional;
+import java.time.YearMonth;
+import java.util.List;
 
 /**
  * Class to manage Garbage objects.
  */
+
+
 @Service
 public class GarbageServices {
 
@@ -58,5 +61,23 @@ public class GarbageServices {
         }catch (Exception e){
             return false;
         }
+    }
+
+    public int calculateTotalAmount(int id, int year){
+        try {
+            List<Garbage> garbageList =
+                    garbRepo.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(id, YearMonth.of(year, 1),YearMonth.of(year,12));
+            int totalAmount = 0;
+            for (Garbage garbage : garbageList) {
+                totalAmount += garbage.getAmount();
+            }
+            return totalAmount;
+        } catch (Exception e){
+            return -1;
+        }
+    }
+
+    public boolean refrigeratorIsEmpty(int id){
+        return garbRepo.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
     }
 }

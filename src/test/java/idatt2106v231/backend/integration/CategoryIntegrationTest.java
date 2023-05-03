@@ -112,6 +112,7 @@ public class CategoryIntegrationTest {
 
         @Test
         @Transactional
+        @WithMockUser("USER")
         @DisplayName("Testing the endpoint for saving a category to database")
         public void saveCategoryIsCreated() throws Exception {
             CategoryDto newCategoryDto = CategoryDto.builder()
@@ -139,6 +140,7 @@ public class CategoryIntegrationTest {
 
         @Test
         @Transactional
+        @WithMockUser("USER")
         @DisplayName("Testing the endpoint for saving a category to database when it already exists")
         public void saveCategoryIsImUsed() throws Exception {
             CategoryDto existingCategoryDto = CategoryDto.builder()

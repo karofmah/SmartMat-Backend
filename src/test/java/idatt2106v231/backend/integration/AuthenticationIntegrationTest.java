@@ -114,6 +114,7 @@ public class AuthenticationIntegrationTest {
     class TestRegisteringUser {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Test registering a new user")
         public void registerNewUser() throws Exception {
             UserCreationDto testUser = new UserCreationDto();
@@ -135,6 +136,7 @@ public class AuthenticationIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Test registering an existing user")
         public void registerExistingUser() throws Exception {
             UserCreationDto testUser = new UserCreationDto();
@@ -156,6 +158,7 @@ public class AuthenticationIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Register user with one or more fields missing")
         public void registerIncompleteUser() throws Exception {
             UserCreationDto testUser = new UserCreationDto();

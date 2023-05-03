@@ -14,4 +14,5 @@ public class SubUserDto {
     private int subUserId;
     private String name;
     private boolean accessLevel;
+    private int pinCode;
 }

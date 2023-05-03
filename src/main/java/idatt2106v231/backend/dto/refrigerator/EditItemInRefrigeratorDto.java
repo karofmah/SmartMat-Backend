@@ -4,6 +4,8 @@ import idatt2106v231.backend.enums.Measurement;
 
 import lombok.*;
 
+import java.util.Date;
+
 @Data
 @ToString
 @Builder
@@ -15,4 +17,5 @@ public class EditItemInRefrigeratorDto {
     private int refrigeratorId;
     private double amount;
     private Measurement measurementType;
+    private Date date; //Sjekker om dette går
 }

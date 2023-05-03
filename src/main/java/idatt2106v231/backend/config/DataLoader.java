@@ -9,6 +9,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.YearMonth;
 import java.util.List;
 
 @Component
@@ -24,6 +27,7 @@ public class DataLoader implements CommandLineRunner {
     private final SubUserRepository subUserRepo;
     private final ShoppingListRepository shoppingListRepo;
     private final ItemShoppingListRepository itemShoppingListRepo;
+    private final ItemExpirationDateRepository itemExpirationDateRepo;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -33,7 +37,8 @@ public class DataLoader implements CommandLineRunner {
                       RefrigeratorRepository refRepo, WeekMenuRepository weekMenuRepo,
                       UserRepository userRepo, SubUserRepository subUserRepo,
                       ShoppingListRepository shoppingListRepo, ItemShoppingListRepository itemShoppingListRepo,
-                        PasswordEncoder passwordEncoder) {
+                      PasswordEncoder passwordEncoder, ShoppingListRepository shoppingListRepo,
+                      ItemShoppingListRepository itemShoppingListRepo, ItemExpirationDateRepository itemExpirationDateRepo) {
         this.catRepo = catRepo;
         this.garbageRepo = garbageRepo;
         this.itemRefRepo = itemRefRepo;
@@ -45,11 +50,13 @@ public class DataLoader implements CommandLineRunner {
         this.shoppingListRepo = shoppingListRepo;
         this.itemShoppingListRepo = itemShoppingListRepo;
         this.passwordEncoder = passwordEncoder;
+        this.itemExpirationDateRepo = itemExpirationDateRepo;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        /*
+
+/*
        setCategories();
         setUsers();
         setRefrigerators();
@@ -60,7 +67,10 @@ public class DataLoader implements CommandLineRunner {
         setItemsInRefrigerator();
         setItemsInShoppingList();
         setGarbage();
-*/
+        setItemExpirationDate();*/
+
+
+
 
     }
 
@@ -216,101 +226,73 @@ public class DataLoader implements CommandLineRunner {
         var itemRef1 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(0))
-                .amount(1)
-                .measurementType(Measurement.UNIT)
                 .build();
 
         var itemRef2 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(1))
-                .amount(600)
-                .measurementType(Measurement.G)
                 .build();
 
         var itemRef3 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(3))
-                .amount(2)
-                .measurementType(Measurement.L)
                 .build();
 
         var itemRef4 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(1))
                 .item(items.get(3))
-                .amount(1)
-                .measurementType(Measurement.UNIT)
                 .build();
 
         var itemRef5 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(1))
                 .item(items.get(4))
-                .amount(750)
-                .measurementType(Measurement.G)
                 .build();
 
         var itemRef6 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(0))
-                .amount(1)
-                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef7 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(1))
-                .amount(1200)
-                .measurementType(Measurement.G)
                 .build();
 
         var itemRef8 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(2))
-                .amount(800)
-                .measurementType(Measurement.G)
                 .build();
 
         var itemRef9 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(4))
-                .amount(3)
-                .measurementType(Measurement.UNIT)
                 .build();
 
 
         var itemRef10 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(3))
                 .item(items.get(1))
-                .amount(500)
-                .measurementType(Measurement.G)
                 .build();
 
         var itemRef11 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(3))
                 .item(items.get(2))
-                .amount(300)
-                .measurementType(Measurement.G)
                 .build();
 
         var itemRef12 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(3))
                 .item(items.get(3))
-                .amount(2)
-                .measurementType(Measurement.L)
                 .build();
 
 
         var itemRef13 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(4))
                 .item(items.get(1))
-                .amount(1)
-                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef14 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(3))
-                .amount(600)
-                .measurementType(Measurement.G)
                 .build();
 
         itemRefRepo.save(itemRef1);
@@ -327,6 +309,123 @@ public class DataLoader implements CommandLineRunner {
         itemRefRepo.save(itemRef12);
         itemRefRepo.save(itemRef13);
         itemRefRepo.save(itemRef14);
+    }
+
+    public void setItemExpirationDate() throws ParseException {
+        List<ItemRefrigerator> itemsInRefrigerator = itemRefRepo.findAll();
+
+        var itemExpirationDate1 = ItemExpirationDate.builder()
+                .amount(1.0)
+                .measurement(Measurement.UNIT)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
+                .itemRefrigerator(itemsInRefrigerator.get(0))
+                .build();
+
+        var itemExpirationDate2 = ItemExpirationDate.builder()
+                .amount(600.0)
+                .measurement(Measurement.G)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-02"))
+                .itemRefrigerator(itemsInRefrigerator.get(1))
+                .build();
+
+        var itemExpirationDate3 = ItemExpirationDate.builder()
+                .amount(2.0)
+                .measurement(Measurement.L)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-03"))
+                .itemRefrigerator(itemsInRefrigerator.get(2))
+                .build();
+
+        var itemExpirationDate4 = ItemExpirationDate.builder()
+                .amount(1.0)
+                .measurement(Measurement.UNIT)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-04"))
+                .itemRefrigerator(itemsInRefrigerator.get(3))
+                .build();
+
+        var itemExpirationDate5 = ItemExpirationDate.builder()
+                .amount(750.0)
+                .measurement(Measurement.G)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-05"))
+                .itemRefrigerator(itemsInRefrigerator.get(4))
+                .build();
+
+        var itemExpirationDate6 = ItemExpirationDate.builder()
+                .amount(1.0)
+                .measurement(Measurement.KG)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-06"))
+                .itemRefrigerator(itemsInRefrigerator.get(5))
+                .build();
+
+        var itemExpirationDate7 = ItemExpirationDate.builder()
+                .amount(1200.0)
+                .measurement(Measurement.G)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-07"))
+                .itemRefrigerator(itemsInRefrigerator.get(6))
+                .build();
+
+        var itemExpirationDate8 = ItemExpirationDate.builder()
+                .amount(800.0)
+                .measurement(Measurement.G)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-08"))
+                .itemRefrigerator(itemsInRefrigerator.get(7))
+                .build();
+
+        var itemExpirationDate9 = ItemExpirationDate.builder()
+                .amount(3.0)
+                .measurement(Measurement.UNIT)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-09"))
+                .itemRefrigerator(itemsInRefrigerator.get(8))
+                .build();
+
+        var itemExpirationDate10 = ItemExpirationDate.builder()
+                .amount(500.0)
+                .measurement(Measurement.G)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-10"))
+                .itemRefrigerator(itemsInRefrigerator.get(9))
+                .build();
+
+        var itemExpirationDate11 = ItemExpirationDate.builder()
+                .amount(300.0)
+                .measurement(Measurement.G)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-11"))
+                .itemRefrigerator(itemsInRefrigerator.get(10))
+                .build();
+
+        var itemExpirationDate12 = ItemExpirationDate.builder()
+                .amount(2.0)
+                .measurement(Measurement.L)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-12"))
+                .itemRefrigerator(itemsInRefrigerator.get(11))
+                .build();
+
+        var itemExpirationDate13 = ItemExpirationDate.builder()
+                .amount(1.0)
+                .measurement(Measurement.KG)
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-13"))
+                .itemRefrigerator(itemsInRefrigerator.get(12))
+                .build();
+
+        var itemExpirationDate14 = ItemExpirationDate.builder()
+                .amount(600)
+                .measurement(Measurement.G)
+                .itemRefrigerator(itemsInRefrigerator.get(13))
+                .build();
+
+        itemExpirationDateRepo.save(itemExpirationDate1);
+        itemExpirationDateRepo.save(itemExpirationDate2);
+        itemExpirationDateRepo.save(itemExpirationDate3);
+        itemExpirationDateRepo.save(itemExpirationDate4);
+        itemExpirationDateRepo.save(itemExpirationDate5);
+        itemExpirationDateRepo.save(itemExpirationDate6);
+        itemExpirationDateRepo.save(itemExpirationDate7);
+        itemExpirationDateRepo.save(itemExpirationDate8);
+        itemExpirationDateRepo.save(itemExpirationDate9);
+        itemExpirationDateRepo.save(itemExpirationDate10);
+        itemExpirationDateRepo.save(itemExpirationDate11);
+        itemExpirationDateRepo.save(itemExpirationDate12);
+        itemExpirationDateRepo.save(itemExpirationDate13);
+        itemExpirationDateRepo.save(itemExpirationDate14);
+
     }
 
     public void setItemsInShoppingList(){
@@ -450,10 +549,10 @@ public class DataLoader implements CommandLineRunner {
             Garbage garbage = Garbage.builder()
                     .refrigerator(refrigerator)
                     .amount(50)
+                    .date(YearMonth.now())
                     .build();
             garbageRepo.save(garbage);
         }
-
 
     }
 }
