@@ -25,7 +25,7 @@ public class Garbage {
     private YearMonth date;
 
     @Column
-    private double amount;
+    private int amount;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
