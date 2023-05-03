@@ -38,6 +38,8 @@ public class ShoppingListServices {
 
     private final SubUserServices subUserServices;
 
+    private final RefrigeratorServices refrigeratorServices;
+
     private final ModelMapper mapper = new ModelMapper();
 
     /*@Autowired
@@ -49,7 +51,8 @@ public class ShoppingListServices {
     public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
                                 ItemShoppingListRepository itemShoppingListRepository, AiServices aiServices,
                                 CategoryRepository categoryRepository, ItemServices itemServices,
-                                SubUserRepository subUserRepository, SubUserServices subUserServices) {
+                                SubUserRepository subUserRepository, SubUserServices subUserServices,
+                                RefrigeratorServices refrigeratorServices) {
         this.itemRepository = itemRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.itemShoppingListRepository = itemShoppingListRepository;
@@ -58,6 +61,7 @@ public class ShoppingListServices {
         this.categoryRepository = categoryRepository;
         this.itemServices = itemServices;
         this.subUserServices = subUserServices;
+        this.refrigeratorServices = refrigeratorServices;
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getSubUser().isAccessLevel(), ItemShoppingListDto::setSubUserAccessLevel));
@@ -284,6 +288,7 @@ public class ShoppingListServices {
 
     /**
      * Gets a specific item from a shopping list
+     *
      * @param shoppingListId the id of the shopping list
      * @param itemName the name of the item
      * @param subUserAccessLevel the access level of the subUser that added the item
@@ -319,6 +324,36 @@ public class ShoppingListServices {
 
             itemShoppingListRepository.save(itemShoppingList);
 
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Adds the 5 most popular refrigerator items in a shopping list
+     *
+     * @param shoppingListId the ID of the shopping list
+     * @param subUserId the ID of the sub user performing the operation
+     * @return if the items were successfully added to the shopping list
+     */
+    public boolean magicWand(int shoppingListId, int subUserId) {
+        try {
+            List<ItemDto> popularItems = refrigeratorServices.getNMostPopularItems(5);
+
+            for (ItemDto item : popularItems) {
+
+                ItemInShoppingListCreationDto newItem = ItemInShoppingListCreationDto
+                        .builder()
+                        .itemName(item.getName())
+                        .shoppingListId(shoppingListId)
+                        .subUserId(subUserId)
+                        .amount(1)
+                        .measurementType(Measurement.UNIT)
+                        .build();
+
+                saveItemToShoppingList(newItem);
+            }
             return true;
         } catch (Exception e) {
             return false;
