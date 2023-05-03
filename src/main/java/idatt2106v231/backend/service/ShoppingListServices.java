@@ -101,7 +101,7 @@ public class ShoppingListServices {
             var itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(itemInShoppingListCreationDto.getMeasurementType())
+                            .measurementType(itemInShoppingListCreationDto.getMeasurementType())
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getSubUserId()).get())
                             .build();

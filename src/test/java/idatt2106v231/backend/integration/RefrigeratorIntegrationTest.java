@@ -163,13 +163,11 @@ public class RefrigeratorIntegrationTest {
         @DisplayName("Testing the endpoint for adding item to refrigerator")
         public void addItemToRefrigeratorIsCreated() throws Exception {
             EditItemInRefrigeratorDto newItem = EditItemInRefrigeratorDto.builder()
-                    .itemName("test11")
+                    .itemName("orange juice")
                     .refrigeratorId(1)
                     .amount(1)
+                    .measurementType(Measurement.L)
                     .build();
-
-
-            EditItemInRefrigeratorDto newItem= EditItemInRefrigeratorDto.builder().itemName("orange juice").refrigeratorId(1).amount(1).measurementType(Measurement.L).build();
 
             String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
 
@@ -180,12 +178,11 @@ public class RefrigeratorIntegrationTest {
                     .andExpect(status().isCreated())
                     .andReturn();
 
+
             String responseString = result.getResponse().getContentAsString();
 
-            Optional<ItemRefrigerator> itemOptional = itemRefrigeratorRepository
-                    .findByItemNameAndRefrigeratorRefrigeratorId("orange juice",1);
             Optional<ItemRefrigerator> itemOptional = itemRefRepo
-                    .findByItemNameAndRefrigeratorRefrigeratorId("test11",1);
+                    .findByItemNameAndRefrigeratorRefrigeratorId("orange juice",1);
 
             Assertions.assertTrue(itemOptional.isPresent());
             ItemRefrigerator retrievedItem = itemOptional.get();
