@@ -145,6 +145,7 @@ public class ItemIntegrationTest {
     class SaveItem {
         @Test
         @Transactional
+        @WithMockUser("ADMIN")
         @DisplayName("Testing the endpoint for saving an Item to database")
         public void saveItemIsCreated() throws Exception {
             ItemDto newItemDto = ItemDto.builder()
@@ -172,6 +173,7 @@ public class ItemIntegrationTest {
         }
 
         @Test
+        @WithMockUser("ADMIN")
         @DisplayName("Testing the endpoint for saving an item to database when it already exists")
         public void saveItemIsImUsed() throws Exception {
             ItemDto existingItemDto = ItemDto.builder()
@@ -193,6 +195,7 @@ public class ItemIntegrationTest {
         }
 
         @Test
+        @WithMockUser("ADMIN")
         @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
         public void saveItemIsNotFound() throws Exception {
             ItemDto existingItemDto = ItemDto.builder()
@@ -214,6 +217,7 @@ public class ItemIntegrationTest {
         }
 
         @Test
+        @WithMockUser("ADMIN")
         @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
         public void saveItemIsBadRequest() throws Exception {
             ItemDto existingItemDto = ItemDto.builder()
