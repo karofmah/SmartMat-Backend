@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GarbageDto {
+public class GarbageYearDto {
 
     private int refrigeratorId;
 
