@@ -1,8 +1,13 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.model.Garbage;
 import idatt2106v231.backend.repository.GarbageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.Year;
+import java.time.YearMonth;
+import java.util.List;
 
 @Service
 public class GarbageServices {
@@ -14,13 +19,23 @@ public class GarbageServices {
         this.garbageRepository = garbageRepository;
     }
 
-    public int calculateAverageAmount(){
-        try{
-            return garbageRepository.averageAmount();
-        }catch (Exception e){
+    public int calculateTotalAmount(int id, int year){
+        try {
+            List<Garbage> garbageList =
+                    garbageRepository.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(id, YearMonth.of(year, 1),YearMonth.of(year,12));
+            int totalAmount = 0;
+            for (Garbage garbage : garbageList) {
+                totalAmount += garbage.getAmount();
+            }
+            return totalAmount;
+        } catch (Exception e){
             return -1;
         }
     }
+/*
+    public List<Garbage> getAllGarbageByIdAndYear(int id, Year year){
+        return garbageRepository.findAllByRefrigeratorRefrigeratorIdAndDate_Year(id, year);
+    }*/
     public boolean checkIfGarbagesExists(){
         return !garbageRepository.findAll().isEmpty();
     }

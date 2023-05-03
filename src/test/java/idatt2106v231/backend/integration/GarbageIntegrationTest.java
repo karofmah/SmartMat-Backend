@@ -3,6 +3,7 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
+import idatt2106v231.backend.dto.garbage.GarbageDto;
 import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -62,6 +64,7 @@ public class GarbageIntegrationTest {
 
 
     @BeforeAll
+    @DisplayName("Add test data to test database")
     public void setup(){
 
         User user1=User.builder().
@@ -103,9 +106,9 @@ public class GarbageIntegrationTest {
 
 
 
-        Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).build();
-        Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).build();
-        Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).build();
+        Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).date(YearMonth.now()).build();
+        Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).date(YearMonth.now()).build();
+        Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.now()).build();
 
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
@@ -113,42 +116,79 @@ public class GarbageIntegrationTest {
 
     }
     @Nested
-    class averageGarbageAmount{
+    class TotalGarbageAmountYear{
         @Test
         @WithMockUser("USER")
-        @DisplayName("Test calculation of average amount of garbage among all garbages")
-        public void averageGarbageAmountIsOk() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/garbages/averageAmount")
-                            .contentType(MediaType.APPLICATION_JSON))
+        @DisplayName("Test calculation of total amount of garbage")
+        public void totalGarbageAmountYearIsOk() throws Exception {
+            GarbageDto garbageDto=GarbageDto.builder().refrigeratorId(1).year(2023).build();
+
+
+            String garbageDtoJson = objectMapper.writeValueAsString(garbageDto);
+
+            MvcResult result = mockMvc.perform(get("/api/garbages/garbage/totalAmountYear")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(garbageDtoJson))
                     .andExpect(status().isOk())
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
+
             ObjectMapper mapper = new ObjectMapper();
-            int averageAmount = mapper.readValue(responseString, new TypeReference<>() {
+            int totalAmount = mapper.readValue(responseString, new TypeReference<>() {
             });
 
 
-            Assertions.assertEquals(2, averageAmount);
+            Assertions.assertEquals(6, totalAmount);
 
         }
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Test calculation of average amount of garbage among all garbages")
-        public void averageGarbageAmountIsNotFound() throws Exception {
+        @DisplayName("Test calculation of total amount of garbage when no garbages exist")
+        public void totalGarbageAmountYearIsNotFound() throws Exception {
+
             garbageRepository.deleteAll();
-            MvcResult result = mockMvc.perform(get("/api/garbages/averageAmount")
-                            .contentType(MediaType.APPLICATION_JSON))
+
+            GarbageDto garbageDto=GarbageDto.builder().refrigeratorId(1).year(2023).build();
+
+
+            String garbageDtoJson = objectMapper.writeValueAsString(garbageDto);
+
+            MvcResult result = mockMvc.perform(get("/api/garbages/garbage/totalAmountYear")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(garbageDtoJson))
                     .andExpect(status().isNotFound())
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
 
-
             Assertions.assertEquals("There are no garbages registered in database", responseString);
 
         }
 
+        @Test
+        @Transactional
+        @WithMockUser("USER")
+        @DisplayName("Test calculation of total amount of garbage when year is not specified")
+        public void totalGarbageAmountYearIsBadRequest() throws Exception {
+
+            GarbageDto garbageDto=GarbageDto.builder().refrigeratorId(1).build();
+
+
+            String garbageDtoJson = objectMapper.writeValueAsString(garbageDto);
+
+            System.out.println(garbageDto.getYear());
+            MvcResult result = mockMvc.perform(get("/api/garbages/garbage/totalAmountYear")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(garbageDtoJson))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Data is not specified", responseString);
+
+        }
     }
 }
