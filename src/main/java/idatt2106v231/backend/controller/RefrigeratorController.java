@@ -29,25 +29,18 @@ import java.util.List;
 @Tag(name = "Refrigerator API", description = "API for managing refrigerators")
 public class RefrigeratorController {
 
-    private final Logger logger = LoggerFactory.getLogger(RefrigeratorController.class);
+    private final Logger logger;
 
-    private RefrigeratorServices refrigeratorServices;
-    private UserServices userServices;
-    private ItemServices itemServices;
+    private final RefrigeratorServices refrigeratorServices;
+    private final UserServices userServices;
+    private final ItemServices itemServices;
 
     @Autowired
-    public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
+    public RefrigeratorController(RefrigeratorServices refrigeratorServices, UserServices userServices, ItemServices itemServices) {
         this.refrigeratorServices = refrigeratorServices;
-    }
-
-    @Autowired
-    public void setUserServices(UserServices userServices) {
         this.userServices = userServices;
-    }
-
-    @Autowired
-    public void setItemServices(ItemServices itemServices) {
         this.itemServices = itemServices;
+        this.logger = LoggerFactory.getLogger(RefrigeratorController.class);
     }
 
     @GetMapping("/getRefrigeratorByUser")

@@ -20,19 +20,16 @@ import java.util.List;
 @CrossOrigin("http://localhost:8000/")
 public class SubUserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubUserServices.class);
+    private final Logger logger;
 
-    private SubUserServices subUserServices;
-    private UserServices userServices;
+    private final SubUserServices subUserServices;
+    private final UserServices userServices;
 
     @Autowired
-    public void setSubUserServices(SubUserServices subUserServices) {
+    public SubUserController(SubUserServices subUserServices, UserServices userServices) {
         this.subUserServices = subUserServices;
-    }
-
-    @Autowired
-    public void setUserServices(UserServices userServices) {
         this.userServices = userServices;
+        this.logger = LoggerFactory.getLogger(SubUserServices.class);
     }
 
     @GetMapping("/getUsersFromMaster")

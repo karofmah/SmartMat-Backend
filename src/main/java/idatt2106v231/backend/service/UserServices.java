@@ -16,7 +16,7 @@ public class UserServices {
 
     private UserRepository userRepo;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     /**
      * Sets the user repository to use for database access.
@@ -24,8 +24,9 @@ public class UserServices {
      * @param userRepo the user repository to use
      */
     @Autowired
-    public void setUserRepo(UserRepository userRepo) {
+    public UserServices(UserRepository userRepo) {
         this.userRepo = userRepo;
+        this.mapper = new ModelMapper();
     }
 
     /**

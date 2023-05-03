@@ -18,15 +18,17 @@ import java.util.Optional;
 @Service
 public class SubUserServices {
 
-    @Autowired
-    private SubUserRepository subUserRepository;
+    private final SubUserRepository subUserRepository;
+
+    private final UserRepository userRepository;
+
+    private final ModelMapper mapper;
 
     @Autowired
-    private UserRepository userRepository;
-
-    private final ModelMapper mapper = new ModelMapper();
-
-    public SubUserServices() {
+    public SubUserServices(SubUserRepository subUserRepository, UserRepository userRepository) {
+        this.subUserRepository = subUserRepository;
+        this.userRepository = userRepository;
+        this.mapper = new ModelMapper();
         TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
 

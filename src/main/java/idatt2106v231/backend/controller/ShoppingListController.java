@@ -23,16 +23,21 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("http://localhost:8000/")
 public class ShoppingListController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubUserServices.class);
+    private final Logger logger;
+
+    private final ShoppingListServices shoppingListServices;
+
+    private final UserServices userServices;
+
+    private final ItemServices itemServices;
 
     @Autowired
-    private ShoppingListServices shoppingListServices;
-
-    @Autowired
-    private UserServices userServices;
-
-    @Autowired
-    private ItemServices itemServices;
+    public ShoppingListController(ShoppingListServices shoppingListServices, UserServices userServices, ItemServices itemServices) {
+        this.shoppingListServices = shoppingListServices;
+        this.userServices = userServices;
+        this.itemServices = itemServices;
+        this.logger = LoggerFactory.getLogger(SubUserServices.class);
+    }
 
     @GetMapping("/getItemsFromShoppingList")
     @Operation(summary = "Get all items from a shoppinglist")

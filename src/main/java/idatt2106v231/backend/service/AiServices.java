@@ -26,18 +26,18 @@ import static com.theokanning.openai.service.OpenAiService.*;
 @Service
 public class AiServices {
 
-    private OpenAiKeyRepository openAiKeyRepo;
+    private final OpenAiKeyRepository openAiKeyRepo;
 
     /**
      * Sets the Open AI key repository
      *
      * @param openAiKeyRepo the repository to use
      */
+
     @Autowired
-    public void setOpenAiKeyRepo(OpenAiKeyRepository openAiKeyRepo) {
+    public AiServices(OpenAiKeyRepository openAiKeyRepo) {
         this.openAiKeyRepo = openAiKeyRepo;
     }
-
     /**
      * Gets a chat completion using OpenAI GPT-3
      *
