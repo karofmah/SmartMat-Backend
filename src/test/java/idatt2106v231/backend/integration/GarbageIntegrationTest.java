@@ -3,7 +3,6 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.garbage.GarbageYearDto;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
 import org.junit.jupiter.api.*;
@@ -116,13 +115,10 @@ public class GarbageIntegrationTest {
         @WithMockUser("USER")
         @DisplayName("Test calculation of total amount of garbage")
         public void totalGarbageAmountYearIsOk() throws Exception {
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(1).year(2023).build();
 
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
 
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -142,14 +138,8 @@ public class GarbageIntegrationTest {
         @DisplayName("Test calculation of total amount of garbage when no refrigerator exist")
         public void totalGarbageAmountYearRefrigeratorIsNotFound() throws Exception {
 
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(30).year(2023).build();
-
-
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/30?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
 
@@ -166,14 +156,9 @@ public class GarbageIntegrationTest {
 
             garbageRepository.deleteAll();
 
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(1).year(2023).build();
 
-
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
 
@@ -189,15 +174,8 @@ public class GarbageIntegrationTest {
         @DisplayName("Test calculation of total amount of garbage when year is not specified")
         public void totalGarbageAmountYearIsBadRequest() throws Exception {
 
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(1).build();
-
-
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            System.out.println(garbageYearDto.getYear());
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=-1")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andReturn();
 
