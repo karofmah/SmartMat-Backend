@@ -37,8 +37,7 @@ public class DataLoader implements CommandLineRunner {
                       RefrigeratorRepository refRepo, WeekMenuRepository weekMenuRepo,
                       UserRepository userRepo, SubUserRepository subUserRepo,
                       ShoppingListRepository shoppingListRepo, ItemShoppingListRepository itemShoppingListRepo,
-                      PasswordEncoder passwordEncoder, ShoppingListRepository shoppingListRepo,
-                      ItemShoppingListRepository itemShoppingListRepo, ItemExpirationDateRepository itemExpirationDateRepo) {
+                      PasswordEncoder passwordEncoder, ItemExpirationDateRepository itemExpirationDateRepo) {
         this.catRepo = catRepo;
         this.garbageRepo = garbageRepo;
         this.itemRefRepo = itemRefRepo;
@@ -316,98 +315,84 @@ public class DataLoader implements CommandLineRunner {
 
         var itemExpirationDate1 = ItemExpirationDate.builder()
                 .amount(1.0)
-                .measurementType(Measurement.UNIT)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
                 .itemRefrigerator(itemsInRefrigerator.get(0))
                 .build();
 
         var itemExpirationDate2 = ItemExpirationDate.builder()
                 .amount(600.0)
-                .measurementType(Measurement.G)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-02"))
                 .itemRefrigerator(itemsInRefrigerator.get(1))
                 .build();
 
         var itemExpirationDate3 = ItemExpirationDate.builder()
                 .amount(2.0)
-                .measurementType(Measurement.L)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-03"))
                 .itemRefrigerator(itemsInRefrigerator.get(2))
                 .build();
 
         var itemExpirationDate4 = ItemExpirationDate.builder()
                 .amount(1.0)
-                .measurementType(Measurement.UNIT)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-04"))
                 .itemRefrigerator(itemsInRefrigerator.get(3))
                 .build();
 
         var itemExpirationDate5 = ItemExpirationDate.builder()
                 .amount(750.0)
-                .measurementType(Measurement.G)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-05"))
                 .itemRefrigerator(itemsInRefrigerator.get(4))
                 .build();
 
         var itemExpirationDate6 = ItemExpirationDate.builder()
                 .amount(1.0)
-                .measurementType(Measurement.KG)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-06"))
                 .itemRefrigerator(itemsInRefrigerator.get(5))
                 .build();
 
         var itemExpirationDate7 = ItemExpirationDate.builder()
                 .amount(1200.0)
-                .measurementType(Measurement.G)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-07"))
                 .itemRefrigerator(itemsInRefrigerator.get(6))
                 .build();
 
         var itemExpirationDate8 = ItemExpirationDate.builder()
                 .amount(800.0)
-                .measurementType(Measurement.G)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-08"))
                 .itemRefrigerator(itemsInRefrigerator.get(7))
                 .build();
 
         var itemExpirationDate9 = ItemExpirationDate.builder()
                 .amount(3.0)
-                .measurementType(Measurement.UNIT)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-09"))
                 .itemRefrigerator(itemsInRefrigerator.get(8))
                 .build();
 
         var itemExpirationDate10 = ItemExpirationDate.builder()
                 .amount(500.0)
-                .measurementType(Measurement.G)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-10"))
                 .itemRefrigerator(itemsInRefrigerator.get(9))
                 .build();
 
         var itemExpirationDate11 = ItemExpirationDate.builder()
                 .amount(300.0)
-                .measurementType(Measurement.G)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-11"))
                 .itemRefrigerator(itemsInRefrigerator.get(10))
                 .build();
 
         var itemExpirationDate12 = ItemExpirationDate.builder()
                 .amount(2.0)
-                .measurementType(Measurement.L)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-12"))
                 .itemRefrigerator(itemsInRefrigerator.get(11))
                 .build();
 
         var itemExpirationDate13 = ItemExpirationDate.builder()
                 .amount(1.0)
-                .measurementType(Measurement.KG)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-13"))
                 .itemRefrigerator(itemsInRefrigerator.get(12))
                 .build();
 
         var itemExpirationDate14 = ItemExpirationDate.builder()
                 .amount(600)
-                .measurementType(Measurement.G)
                 .itemRefrigerator(itemsInRefrigerator.get(13))
                 .build();
 

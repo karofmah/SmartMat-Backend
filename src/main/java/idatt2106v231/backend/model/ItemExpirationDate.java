@@ -24,15 +24,10 @@ public class ItemExpirationDate {
 
     @Column
     @NotNull
-    private Measurement measurementType;
-
-    @Column
-    @NotNull
     private double amount;
 
     @Column
     @Temporal(TemporalType.DATE)
-    //Prøver java.util, mulig må bruke java.sql
     private Date date;
 
     @NotNull

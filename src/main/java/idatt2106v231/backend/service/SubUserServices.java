@@ -3,11 +3,12 @@ package idatt2106v231.backend.service;
 import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
-import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.model.SubUser;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.SubUserRepository;
+import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +21,19 @@ import java.util.Optional;
 @Service
 public class SubUserServices {
 
-    private final SubUserRepository subUserRepository;
+    private final SubUserRepository subUserRepo;
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepo;
 
     private final ModelMapper mapper;
 
     @Autowired
     public SubUserServices(SubUserRepository subUserRepository, UserRepository userRepository) {
-        this.subUserRepository = subUserRepository;
-        this.userRepository = userRepository;
+        this.subUserRepo = subUserRepository;
+        this.userRepo = userRepository;
         this.mapper = new ModelMapper();
         TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
-        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
+       // propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getUser().getEmail(), SubUserDto::setMasterUser));
 
     }
 

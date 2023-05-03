@@ -127,24 +127,27 @@ public class RefrigeratorIntegrationTest {
 
         ItemRefrigerator itemRefrigerator1 = ItemRefrigerator.builder()
                 .item(item1)
+                .measurementType(Measurement.G)
                 .refrigerator(refrigerator)
                 .build();
 
         ItemRefrigerator itemRefrigerator2_1=ItemRefrigerator.builder()
                 .item(item1)
+                .measurementType(Measurement.G)
                 .refrigerator(refrigerator2)
                 .build();
 
         ItemRefrigerator itemRefrigerator2_2=ItemRefrigerator.builder()
                 .item(item2)
+                .measurementType(Measurement.G)
                 .refrigerator(refrigerator2)
                 .build();
 
         ItemRefrigerator itemRefrigerator2_3=ItemRefrigerator.builder()
                 .item(item3)
+                .measurementType(Measurement.G)
                 .refrigerator(refrigerator2)
                 .build();
-
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -159,38 +162,56 @@ public class RefrigeratorIntegrationTest {
         ItemExpirationDate itemExpirationDate1 = ItemExpirationDate.builder()
                 .itemExpirationDateId(1)
                 .amount(2.0)
-                .measurementType(Measurement.L)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
                 .itemRefrigerator(itemRefrigerator1)
                 .build();
 
         ItemExpirationDate itemExpirationDate2_1 = ItemExpirationDate.builder()
                 .amount(2.0)
-                .measurementType(Measurement.L)
                 .date(format.parse(format.format(date2)))
                 .itemRefrigerator(itemRefrigerator2_1)
                 .build();
 
         ItemExpirationDate itemExpirationDate2_2 = ItemExpirationDate.builder()
                 .amount(2.0)
-                .measurementType(Measurement.L)
                 .date(format.parse(format.format(date3)))
                 .itemRefrigerator(itemRefrigerator2_2)
                 .build();
 
         ItemExpirationDate itemExpirationDate2_3 = ItemExpirationDate.builder()
                 .amount(2.0)
-                .measurementType(Measurement.L)
                 .date(format.parse(format.format(date4)))
                 .itemRefrigerator(itemRefrigerator2_3)
                 .build();
 
+        Garbage garbage = Garbage.builder()
+                .refrigerator(refrigerator)
+                .amount(1)
+                .build();
+
+        userRepo.save(user1);
+        userRepo.save(user2);
+
+        catRepo.save(category);
+
+        itemRepo.save(item1);
+        itemRepo.save(item2);
+        itemRepo.save(item3);
+
+        refRepo.save(refrigerator);
+        refRepo.save(refrigerator2);
+
+        itemRefRepo.save(itemRefrigerator1);
+        itemRefRepo.save(itemRefrigerator2_1);
+        itemRefRepo.save(itemRefrigerator2_2);
+        itemRefRepo.save(itemRefrigerator2_3);
 
         itemExpirationDateRepository.save(itemExpirationDate1);
+        itemExpirationDateRepository.save(itemExpirationDate2_1);
+        itemExpirationDateRepository.save(itemExpirationDate2_2);
+        itemExpirationDateRepository.save(itemExpirationDate2_3);
 
-        Garbage garbage = Garbage.builder().refrigerator(refrigerator).amount(1).build();
-        garbageRepository.save(garbage);
-
+        garbageRepo.save(garbage);
     }
 
 

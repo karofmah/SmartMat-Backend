@@ -1,5 +1,6 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.ItemShoppingListDto;
 import idatt2106v231.backend.dto.shoppinglist.ShoppingListDto;
@@ -23,27 +24,16 @@ import java.util.Optional;
 public class ShoppingListServices {
 
     private final ItemRepository itemRepository;
-
     private final ShoppingListRepository shoppingListRepository;
-
     private final ItemShoppingListRepository itemShoppingListRepository;
-
     private final SubUserRepository subUserRepository;
-
-    private final AiServices aiServices;
-
     private final CategoryRepository categoryRepository;
 
+    private final AiServices aiServices;
     private final ItemServices itemServices;
-
     private final SubUserServices subUserServices;
 
     private final ModelMapper mapper;
-
-    /*@Autowired
-    public void setItemRepository(ItemRepository itemRepository) {
-        this.itemRepository = itemRepository;
-    }*/
 
     @Autowired
     public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
@@ -63,8 +53,6 @@ public class ShoppingListServices {
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
     }
-
-
 
     public ShoppingListDto getShoppingListByUserEmail(String email) {
         try {
@@ -295,7 +283,7 @@ public class ShoppingListServices {
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
                     .amount(currentItem.getAmount() + dto.getAmount())
-                    .measurement(Measurement.L) // TODO Add measurement support
+                    .measurementType(Measurement.L) // TODO Add measurement support
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())
                     .build();

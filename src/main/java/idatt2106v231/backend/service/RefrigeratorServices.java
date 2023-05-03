@@ -3,11 +3,7 @@ package idatt2106v231.backend.service;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
-import idatt2106v231.backend.enums.Measurement;
-import idatt2106v231.backend.model.Garbage;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemExpirationDate;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemRefrigerator;
 import idatt2106v231.backend.repository.*;
 import org.modelmapper.ModelMapper;
@@ -34,11 +30,13 @@ public class RefrigeratorServices {
 
     @Autowired
     public RefrigeratorServices(RefrigeratorRepository refRepo, ItemRepository itemRepo,
-                                ItemRefrigeratorRepository itemRefRepo, MeasurementServices measurementServices) {
+                                ItemRefrigeratorRepository itemRefRepo, MeasurementServices measurementServices,
+                                ItemExpirationDateRepository itemExpRepo) {
         this.refRepo = refRepo;
         this.itemRepo = itemRepo;
         this.itemRefRepo = itemRefRepo;
         this.measurementServices = measurementServices;
+        this.itemExpRepo = itemExpRepo;
         this.mapper = new ModelMapper();
     }
 
@@ -130,7 +128,6 @@ public class RefrigeratorServices {
             int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
 
             var itemExpirationDate = ItemExpirationDate.builder()
-                    .measurement(itemRefDto.getMeasurementType())
                     .amount(itemRefDto.getAmount())
                     .date(itemRefDto.getDate())
                     .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
