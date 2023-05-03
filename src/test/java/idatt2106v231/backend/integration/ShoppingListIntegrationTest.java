@@ -313,7 +313,7 @@ public class ShoppingListIntegrationTest {
             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
-                    .andExpect(status().isConflict())
+                    .andExpect(status().isOk())
                     .andReturn();
         }
 

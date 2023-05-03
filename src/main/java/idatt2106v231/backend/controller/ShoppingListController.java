@@ -63,6 +63,10 @@ public class ShoppingListController {
     public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
+        if (!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+            response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
+        }
+
         if (response.getStatusCode() != HttpStatus.OK){
             logger.info(response.getBody() + "");
             return response;
@@ -76,7 +80,7 @@ public class ShoppingListController {
 
             shoppingListServices.updateAmount(itemInShoppingListCreationDto);
 
-            response = new ResponseEntity<>("Updated amount of the item", HttpStatus.CONFLICT);
+            response = new ResponseEntity<>("Updated amount of the item", HttpStatus.OK);
         } else {
             shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
             response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
@@ -135,8 +139,6 @@ public class ShoppingListController {
 
         if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if (!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
-            response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
         } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(itemInShoppingListCreationDto.getAmount() <= 0) {
