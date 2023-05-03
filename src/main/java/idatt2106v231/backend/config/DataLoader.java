@@ -25,14 +25,15 @@ public class DataLoader implements CommandLineRunner {
     private final ShoppingListRepository shoppingListRepo;
     private final ItemShoppingListRepository itemShoppingListRepo;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
+    @Autowired
     public DataLoader(CategoryRepository catRepo, GarbageRepository garbageRepo,
                       ItemRefrigeratorRepository itemRefRepo, ItemRepository itemRepo,
                       RefrigeratorRepository refRepo, WeekMenuRepository weekMenuRepo,
                       UserRepository userRepo, SubUserRepository subUserRepo,
-                      ShoppingListRepository shoppingListRepo, ItemShoppingListRepository itemShoppingListRepo) {
+                      ShoppingListRepository shoppingListRepo, ItemShoppingListRepository itemShoppingListRepo,
+                        PasswordEncoder passwordEncoder) {
         this.catRepo = catRepo;
         this.garbageRepo = garbageRepo;
         this.itemRefRepo = itemRefRepo;
@@ -43,6 +44,7 @@ public class DataLoader implements CommandLineRunner {
         this.subUserRepo = subUserRepo;
         this.shoppingListRepo = shoppingListRepo;
         this.itemShoppingListRepo = itemShoppingListRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
