@@ -1,0 +1,83 @@
+package idatt2106v231.backend.controller;
+
+import idatt2106v231.backend.dto.garbage.GarbageYearDto;
+import idatt2106v231.backend.service.GarbageServices;
+import idatt2106v231.backend.service.RefrigeratorServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/garbages")
+@CrossOrigin("http://localhost:8000/")
+@Tag(name = "Garbage API", description = "API for managing garbages")
+public class GarbageController {
+
+    private final Logger logger = LoggerFactory.getLogger(GarbageController.class);
+
+    private GarbageServices garbageServices;
+
+    private RefrigeratorServices refrigeratorServices;
+
+    @Autowired
+    public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
+        this.refrigeratorServices = refrigeratorServices;
+    }
+
+    @Autowired
+    public void setGarbageServices(GarbageServices garbageServices) {
+        this.garbageServices = garbageServices;
+    }
+
+    @GetMapping("/refrigerator/totalAmountYear")
+    @Operation(summary = "Calculate total amount of garbage from a refrigerator in a specific year")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Calculated total amount"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator does not exist"),
+            @ApiResponse(responseCode = "404", description = "Refrigerator does not have garbages"),
+            @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
+            @ApiResponse(responseCode = "400", description = "Data is not specified"),
+
+    })
+    public ResponseEntity<Object> calculateTotalAmountByIdYear(@RequestBody GarbageYearDto garbageYearDto) {
+
+
+        ResponseEntity <Object> response=validateGarbageYearDto(garbageYearDto);
+
+        if(response.getStatusCode().equals(HttpStatus.OK)){
+            if (garbageServices.calculateTotalAmount(garbageYearDto.getRefrigeratorId(),garbageYearDto.getYear())!=-1){
+                response = new ResponseEntity<>(garbageServices.calculateTotalAmount(garbageYearDto.getRefrigeratorId(), garbageYearDto.getYear()), HttpStatus.OK);
+            }
+            else {
+                response = new ResponseEntity<>("Total amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        logger.info(String.valueOf(response.getBody()));
+        return response;
+    }
+    public ResponseEntity<Object> validateGarbageYearDto(GarbageYearDto garbageYearDto){
+        ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
+
+        if(garbageYearDto.getRefrigeratorId()<=0 || garbageYearDto.getYear()<=0){
+            response =  new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
+        }
+        else if (!refrigeratorServices.refrigeratorExists(garbageYearDto.getRefrigeratorId())) {
+            response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
+        } else if (!garbageServices.refrigeratorHasGarbages(garbageYearDto.getRefrigeratorId())){
+            response = new ResponseEntity<>("Refrigerator does not have garbages", HttpStatus.NOT_FOUND);
+
+        }
+        return response;
+    }
+
+
+}
+
