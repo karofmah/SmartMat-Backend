@@ -298,7 +298,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
-        @DisplayName("Returns conflict when item already exists in the shoppinglist")
+        @DisplayName("Adds to amount field when item already exists in the shoppinglist")
         public void addItemAlreadyExists() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(1)
@@ -313,7 +313,7 @@ public class ShoppingListIntegrationTest {
             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
-                    .andExpect(status().isConflict())
+                    .andExpect(status().isOk())
                     .andReturn();
         }
 
