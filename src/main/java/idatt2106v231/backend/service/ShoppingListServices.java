@@ -39,7 +39,6 @@ public class ShoppingListServices {
     private final SubUserServices subUserServices;
 
     private final RefrigeratorServices refrigeratorServices;
-
     private final ModelMapper mapper = new ModelMapper();
 
     /*@Autowired
@@ -337,7 +336,7 @@ public class ShoppingListServices {
      * @param subUserId the ID of the sub user performing the operation
      * @return if the items were successfully added to the shopping list
      */
-    public boolean magicWand(int shoppingListId, int subUserId) {
+    public boolean addMostPopularItems(int shoppingListId, int subUserId) {
         try {
             List<ItemDto> popularItems = refrigeratorServices.getNMostPopularItems(5);
 
@@ -352,7 +351,11 @@ public class ShoppingListServices {
                         .measurementType(Measurement.UNIT)
                         .build();
 
-                saveItemToShoppingList(newItem);
+
+                if (!itemExistsWithAccessLevel(shoppingListId, item.getName(),
+                        subUserServices.getAccessLevel(subUserId))) {
+                    saveItemToShoppingList(newItem);
+                }
             }
             return true;
         } catch (Exception e) {
