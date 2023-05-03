@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -122,7 +123,7 @@ public class RefrigeratorController {
         }
 
         if (refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) &&
-                refrigeratorServices.updateItemInRefrigeratorAmount(dto) ) {
+                refrigeratorServices.updateItemInRefrigeratorAmount(dto)) {
             response = new ResponseEntity<>("Item is updated", HttpStatus.OK);
         }
         else if(refrigeratorServices.addItemToRefrigerator(dto)){
@@ -180,11 +181,13 @@ public class RefrigeratorController {
             logger.info(response.getBody() + "");
             return response;
         }
-        SimpleDateFormat start = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat end = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date start = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_YEAR, 7);
+        Date end = calendar.getTime();
 
-        List<ItemInRefrigeratorDto> items = refrigeratorServices.getItemsInRefrigeratorByExpirationDate();
+        List<ItemInRefrigeratorDto> items = refrigeratorServices.getItemsInRefrigeratorByExpirationDate(format.parse(format.format(start)), format.parse(format.format(end)), refrigeratorId);
 
         if (items == null){
             response = new ResponseEntity<>("Failed to retrieve items in refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -193,7 +196,7 @@ public class RefrigeratorController {
         else {
             response = new ResponseEntity<>(items, HttpStatus.OK);
             logger.info("Refrigerator retrieved");
-        }*/
+        }
         return response;
     }
 

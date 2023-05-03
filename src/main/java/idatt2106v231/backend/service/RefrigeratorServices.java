@@ -155,31 +155,22 @@ public class RefrigeratorServices {
      * @return true if the item is added to the refrigerator
      */
     public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto){
-        //try {
-            var itemRef = ItemRefrigerator.builder()
-                    .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
-                    .item(itemRepo.findByName(itemRefDto.getItemName()).get())
-                    //.amount(itemRefDto.getAmount())
-                    //.measurementType(Measurement.L)
-                    .build();
-            int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
-        //System.out.println(item.getName());
-            var itemExpirationDate = ItemExpirationDate.builder()
-                    .measurement(itemRefDto.getMeasurementType())
-                    .amount(itemRefDto.getAmount())
-                    .date(itemRefDto.getDate())
-                    //.itemRefrigerator(itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(item.getName(), itemRefDto.getRefrigeratorId()).get())
-                    .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
-                    .build();
+        var itemRef = ItemRefrigerator.builder()
+                .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
+                .item(itemRepo.findByName(itemRefDto.getItemName()).get())
+                .build();
 
-        System.out.println(itemRefDto.getDate());
-        //System.out.println(itemRefRepo.findById(itemRefDto.getItemRefrigeratorId()).get().getItem().getName());
-            itemExpRepo.save(itemExpirationDate);
-            return true;
-        /*}catch (Exception e){
-            System.out.println(e);
-            return false;
-        }*/
+        int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
+
+        var itemExpirationDate = ItemExpirationDate.builder()
+                .measurementType(itemRefDto.getMeasurementType())
+                .amount(itemRefDto.getAmount())
+                .date(itemRefDto.getDate())
+                .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
+                .build();
+
+        itemExpRepo.save(itemExpirationDate);
+        return true;
     }
 
     /**
@@ -195,7 +186,6 @@ public class RefrigeratorServices {
                     .get();
 
             ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
-            //ItemExpirationDate itemExp = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
 
             if (itemRefDto.getAmount() >= itemExpirationDate.getAmount()){
                 itemRefRepo.delete(item);
@@ -205,6 +195,7 @@ public class RefrigeratorServices {
             }
             return true;
         }catch (Exception e){
+            System.out.println(e);
             return false;
         }
     }
@@ -249,14 +240,6 @@ public class RefrigeratorServices {
 
             return false;
 
-            /*if(itemExpRepo.findByItemRefrigerator_ItemRefrigeratorId(itemRefrigerator.getItemRefrigeratorId()).isPresent()) {
-                &&
-            }*/
-            //ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
-            //ItemExpirationDate itemExpirationDate = itemExpRepo.findDistinctByItemRefrigerator_ItemRefrigeratorId(itemRefDto.getItemExpirationDateId()).get();
-            //itemExpirationDate.updateAmount(itemRefDto.getAmount());
-            //itemRefRepo.save(itemRefrigerator);
-            //return true;
         }catch (Exception e){
             return false;
         }
