@@ -88,7 +88,6 @@ public class MeasurementServices {
             return changeAmountToKG(itemRefDto);
         }
         else if (wantedMeasurement.equals(Measurement.G)) {
-            System.out.println("heihei");
             return changeAmountToKG(itemRefDto) * 1000;
         }
         else if (wantedMeasurement.equals(Measurement.DL)){

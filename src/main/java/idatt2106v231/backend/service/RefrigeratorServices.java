@@ -120,9 +120,11 @@ public class RefrigeratorServices {
      */
     public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         try {
+
             var itemRef = ItemRefrigerator.builder()
                     .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
                     .item(itemRepo.findByName(itemRefDto.getItemName()).get())
+                    .measurementType(itemRefDto.getMeasurementType())
                     .build();
 
             int newEntityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
@@ -155,7 +157,6 @@ public class RefrigeratorServices {
             double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
 
             ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
-
 
             if (amount >= itemExpirationDate.getAmount()){
                 itemRefRepo.delete(itemRefrigerator);

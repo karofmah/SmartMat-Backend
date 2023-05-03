@@ -68,9 +68,6 @@ public class DataLoader implements CommandLineRunner {
         setGarbage();
         setItemExpirationDate();*/
 
-
-
-
     }
 
     public void setCategories(){

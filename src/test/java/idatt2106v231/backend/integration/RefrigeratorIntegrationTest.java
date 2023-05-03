@@ -127,25 +127,25 @@ public class RefrigeratorIntegrationTest {
 
         ItemRefrigerator itemRefrigerator1 = ItemRefrigerator.builder()
                 .item(item1)
-                .measurementType(Measurement.G)
+                .measurementType(Measurement.L)
                 .refrigerator(refrigerator)
                 .build();
 
         ItemRefrigerator itemRefrigerator2_1=ItemRefrigerator.builder()
                 .item(item1)
-                .measurementType(Measurement.G)
+                .measurementType(Measurement.L)
                 .refrigerator(refrigerator2)
                 .build();
 
         ItemRefrigerator itemRefrigerator2_2=ItemRefrigerator.builder()
                 .item(item2)
-                .measurementType(Measurement.G)
+                .measurementType(Measurement.L)
                 .refrigerator(refrigerator2)
                 .build();
 
         ItemRefrigerator itemRefrigerator2_3=ItemRefrigerator.builder()
                 .item(item3)
-                .measurementType(Measurement.G)
+                .measurementType(Measurement.L)
                 .refrigerator(refrigerator2)
                 .build();
 
@@ -255,6 +255,8 @@ public class RefrigeratorIntegrationTest {
     class GetRefrigeratorByExpirationDate {
 
         @Test
+        @Transactional
+        @WithMockUser("USER")
         @DisplayName("Get correct items from refrigerator based on expiration date")
         public void getItemsFromRefrigeratorByExpirationDate() throws Exception {
 
@@ -280,6 +282,8 @@ public class RefrigeratorIntegrationTest {
         }
 
         @Test
+        @Transactional
+        @WithMockUser("USER")
         @DisplayName("Get items by expiration date, refrigerator does not exist")
         public void getItemsByExpirationDateRefrigeratorDoesNotExist() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/refrigerators/getRefrigeratorByUser?userEmail=test30@ntnu.no")
@@ -372,6 +376,7 @@ public class RefrigeratorIntegrationTest {
         class AddItemToRefrigeratorIsNotFound{
 
             @Test
+            @Transactional
             @WithMockUser("USER")
             @DisplayName("Testing the endpoint for adding an item to refrigerator when item does not exist")
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
@@ -397,6 +402,7 @@ public class RefrigeratorIntegrationTest {
             }
 
             @Test
+            @Transactional
             @WithMockUser("USER")
             @DisplayName("Testing the endpoint for adding an item to refrigerator when refrigerator does not exist ")
             public void addItemToRefrigeratorRefrigeratorIsNotFound() throws Exception {
@@ -404,6 +410,7 @@ public class RefrigeratorIntegrationTest {
                         .itemName("test10")
                         .refrigeratorId(30)
                         .amount(1)
+                        .measurementType(Measurement.KG)
                         .build();
 
                 String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
@@ -419,6 +426,7 @@ public class RefrigeratorIntegrationTest {
                 Assertions.assertEquals("Refrigerator does not exist", responseString);
             }
         }
+
         @Test
         @WithMockUser("USER")
         @DisplayName("Testing the endpoint for saving an item to refrigerator when item is not valid")
@@ -503,7 +511,7 @@ public class RefrigeratorIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Assertions.assertEquals(itemInRefrigeratorSize-1, itemRefRepo.findAll().size());
-            Assertions.assertEquals(garbageSize, garbageRepo.findAll().size());
+            Assertions.assertEquals(garbageSize + 1, garbageRepo.findAll().size());
             Assertions.assertEquals(2, garbageRepo.findByRefrigeratorRefrigeratorIdAndDate(1, YearMonth.now()).get().getAmount());
             Assertions.assertEquals("Item is removed from refrigerator and thrown in garbage",responseString);
         }
@@ -518,7 +526,7 @@ public class RefrigeratorIntegrationTest {
             EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
                     .itemName("milk")
                     .refrigeratorId(1)
-                    .amount(1)
+                    .amount(0.5)
                     .measurementType(Measurement.L)
                     .build();
 
