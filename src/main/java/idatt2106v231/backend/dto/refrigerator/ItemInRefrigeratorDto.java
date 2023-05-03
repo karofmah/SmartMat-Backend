@@ -12,6 +12,6 @@ import lombok.*;
 public class ItemInRefrigeratorDto {
 
     private ItemDto item;
-    private int amount;
+    private double amount;
     private Measurement measurementType;
 }

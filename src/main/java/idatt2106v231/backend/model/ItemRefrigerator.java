@@ -44,7 +44,7 @@ public class ItemRefrigerator {
      *
      * @param amount the amount to add or remove
      */
-    public void updateAmount(int amount){
+    public void updateAmount(double amount){
         this.amount += amount;
     }
 

@@ -13,6 +13,6 @@ public class EditItemInRefrigeratorDto {
 
     private String itemName;
     private int refrigeratorId;
-    private int amount;
+    private double amount;
     private Measurement measurementType;
 }
