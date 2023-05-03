@@ -174,42 +174,6 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to ass waste in the garbage table in the database,
-     * and delete the item from the refrigerator.
-     *
-     * @param itemRefDto the garbage
-     * @return true if the item is deleted
-     */
-    public boolean addToGarbage(EditItemInRefrigeratorDto itemRefDto){
-        try {
-            ItemRefrigerator item = itemRefRepo
-                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
-                    .get();
-
-            int amountToRemove = itemRefDto.getAmount();
-
-            if (amountToRemove > item.getAmount()) {
-                amountToRemove = item.getAmount();
-            }
-
-            Optional<Garbage> garbage = garbRepo.findByRefrigeratorRefrigeratorIdAndDate(itemRefDto.getRefrigeratorId(), YearMonth.now());
-            Garbage gar;
-            if (garbage.isPresent()){
-                gar = garbage.get();
-                gar.updateAmount(amountToRemove);
-            }
-            else{
-                gar = mapper.map(itemRefDto, Garbage.class);
-                gar.setDate(YearMonth.now());
-            }
-            garbRepo.save(gar);
-            return true;
-        }catch (Exception e){
-            return false;
-        }
-    }
-
-    /**
      * Method to update amount of an item in a refrigerator.
      *
      * @param itemRefDto the itemRefrigerator object with updated information
@@ -252,5 +216,17 @@ public class RefrigeratorServices {
 
     public boolean validMeasurementType(String itemName, int refrigeratorId,Measurement measurement){
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).get().getMeasurementType().equals(measurement);
+    }
+
+    private double getCorrectAmount(EditItemInRefrigeratorDto itemRefDto){
+        ItemRefrigerator item = itemRefRepo
+                .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
+                .get();
+
+        if (itemRefDto.getAmount() > item.getAmount()){
+            return item.getAmount();
+        }else{
+            return itemRefDto.getAmount();
+        }
     }
 }

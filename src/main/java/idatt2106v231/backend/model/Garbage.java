@@ -28,9 +28,6 @@ public class Garbage {
     @Column
     private double amount;
 
-    @Column
-    @NotNull Measurement measurementType;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")
     private Refrigerator refrigerator;

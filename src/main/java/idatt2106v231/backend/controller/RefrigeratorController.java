@@ -3,6 +3,7 @@ package idatt2106v231.backend.controller;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
+import idatt2106v231.backend.service.GarbageServices;
 import idatt2106v231.backend.service.ItemServices;
 import idatt2106v231.backend.service.RefrigeratorServices;
 import idatt2106v231.backend.service.UserServices;
@@ -30,6 +31,7 @@ public class RefrigeratorController {
     private RefrigeratorServices refrigeratorServices;
     private UserServices userServices;
     private ItemServices itemServices;
+    private GarbageServices garbageServices;
 
     @Autowired
     public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
@@ -44,6 +46,11 @@ public class RefrigeratorController {
     @Autowired
     public void setItemServices(ItemServices itemServices) {
         this.itemServices = itemServices;
+    }
+
+    @Autowired
+    public void setGarbageServices(GarbageServices garbageServices) {
+        this.garbageServices = garbageServices;
     }
 
     @GetMapping("/getRefrigeratorByUser")
@@ -153,7 +160,7 @@ public class RefrigeratorController {
         else if(!isGarbage && refrigeratorServices.deleteItemFromRefrigerator(dto)){
             response = new ResponseEntity<>("Item is removed from refrigerator", HttpStatus.OK);
         }
-        else if(isGarbage && refrigeratorServices.addToGarbage(dto) && refrigeratorServices.deleteItemFromRefrigerator(dto)){
+        else if(isGarbage && garbageServices.addToGarbage(dto) && refrigeratorServices.deleteItemFromRefrigerator(dto)){
             response = new ResponseEntity<>("Item is removed from refrigerator and thrown in garbage", HttpStatus.OK);
         }
         else{
