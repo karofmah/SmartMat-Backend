@@ -126,7 +126,6 @@ public class RefrigeratorController {
         }
 
         if (refrigeratorServices.refrigeratorContainsItem(dto.getItemName(), dto.getRefrigeratorId()) &&
-                refrigeratorServices.validMeasurementType(dto.getItemName(), dto.getRefrigeratorId(),dto.getMeasurementType()) &&
                 refrigeratorServices.updateItemInRefrigeratorAmount(dto)) {
             response = new ResponseEntity<>("Item is updated", HttpStatus.OK);
         }

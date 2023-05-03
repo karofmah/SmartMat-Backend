@@ -4,16 +4,14 @@ import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
-import idatt2106v231.backend.model.Garbage;
+import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemRefrigerator;
 import idatt2106v231.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Class to manage Refrigerator objects.
@@ -21,52 +19,24 @@ import java.util.Optional;
 @Service
 public class RefrigeratorServices {
 
-    private RefrigeratorRepository refRepo;
-    private ItemRepository itemRepo;
-    private ItemRefrigeratorRepository itemRefRepo;
-    private GarbageRepository garbRepo;
+    private final RefrigeratorRepository refRepo;
+    private final ItemRepository itemRepo;
+    private final ItemRefrigeratorRepository itemRefRepo;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final MeasurementServices measurementServices;
 
-    /**
-     * Sets the refrigerator repository to use for database access.
-     *
-     * @param refRepo the refrigerator repository to use
-     */
+    private final ModelMapper mapper;
+
     @Autowired
-    public void setRefRepo(RefrigeratorRepository refRepo) {
+    public RefrigeratorServices(RefrigeratorRepository refRepo, ItemRepository itemRepo,
+                                ItemRefrigeratorRepository itemRefRepo, MeasurementServices measurementServices) {
         this.refRepo = refRepo;
-    }
-
-    /**
-     * Sets the item repository to use for database access.
-     *
-     * @param itemRepo the item repository to use
-     */
-    @Autowired
-    public void setItemRepo(ItemRepository itemRepo) {
         this.itemRepo = itemRepo;
-    }
-
-    /**
-     * Sets the itemRefrigerator repository to use for database access.
-     *
-     * @param itemRefRepo the itemRefrigerator repository to use
-     */
-    @Autowired
-    public void setItemRefRepo(ItemRefrigeratorRepository itemRefRepo) {
         this.itemRefRepo = itemRefRepo;
+        this.measurementServices = measurementServices;
+        this.mapper = new ModelMapper();
     }
 
-    /**
-     * Sets the garbage repository to use for database access.
-     *
-     * @param garbRepo the garbage repository to use
-     */
-    @Autowired
-    public void setGarbRepo(GarbageRepository garbRepo) {
-        this.garbRepo = garbRepo;
-    }
 
     /**
      * Method to get a refrigerator by user.
@@ -157,15 +127,17 @@ public class RefrigeratorServices {
      */
     public boolean deleteItemFromRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         try {
-            ItemRefrigerator item = itemRefRepo
+            ItemRefrigerator itemRefrigerator = itemRefRepo
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            if (itemRefDto.getAmount() >= item.getAmount()){
-                itemRefRepo.delete(item);
+            double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
+
+            if (amount >= itemRefrigerator.getAmount()){
+                itemRefRepo.delete(itemRefrigerator);
             }else{
-                item.updateAmount(-itemRefDto.getAmount());
-                itemRefRepo.save(item);
+                itemRefrigerator.updateAmount(-amount);
+                itemRefRepo.save(itemRefrigerator);
             }
             return true;
         }catch (Exception e){
@@ -185,7 +157,10 @@ public class RefrigeratorServices {
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
                     .get();
 
-            itemRefrigerator.updateAmount(itemRefDto.getAmount());
+            double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
+            System.out.println(amount + "er ny amount");
+
+            itemRefrigerator.updateAmount(amount);
             itemRefRepo.save(itemRefrigerator);
             return true;
         }catch (Exception e){
@@ -212,21 +187,5 @@ public class RefrigeratorServices {
      */
     public boolean refrigeratorContainsItem(String itemName, int refrigeratorId){
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
-    }
-
-    public boolean validMeasurementType(String itemName, int refrigeratorId,Measurement measurement){
-        return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).get().getMeasurementType().equals(measurement);
-    }
-
-    private double getCorrectAmount(EditItemInRefrigeratorDto itemRefDto){
-        ItemRefrigerator item = itemRefRepo
-                .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
-                .get();
-
-        if (itemRefDto.getAmount() > item.getAmount()){
-            return item.getAmount();
-        }else{
-            return itemRefDto.getAmount();
-        }
     }
 }
