@@ -40,8 +40,9 @@ public class GarbageServices {
                     garbageRepository.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
             int[] amountEachMonth=new int[12];
             for (Garbage garbage : garbageList) {
-                amountEachMonth[garbage.getDate().getMonthValue()-1]=garbage.getAmount();
+                amountEachMonth[garbage.getDate().getMonthValue()-1]+=garbage.getAmount();
             }
+            System.out.println(amountEachMonth[3]);
             return amountEachMonth;
         } catch (Exception e){
             System.out.println(e.getMessage());

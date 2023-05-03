@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
-import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -113,6 +112,8 @@ public class GarbageIntegrationTest {
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
         garbageRepository.save(garbage3);
+        garbageRepository.save(garbage4);
+
 
     }
     @Nested
@@ -138,7 +139,7 @@ public class GarbageIntegrationTest {
             });
 
 
-            Assertions.assertEquals(6, totalAmount);
+            Assertions.assertEquals(9, totalAmount);
 
         }
         @Test
