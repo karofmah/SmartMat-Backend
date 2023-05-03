@@ -20,10 +20,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.YearMonth;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.YearMonth;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -180,6 +179,7 @@ public class RefrigeratorIntegrationTest {
     class AddItemToRefrigerator {
         @Test
         @Transactional
+        @WithMockUser("USER")
         @DisplayName("Testing the endpoint for adding item to refrigerator")
         public void addItemToRefrigeratorIsCreated() throws Exception {
 
@@ -216,6 +216,7 @@ public class RefrigeratorIntegrationTest {
 
         @Test
         @Transactional
+        @WithMockUser("USER")
         @DisplayName("Testing the endpoint for adding item to refrigerator when item already exists in that refrigerator")
         public void addItemToRefrigeratorIsOk() throws Exception {
 
@@ -254,6 +255,7 @@ public class RefrigeratorIntegrationTest {
         class AddItemToRefrigeratorIsNotFound{
 
             @Test
+            @WithMockUser("USER")
             @DisplayName("Testing the endpoint for adding an item to refrigerator when item does not exist")
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
 
@@ -279,6 +281,7 @@ public class RefrigeratorIntegrationTest {
             }
 
             @Test
+            @WithMockUser("USER")
             @DisplayName("Testing the endpoint for adding an item to refrigerator when refrigerator does not exist ")
             public void addItemToRefrigeratorRefrigeratorIsNotFound() throws Exception {
                 EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
@@ -303,6 +306,7 @@ public class RefrigeratorIntegrationTest {
             }
         }
         @Test
+        @WithMockUser("USER")
         @DisplayName("Testing the endpoint for saving an item to refrigerator when item is not valid")
         public void addItemToRefrigeratorIsBadRequest() throws Exception {
             EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
