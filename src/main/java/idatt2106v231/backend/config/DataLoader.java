@@ -55,7 +55,6 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-/*
        setCategories();
         setUsers();
         setRefrigerators();
@@ -66,7 +65,7 @@ public class DataLoader implements CommandLineRunner {
         setItemsInRefrigerator();
         setItemsInShoppingList();
         setGarbage();
-        setItemExpirationDate();*/
+        setItemExpirationDate();
 
     }
 
@@ -222,73 +221,87 @@ public class DataLoader implements CommandLineRunner {
         var itemRef1 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(0))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef2 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(1))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef3 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(3))
+                .measurementType(Measurement.DL)
                 .build();
 
         var itemRef4 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(1))
                 .item(items.get(3))
+                .measurementType(Measurement.DL)
                 .build();
 
         var itemRef5 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(1))
                 .item(items.get(4))
+                .measurementType(Measurement.G)
                 .build();
 
         var itemRef6 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(0))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef7 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(1))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef8 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(2))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef9 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(4))
+                .measurementType(Measurement.G)
                 .build();
 
 
         var itemRef10 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(3))
                 .item(items.get(1))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef11 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(3))
                 .item(items.get(2))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef12 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(3))
                 .item(items.get(3))
+                .measurementType(Measurement.DL)
                 .build();
 
 
         var itemRef13 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(4))
                 .item(items.get(1))
+                .measurementType(Measurement.KG)
                 .build();
 
         var itemRef14 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(2))
                 .item(items.get(3))
+                .measurementType(Measurement.DL)
                 .build();
 
         itemRefRepo.save(itemRef1);
