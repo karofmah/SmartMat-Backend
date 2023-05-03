@@ -15,18 +15,14 @@ import java.util.List;
 @Service
 public class ItemServices {
 
-    private ItemRepository itemRepo;
+    private final ItemRepository itemRepo;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
-    /**
-     * Sets the item repository to use for database access.
-     *
-     * @param itemRepo the item repository to use
-     */
     @Autowired
-    public void setItemRepo(ItemRepository itemRepo) {
+    public ItemServices(ItemRepository itemRepo) {
         this.itemRepo = itemRepo;
+        this.mapper = new ModelMapper();
     }
 
     /**

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
+import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.*;
@@ -23,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -83,6 +87,16 @@ public class RefrigeratorIntegrationTest {
                 .household(4)
                 .build();
 
+        User user2 = User.builder().
+                email("test2@ntnu.no")
+                .firstName("First name")
+                .lastName("Last name")
+                .phoneNumber(39183940)
+                .age(20)
+                .password("123")
+                .household(4)
+                .build();
+
         Category category = Category.builder()
                 .description("Drinks")
                 .build();
@@ -97,9 +111,18 @@ public class RefrigeratorIntegrationTest {
                 .category(category)
                 .build();
 
+        Item item3 = Item.builder()
+                .name("test12")
+                .category(category)
+                .build();
 
         Refrigerator refrigerator = Refrigerator.builder()
                 .user(user1)
+                .build();
+
+        Refrigerator refrigerator2=Refrigerator.builder()
+                .refrigeratorId(2)
+                .user(user2)
                 .build();
 
         ItemRefrigerator itemRefrigerator1 = ItemRefrigerator.builder()
@@ -107,28 +130,66 @@ public class RefrigeratorIntegrationTest {
                 .refrigerator(refrigerator)
                 .build();
 
-        Garbage garbage = Garbage.builder()
-                .refrigerator(refrigerator)
-                .amount(0)
-                .date(YearMonth.now())
+        ItemRefrigerator itemRefrigerator2_1=ItemRefrigerator.builder()
+                .item(item1)
+                .refrigerator(refrigerator2)
                 .build();
 
-        userRepo.save(user1);
-        catRepo.save(category);
-        itemRepo.save(item1);
-        itemRepo.save(item2);
-        refRepo.save(refrigerator);
-        itemRefRepo.save(itemRefrigerator1);
-        garbageRepo.save(garbage);
+        ItemRefrigerator itemRefrigerator2_2=ItemRefrigerator.builder()
+                .item(item2)
+                .refrigerator(refrigerator2)
+                .build();
+
+        ItemRefrigerator itemRefrigerator2_3=ItemRefrigerator.builder()
+                .item(item3)
+                .refrigerator(refrigerator2)
+                .build();
+
+
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        Date date2 = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_YEAR, 4);
+        Date date3 = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_YEAR, 10);
+        Date date4 = calendar.getTime();
 
         ItemExpirationDate itemExpirationDate1 = ItemExpirationDate.builder()
+                .itemExpirationDateId(1)
                 .amount(2.0)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
                 .itemRefrigerator(itemRefrigerator1)
                 .build();
 
+        ItemExpirationDate itemExpirationDate2_1 = ItemExpirationDate.builder()
+                .amount(2.0)
+                .measurementType(Measurement.L)
+                .date(format.parse(format.format(date2)))
+                .itemRefrigerator(itemRefrigerator2_1)
+                .build();
+
+        ItemExpirationDate itemExpirationDate2_2 = ItemExpirationDate.builder()
+                .amount(2.0)
+                .measurementType(Measurement.L)
+                .date(format.parse(format.format(date3)))
+                .itemRefrigerator(itemRefrigerator2_2)
+                .build();
+
+        ItemExpirationDate itemExpirationDate2_3 = ItemExpirationDate.builder()
+                .amount(2.0)
+                .measurementType(Measurement.L)
+                .date(format.parse(format.format(date4)))
+                .itemRefrigerator(itemRefrigerator2_3)
+                .build();
+
+
         itemExpirationDateRepository.save(itemExpirationDate1);
+
+        Garbage garbage = Garbage.builder().refrigerator(refrigerator).amount(1).build();
+        garbageRepository.save(garbage);
 
     }
 
@@ -168,6 +229,50 @@ public class RefrigeratorIntegrationTest {
             Assertions.assertEquals("Refrigerator does not exist", responseString);
         }
     }
+
+    @Nested
+    class GetRefrigeratorByExpirationDate {
+
+        @Test
+        @DisplayName("Get correct items from refrigerator based on expiration date")
+        public void getItemsFromRefrigeratorByExpirationDate() throws Exception {
+
+            MvcResult result = mockMvc.perform(get("/api/refrigerators/getItemInRefrigeratorByExpirationDate/2")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            List<ItemInRefrigeratorDto> retrievedItemsRefrigerator = objectMapper.readValue(responseString, new TypeReference<>() {
+            });
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            Date date1 = calendar.getTime();
+            calendar.add(Calendar.DAY_OF_YEAR, 4);
+            Date date2 = calendar.getTime();
+
+            Assertions.assertEquals( 2, retrievedItemsRefrigerator.size());
+            Assertions.assertEquals(format.format(date1), format.format(retrievedItemsRefrigerator.get(0).getDate()));
+            Assertions.assertEquals(format.format(date2), format.format(retrievedItemsRefrigerator.get(1).getDate()));
+        }
+
+        @Test
+        @DisplayName("Get items by expiration date, refrigerator does not exist")
+        public void getItemsByExpirationDateRefrigeratorDoesNotExist() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/refrigerators/getRefrigeratorByUser?userEmail=test30@ntnu.no")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            System.out.println("Response: " + responseString);
+            Assertions.assertEquals("Refrigerator does not exist", responseString);
+        }
+    }
+
 
     @Nested
     class AddItemToRefrigerator {

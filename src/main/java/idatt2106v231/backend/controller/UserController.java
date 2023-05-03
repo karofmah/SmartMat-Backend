@@ -2,6 +2,7 @@ package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.dto.user.UserUpdateDto;
+import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,13 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("http://localhost:8000/")
 public class UserController {
 
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final Logger logger;
 
-    private UserServices userServices;
+    private final UserServices userServices;
 
     @Autowired
-    public void setUserService(UserServices userServices) {
-        this.userServices=userServices;
+    public UserController(UserServices userServices) {
+        this.userServices = userServices;
+        this.logger = LoggerFactory.getLogger(UserController.class);
     }
 
     @GetMapping("/login/getUser")

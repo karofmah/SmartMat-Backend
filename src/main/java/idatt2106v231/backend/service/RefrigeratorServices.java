@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public class RefrigeratorServices {
     private final RefrigeratorRepository refRepo;
     private final ItemRepository itemRepo;
     private final ItemRefrigeratorRepository itemRefRepo;
-    private ItemExpirationDateRepository itemExpRepo;
+    private final ItemExpirationDateRepository itemExpRepo;
 
     private final MeasurementServices measurementServices;
 
@@ -102,6 +103,17 @@ public class RefrigeratorServices {
         }
     }
 
+    public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByExpirationDate(Date start, Date end, int refrigeratorId) {
+        try {
+            return itemExpRepo.findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(refrigeratorId, start, end)
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
+                    .toList();
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
     /**
      * Method to add an item to a refrigerator.
      *
@@ -121,7 +133,6 @@ public class RefrigeratorServices {
                     .measurement(itemRefDto.getMeasurementType())
                     .amount(itemRefDto.getAmount())
                     .date(itemRefDto.getDate())
-                    //.itemRefrigerator(itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(item.getName(), itemRefDto.getRefrigeratorId()).get())
                     .itemRefrigerator(itemRefRepo.findById(newEntityId).get())
                     .build();
 
@@ -185,7 +196,6 @@ public class RefrigeratorServices {
                 }
             }
 
-           // itemRefRepo.save(itemRefrigerator);
             return false;
         }catch (Exception e){
             return false;

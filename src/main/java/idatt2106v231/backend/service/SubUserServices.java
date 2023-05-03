@@ -20,18 +20,20 @@ import java.util.Optional;
 @Service
 public class SubUserServices {
 
-    private SubUserRepository subUserRepo;
+    private final SubUserRepository subUserRepository;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final UserRepository userRepository;
 
-    /**
-     * Sets the subuser repository to use for database access.
-     *
-     * @param subUserRepo the
-     */
+    private final ModelMapper mapper;
+
     @Autowired
-    public void setSubUserRepo(SubUserRepository subUserRepo) {
-        this.subUserRepo = subUserRepo;
+    public SubUserServices(SubUserRepository subUserRepository, UserRepository userRepository) {
+        this.subUserRepository = subUserRepository;
+        this.userRepository = userRepository;
+        this.mapper = new ModelMapper();
+        TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
+        propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getMasterUser().getEmail(), SubUserDto::setMasterUser));
+
     }
 
     public List<SubUserDto> getSubUsersByMaster(String email) { //sjekk

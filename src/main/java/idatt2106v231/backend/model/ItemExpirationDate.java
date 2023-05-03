@@ -24,7 +24,7 @@ public class ItemExpirationDate {
 
     @Column
     @NotNull
-    private Measurement measurement;
+    private Measurement measurementType;
 
     @Column
     @NotNull
