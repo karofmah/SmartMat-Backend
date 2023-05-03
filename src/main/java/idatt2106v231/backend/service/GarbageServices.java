@@ -32,7 +32,7 @@ public class GarbageServices {
         }
     }
 
-    public boolean refrigeratorHasGarbages(int id){
-        return !garbageRepository.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
+    public boolean refrigeratorIsEmpty(int id){
+        return garbageRepository.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
     }
 }
