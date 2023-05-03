@@ -99,14 +99,10 @@ public class GarbageIntegrationTest {
 
         refrigeratorRepository.save(refrigerator);
 
-
-
         Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).date(YearMonth.of(2023,3)).build();
         Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).date(YearMonth.of(2023,2)).build();
         Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
         Garbage garbage4=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
-
-
 
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
@@ -118,10 +114,10 @@ public class GarbageIntegrationTest {
     @Nested
     class TotalGarbageAmountYear{
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Test calculation of total amount of garbage")
         public void totalGarbageAmountYearIsOk() throws Exception {
-
 
             MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -162,7 +158,6 @@ public class GarbageIntegrationTest {
 
             garbageRepository.deleteAll();
 
-
             MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
@@ -193,6 +188,7 @@ public class GarbageIntegrationTest {
 
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Test calculation of amount of garbage each month in a specific year")
         public void amountEachMonthIsOk() throws Exception {

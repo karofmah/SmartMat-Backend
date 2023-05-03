@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -34,8 +32,7 @@ public class GarbageServices {
         }
     }
 
-    public boolean refrigeratorIsEmpty(int id){
-        return garbageRepository.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
+
     public int[] calculateAmountEachMonth(int id, int year){
         try {
             List<Garbage> garbageList =
@@ -44,14 +41,13 @@ public class GarbageServices {
             for (Garbage garbage : garbageList) {
                 amountEachMonth[garbage.getDate().getMonthValue()-1]+=garbage.getAmount();
             }
-            System.out.println(amountEachMonth[3]);
             return amountEachMonth;
         } catch (Exception e){
             System.out.println(e.getMessage());
             return null;
         }
     }
-    public boolean refrigeratorHasGarbages(int id){
-        return !garbageRepository.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
+    public boolean refrigeratorIsEmpty(int id) {
+        return garbageRepository.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
     }
 }
