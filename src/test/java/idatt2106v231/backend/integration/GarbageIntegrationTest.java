@@ -71,7 +71,18 @@ public class GarbageIntegrationTest {
                 .household(4)
                 .build();
 
+        User user2=User.builder().
+                email("test2@ntnu.no")
+                .firstName("First name")
+                .lastName("Last name")
+                .phoneNumber(39183940)
+                .age(20)
+                .password("123")
+                .household(4)
+                .build();
+
         userRepository.save(user1);
+        userRepository.save(user2);
 
         Category category = Category.builder()
                 .description("category1")
@@ -92,22 +103,31 @@ public class GarbageIntegrationTest {
         itemRepository.save(item1);
         itemRepository.save(item2);
 
-        Refrigerator refrigerator=Refrigerator.builder()
+        Refrigerator refrigerator1=Refrigerator.builder()
                 .user(user1)
+                .build();
+        Refrigerator refrigerator2=Refrigerator.builder()
+                .user(user2)
                 .build();
 
 
-        refrigeratorRepository.save(refrigerator);
+        refrigeratorRepository.save(refrigerator1);
+        refrigeratorRepository.save(refrigerator2);
 
-        Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).date(YearMonth.of(2023,3)).build();
-        Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).date(YearMonth.of(2023,2)).build();
-        Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
-        Garbage garbage4=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
+        Garbage garbage1=Garbage.builder().refrigerator(refrigerator1).amount(1).date(YearMonth.of(2023,3)).build();
+        Garbage garbage2=Garbage.builder().refrigerator(refrigerator1).amount(2).date(YearMonth.of(2023,2)).build();
+        Garbage garbage3=Garbage.builder().refrigerator(refrigerator1).amount(3).date(YearMonth.of(2023,4)).build();
+        Garbage garbage4=Garbage.builder().refrigerator(refrigerator1).amount(3).date(YearMonth.of(2023,4)).build();
+
+        Garbage garbage5=Garbage.builder().refrigerator(refrigerator2).amount(10).date(YearMonth.of(2023,4)).build();
+        Garbage garbage6=Garbage.builder().refrigerator(refrigerator2).amount(20).date(YearMonth.of(2023,3)).build();
 
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
         garbageRepository.save(garbage3);
         garbageRepository.save(garbage4);
+        garbageRepository.save(garbage5);
+        garbageRepository.save(garbage6);
 
 
     }
@@ -213,5 +233,26 @@ public class GarbageIntegrationTest {
                 Assertions.assertEquals(expectedAmountEachMonth[i], amountEachMonth[i]);
             }
         }
+    @Test
+    @Transactional
+    @WithMockUser("USER")
+    @DisplayName("Test calculation of total amount of garbage")
+    public void totalGarbageAmountYearIsOk() throws Exception {
+
+        MvcResult result = mockMvc.perform(get("/api/garbages/averageAmountYear/1?year=2023")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        int averageAmount = mapper.readValue(responseString, new TypeReference<>() {
+        });
+
+
+        Assertions.assertEquals(15, averageAmount);
+
+    }
 
     }
