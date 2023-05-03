@@ -2,8 +2,6 @@ package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.WeeklyMenuShoppingListDto;
-import idatt2106v231.backend.model.SubUser;
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.service.ItemServices;
 import idatt2106v231.backend.service.ShoppingListServices;
 import idatt2106v231.backend.service.SubUserServices;
@@ -65,25 +63,29 @@ public class ShoppingListController {
     public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
+        if (!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+            response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
+        }
+
         if (response.getStatusCode() != HttpStatus.OK){
             logger.info(response.getBody() + "");
             return response;
         }
 
-        /*if(itemInShoppingListCreationDto.getMasterUserEmail() == null || itemInShoppingListCreationDto.getSubUserName() == null) {
-            response = new ResponseEntity<>("Subuser is not defined", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
-            return response;
-        }*/
 
-        if(shoppingListServices.itemExistsInShoppingList(itemInShoppingListCreationDto.getShoppingListId(), itemInShoppingListCreationDto.getItemName())) {
-            response = new ResponseEntity<>("Item already exists in shoppinglist", HttpStatus.CONFLICT);
-            logger.info(response.getBody() + "");
-            return response;
+        if (shoppingListServices.itemExistsWithAccessLevel(
+                itemInShoppingListCreationDto.getShoppingListId(),
+                itemInShoppingListCreationDto.getItemName(),
+                subUserServices.getAccessLevel(itemInShoppingListCreationDto.getSubUserId()))) {
+
+            shoppingListServices.updateAmount(itemInShoppingListCreationDto);
+
+            response = new ResponseEntity<>("Updated amount of the item", HttpStatus.OK);
+        } else {
+            shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
+            response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
         }
 
-        shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
-        response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
 
         logger.info(response.getBody() + "");
         return response;
@@ -139,8 +141,8 @@ public class ShoppingListController {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(itemInShoppingListCreationDto.getAmount() == 0) {
-            response = new ResponseEntity<>("Amount is not specified", HttpStatus.BAD_REQUEST);
+        } else if(itemInShoppingListCreationDto.getAmount() <= 0) {
+            response = new ResponseEntity<>("Invalid amount", HttpStatus.BAD_REQUEST);
         } else if(itemInShoppingListCreationDto.getMeasurementType() == null) {
             response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
         } else {

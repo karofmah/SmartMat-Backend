@@ -34,6 +34,8 @@ public class GarbageServices {
         }
     }
 
+    public boolean refrigeratorIsEmpty(int id){
+        return garbageRepository.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
     public int[] calculateAmountEachMonth(int id, int year){
         try {
             List<Garbage> garbageList =

@@ -91,8 +91,25 @@ public class SubUserServices {
         return subUserRepo.existsBySubUserId(subUserId);
     }
 
+    /**
+     * Gets the master user of a sub user
+     *
+     * @param subUserId the sub user ID
+     * @return the master user
+     */
     public User getMasterUser(int subUserId) {
         Optional<SubUser> subUser = subUserRepo.findById(subUserId);
         return subUser.map(SubUser::getUser).orElse(null);
+    }
+
+    /**
+     * Gets the access level of a sub user
+     *
+     * @param subUserId the sub user ID
+     * @return the access level
+     */
+    public boolean getAccessLevel(int subUserId) {
+        Optional<SubUser> subUser = subUserRepo.findById(subUserId);
+        return subUser.map(SubUser::isAccessLevel).orElse(false);
     }
 }
