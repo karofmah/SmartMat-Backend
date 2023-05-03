@@ -218,6 +218,7 @@ public class DataLoader implements CommandLineRunner {
         List<Refrigerator> refrigerators = refRepo.findAll();
 
 
+
         var itemRef1 = ItemRefrigerator.builder()
                 .refrigerator(refrigerators.get(0))
                 .item(items.get(0))
