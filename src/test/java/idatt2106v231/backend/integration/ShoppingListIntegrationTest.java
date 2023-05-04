@@ -78,7 +78,6 @@ public class ShoppingListIntegrationTest {
         var user1 = User.builder()
                 .email("test1@ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .age(1)
                 .firstName("firstName1")
                 .lastName("lastName1")
                 .phoneNumber(1234)
@@ -437,6 +436,7 @@ public class ShoppingListIntegrationTest {
     class TestAddMostPopularItemsToShoppingList {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void addPopularItemsAllArgsOk() throws Exception {
 
