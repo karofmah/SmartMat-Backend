@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -262,6 +263,7 @@ public class ShoppingListIntegrationTest {
     class TestGetItemsFromShoppingList {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Retrieve correct items from shoppinglist")
         public void retrieveItemsFromShoppingList() throws Exception {
 
@@ -275,6 +277,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Retrieve correct accesslevel from item")
         public void retrieveCorrectAccessLevel() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
@@ -287,6 +290,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Return error when supplied invalid user")
         public void returnErrorWithInvalidUser() throws Exception {
             mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
@@ -300,6 +304,7 @@ public class ShoppingListIntegrationTest {
     class TestAddItemToShoppingList {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void addItemAllArgsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
@@ -320,6 +325,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Adds to amount field when item already exists in the shoppinglist")
         public void addItemAlreadyExists() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
@@ -340,6 +346,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when item is invalid")
         public void addItemItemIsInvalid() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
@@ -360,6 +367,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Return error when amount is invalid")
         public void addItemAmountIsInvalid() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
@@ -380,6 +388,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Return error when measurement is invalid")
         public void addItemMeasurementIsInvalid() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
@@ -404,6 +413,7 @@ public class ShoppingListIntegrationTest {
     class TestDeleteItemFromShoppingList {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void deleteItemAllArgsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()

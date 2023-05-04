@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,6 +128,7 @@ public class SubUserIntegrationTest {
     class GetUsersFromMaster {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Retrieves the correct number of subusers")
         public void retrieveSubUsersFromMaster() throws Exception {
 
@@ -141,6 +143,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when wrong master is given")
         public void returnErrorWhenGivenWrongParam() throws Exception {
             mockMvc.perform(get("/api/subusers/getUsersFromMaster")
@@ -154,6 +157,7 @@ public class SubUserIntegrationTest {
     class GetUser {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns correct user")
         public void returnCorrectUser() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/subusers/getUser/1"))
@@ -166,6 +170,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns incorrect user")
         public void returnIncorrectUser() throws Exception {
             mockMvc.perform(get("/api/subusers/getUser/13"))
@@ -180,6 +185,7 @@ public class SubUserIntegrationTest {
 
         @Test
         @Transactional
+        @WithMockUser("USER")
         @DisplayName("Returns ok when requirements are met")
         public void addSubUserAllArgsOk() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
@@ -197,6 +203,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when masteruser doesnt exist")
         public void addSubUserMasterDoesntExist() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
@@ -214,6 +221,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when subuser already exist")
         public void addSubUserSubUserExists() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
@@ -233,6 +241,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when masteruser is undefined")
         public void addSubUserMasterUndefined() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
@@ -249,6 +258,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when name is undefined")
         public void addSubUserNameUndefined() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
@@ -270,6 +280,7 @@ public class SubUserIntegrationTest {
 
         @Test
         @Transactional
+        @WithMockUser("USER")
         @DisplayName("Returns ok when requirements are met")
         public void deleteSubUserAllArgsOk() throws Exception {
 
@@ -280,6 +291,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Returns error when subuser doesnt exist")
         public void deleteSubUserDoesntExist() throws Exception {
             SubUserDto testSubUser = new SubUserDto();
@@ -299,6 +311,7 @@ public class SubUserIntegrationTest {
     class ValidatePinCode {
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Tests validation of pin code when pin code is correct")
         public void validatePinCodeIsOk() throws Exception {
             SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder()
@@ -319,6 +332,7 @@ public class SubUserIntegrationTest {
         }
 
         @Test
+        @WithMockUser("USER")
         @DisplayName("Tests validation of pin code when pin code is incorrect")
         public void validatePinCodeIsNotFound() throws Exception {
             SubUserValidationDto subUserValidationDto = SubUserValidationDto.builder()

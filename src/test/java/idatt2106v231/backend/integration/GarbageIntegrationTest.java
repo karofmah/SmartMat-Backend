@@ -3,7 +3,6 @@ package idatt2106v231.backend.integration;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.garbage.GarbageYearDto;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
 import org.junit.jupiter.api.*;
@@ -97,32 +96,31 @@ public class GarbageIntegrationTest {
                 .user(user1)
                 .build();
 
+
         refrigeratorRepository.save(refrigerator);
 
-
-
-        Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).date(YearMonth.now()).build();
-        Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).date(YearMonth.now()).build();
-        Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.now()).build();
+        Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).date(YearMonth.of(2023,3)).build();
+        Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).date(YearMonth.of(2023,2)).build();
+        Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
+        Garbage garbage4=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
 
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
         garbageRepository.save(garbage3);
+        garbageRepository.save(garbage4);
+
 
     }
     @Nested
     class TotalGarbageAmountYear{
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Test calculation of total amount of garbage")
         public void totalGarbageAmountYearIsOk() throws Exception {
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(1).year(2023).build();
 
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -133,7 +131,7 @@ public class GarbageIntegrationTest {
             });
 
 
-            Assertions.assertEquals(6, totalAmount);
+            Assertions.assertEquals(9, totalAmount);
 
         }
         @Test
@@ -142,14 +140,8 @@ public class GarbageIntegrationTest {
         @DisplayName("Test calculation of total amount of garbage when no refrigerator exist")
         public void totalGarbageAmountYearRefrigeratorIsNotFound() throws Exception {
 
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(30).year(2023).build();
-
-
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/30?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
 
@@ -166,14 +158,8 @@ public class GarbageIntegrationTest {
 
             garbageRepository.deleteAll();
 
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(1).year(2023).build();
-
-
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
 
@@ -184,20 +170,12 @@ public class GarbageIntegrationTest {
         }
 
         @Test
-        @Transactional
         @WithMockUser("USER")
         @DisplayName("Test calculation of total amount of garbage when year is not specified")
         public void totalGarbageAmountYearIsBadRequest() throws Exception {
 
-            GarbageYearDto garbageYearDto = GarbageYearDto.builder().refrigeratorId(1).build();
-
-
-            String garbageDtoJson = objectMapper.writeValueAsString(garbageYearDto);
-
-            System.out.println(garbageYearDto.getYear());
-            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(garbageDtoJson))
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=-1")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())
                     .andReturn();
 
@@ -207,4 +185,33 @@ public class GarbageIntegrationTest {
 
         }
     }
-}
+
+
+        @Test
+        @Transactional
+        @WithMockUser("USER")
+        @DisplayName("Test calculation of amount of garbage each month in a specific year")
+        public void amountEachMonthIsOk() throws Exception {
+
+            MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/amountEachMonth/1?year=2023")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            ObjectMapper mapper = new ObjectMapper();
+            int[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
+            });
+
+            int[] expectedAmountEachMonth=new int[12];
+            expectedAmountEachMonth[1]=2;
+            expectedAmountEachMonth[2]=1;
+            expectedAmountEachMonth[3]=6;
+
+            for (int i = 0; i < amountEachMonth.length; i++) {
+                Assertions.assertEquals(expectedAmountEachMonth[i], amountEachMonth[i]);
+            }
+        }
+
+    }
