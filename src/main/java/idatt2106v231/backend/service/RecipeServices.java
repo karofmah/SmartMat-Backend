@@ -7,8 +7,8 @@ import idatt2106v231.backend.repository.WeekMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Class to manage Recipe objects.
@@ -39,16 +39,28 @@ public class RecipeServices {
     public String generateRecipe(int refrigeratorId) {
         try {
 
-            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+            List<ItemInRefrigeratorDto> ingredients = new ArrayList<>(
+                    refrigeratorServices.getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 5));
+
+            List<ItemInRefrigeratorDto> otherIngredients = new ArrayList<>(refrigeratorServices.getItemsInRefrigerator(refrigeratorId));
+
+            Random rand = new Random();
+            while (ingredients.size() < 5 || !otherIngredients.isEmpty()) {
+                int r = rand.nextInt(otherIngredients.size());
+                ingredients.add(otherIngredients.get(r));
+                otherIngredients.remove(r);
+            }
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
 
             for (ItemInRefrigeratorDto ingredient : ingredients) {
-                query.append(ingredient.getItem().getName()).append(" ");
+                query.append(ingredient.getItem().getName()).append(" ,");
             }
 
+            query.append(". Use metric measurements.");
+
             return aiServices.getChatCompletion(query.toString());
-        } catch (IllegalArgumentException e){
+        } catch (Exception e){
             return null;
         }
     }
