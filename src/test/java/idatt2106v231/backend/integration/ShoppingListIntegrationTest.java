@@ -243,6 +243,7 @@ public class ShoppingListIntegrationTest {
         var itemRefrigerator1 = ItemRefrigerator.builder()
                 .item(item1)
                 .refrigerator(refrigerator1)
+                .measurementType(Measurement.KG)
                 .build();
 
         itemRefrigeratorRepository.save(itemRefrigerator1);
