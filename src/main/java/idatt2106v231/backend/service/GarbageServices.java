@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -35,7 +34,7 @@ public class GarbageServices {
     }
 
 
-    public int[] calculateAmountEachMonth(int id, int year){
+    public int[] calculateTotalAmountEachMonth(int id, int year){
         try {
             List<Garbage> garbageList =
                     garbageRepository.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
@@ -45,21 +44,18 @@ public class GarbageServices {
             }
             return amountEachMonth;
         } catch (Exception e){
-            System.out.println(e.getMessage());
             return null;
         }
     }
     public int calculateAverageAmount(int id, int year){
         try {
-            List<Garbage> totalGarbageList =
-                    garbageRepository.findAllByDateIsBetween(YearMonth.of(year,1),YearMonth.of(year,12));
+            List<Garbage> garbageList =
+                    garbageRepository.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
             int totalAmount=0;
-            int [] totalAmountList=new int [totalGarbageList.size()];
+            int [] totalAmountList=new int [garbageList.size()];
             int size=0;
-            for (Garbage garbage : totalGarbageList) {
-                if(garbage.getRefrigerator().getRefrigeratorId()!=id){
-                    totalAmountList[garbage.getRefrigerator().getRefrigeratorId()]+=garbage.getAmount();
-                }
+            for (Garbage garbage : garbageList) {
+                totalAmountList[garbage.getRefrigerator().getRefrigeratorId()]+=garbage.getAmount();
             }
             for (int amount:totalAmountList) {
                 if(amount>0){
@@ -68,10 +64,53 @@ public class GarbageServices {
                 totalAmount+=amount;
             }
 
-            return totalAmount/ size;
+            return totalAmount/size;
+        } catch (Exception e){
+            return -1;
+        }
+    }
+    public int[] calculateAverageAmountEachMonth(int id, int year){
+        try {
+            List<Garbage> garbageList =
+                    garbageRepository.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
+            int[] totalAmountEachMonth=new int[12];
+            int[] averageAmountEachMonth=new int[12];
+            int[] sizeArray=new int[12];
+
+            //Initialize array with array list that will represent
+            //refrigerator IDs per month
+            ArrayList<Integer>[] idsEachMonth=new ArrayList[12];
+            for (int i = 0; i < idsEachMonth.length; i++) {
+                idsEachMonth[i]=new ArrayList<>();
+            }
+
+            //Iterate through all garbages, add amount for each month to
+            //corresponding index.
+            //Fill array lists with all refrigerator ID
+            //divided into months (one list per month)
+            for (Garbage garbage : garbageList) {
+                totalAmountEachMonth[garbage.getDate().getMonthValue()-1]+=garbage.getAmount();
+                idsEachMonth[garbage.getDate().getMonthValue()-1].add(garbage.getRefrigerator().getRefrigeratorId());
+            }
+
+            //Remove duplicates of refrigerator IDs
+            for (int i = 0; i < 12; i++) {
+                sizeArray[i]=idsEachMonth[i].stream().distinct().toList().size();
+            }
+
+            //Calculate average amount of garbage per month
+            //using total amount of garbage that month and the
+            //number of unique users that have thrown garbage that month
+            for (int i = 0; i < totalAmountEachMonth.length; i++) {
+                if(sizeArray[i]!=0){
+                    averageAmountEachMonth[i]=totalAmountEachMonth[i]/sizeArray[i];
+                }
+            }
+
+            return averageAmountEachMonth;
         } catch (Exception e){
             System.out.println(e.getMessage());
-            return -1;
+            return null;
         }
     }
     public boolean refrigeratorIsEmpty(int id) {
