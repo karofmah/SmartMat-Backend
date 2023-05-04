@@ -27,7 +27,7 @@ public class ItemShoppingList {
 
     @Column
     @NotNull
-    private Measurement measurement;
+    private Measurement measurementType;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shoppingListId", referencedColumnName = "shoppingListId")

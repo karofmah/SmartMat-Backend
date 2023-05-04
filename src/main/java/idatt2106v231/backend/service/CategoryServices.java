@@ -16,18 +16,14 @@ import java.util.List;
 @Service
 public class CategoryServices {
 
-    private CategoryRepository catRepo;
+    private final CategoryRepository catRepo;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
-    /**
-     * Sets the category repository to use for database access.
-     *
-     * @param catRepo the category repository to use
-     */
     @Autowired
-    public void setCatRepo(CategoryRepository catRepo) {
+    public CategoryServices(CategoryRepository catRepo) {
         this.catRepo = catRepo;
+        this.mapper = new ModelMapper();
     }
 
     /**

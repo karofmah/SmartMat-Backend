@@ -186,7 +186,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingList1 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.KG)
+                .measurementType(Measurement.KG)
                 .shoppingList(shoppingListUser1)
                 .item(item1)
                 .subUser(subUser1)
@@ -194,7 +194,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingList2 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .shoppingList(shoppingListUser1)
                 .item(item2)
                 .subUser(subUser2)
@@ -202,7 +202,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingList3 = ItemShoppingList.builder()
                 .amount(300)
-                .measurement(Measurement.G)
+                .measurementType(Measurement.G)
                 .shoppingList(shoppingListUser1)
                 .item(item3)
                 .subUser(subUser1)
@@ -210,7 +210,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingListUser2 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .shoppingList(shoppingListUser2)
                 .item(item2)
                 .subUser(subUser2)
@@ -218,7 +218,7 @@ public class ShoppingListIntegrationTest {
 
         var itemShoppingListUser3 = ItemShoppingList.builder()
                 .amount(1)
-                .measurement(Measurement.L)
+                .measurementType(Measurement.L)
                 .shoppingList(shoppingListUser3)
                 .item(item2)
                 .subUser(subUser4)
@@ -243,20 +243,11 @@ public class ShoppingListIntegrationTest {
         var itemRefrigerator1 = ItemRefrigerator.builder()
                 .item(item1)
                 .refrigerator(refrigerator1)
+                .measurementType(Measurement.KG)
                 .build();
 
         itemRefrigeratorRepository.save(itemRefrigerator1);
     }
-
-    /*@AfterEach
-    @DisplayName("Teardown of database")
-    public void teardown() {
-        itemShoppingListRepository.deleteAll();
-        itemRepository.deleteAll();
-        categoryRepository.deleteAll();
-        shoppingListRepository.deleteAll();
-        userRepository.deleteAll();
-    }*/
 
     @Nested
     class TestGetItemsFromShoppingList {
@@ -292,7 +283,7 @@ public class ShoppingListIntegrationTest {
         @WithMockUser("USER")
         @DisplayName("Return error when supplied invalid user")
         public void returnErrorWithInvalidUser() throws Exception {
-            mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+             mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
                             .param("email","invalidUser"))
                     .andExpect(status().isBadRequest())
                     .andReturn();
@@ -303,6 +294,7 @@ public class ShoppingListIntegrationTest {
     class TestAddItemToShoppingList {
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void addItemAllArgsOk() throws Exception {
@@ -316,14 +308,18 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            int size=itemShoppingListRepository.findAll().size();
+             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(shoppingListJson))
                     .andExpect(status().isOk())
                     .andReturn();
+
+             assertEquals(size+1,itemShoppingListRepository.findAll().size());
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Adds to amount field when item already exists in the shoppinglist")
         public void addItemAlreadyExists() throws Exception {
@@ -331,13 +327,13 @@ public class ShoppingListIntegrationTest {
                     .shoppingListId(1)
                     .itemName("Cheese")
                     .amount(1)
-                    .measurementType(Measurement.L)
+                    .measurementType(Measurement.G)
                     .subUserId(1)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isOk())
@@ -345,6 +341,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Returns error when item is invalid")
         public void addItemItemIsInvalid() throws Exception {
@@ -366,6 +363,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return error when amount is invalid")
         public void addItemAmountIsInvalid() throws Exception {
@@ -373,7 +371,7 @@ public class ShoppingListIntegrationTest {
                     .shoppingListId(1)
                     .itemName("Milk")
                     .amount(0)
-                    .measurementType(Measurement.L)
+                    .measurementType(Measurement.KG)
                     .subUserId(1)
                     .build();
 
@@ -387,6 +385,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return error when measurement is invalid")
         public void addItemMeasurementIsInvalid() throws Exception {
@@ -412,19 +411,22 @@ public class ShoppingListIntegrationTest {
     class TestDeleteItemFromShoppingList {
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void deleteItemAllArgsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(2)
+                    .itemShoppingListId(2)
                     .itemName("Milk")
                     .amount(1)
                     .measurementType(Measurement.L)
+                    .subUserId(2)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
+             mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isOk())

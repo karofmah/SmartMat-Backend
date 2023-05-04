@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -111,12 +112,12 @@ public class AuthenticationIntegrationTest {
     }
 
     @Nested
-    class TestRegisteringUser {
+    class RegisterUser {
 
         @Test
         @WithMockUser("USER")
         @DisplayName("Test registering a new user")
-        public void registerNewUser() throws Exception {
+        public void registerUserIsCreated() throws Exception {
             UserCreationDto testUser = new UserCreationDto();
             testUser.setEmail("newUser@mail.com");
             testUser.setPassword("password");
@@ -128,17 +129,21 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            mockMvc.perform(post("http://localhost:8080/api/auth/register")
+            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(userJson))
                     .andExpect(status().isCreated())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            System.out.println(responseString);
+           // Assertions.assertEquals(,responseString);
         }
 
         @Test
         @WithMockUser("USER")
         @DisplayName("Test registering an existing user")
-        public void registerExistingUser() throws Exception {
+        public void registerUserIsImUsed() throws Exception {
             UserCreationDto testUser = new UserCreationDto();
             testUser.setEmail("test1@ntnu.no");
             testUser.setPassword("password");
@@ -150,17 +155,21 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-             mockMvc.perform(post("http://localhost:8080/api/auth/register")
+             MvcResult result = mockMvc.perform(post("http://localhost:8080/api/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("User already exists",responseString);
         }
 
         @Test
         @WithMockUser("USER")
         @DisplayName("Register user with one or more fields missing")
-        public void registerIncompleteUser() throws Exception {
+        public void registerUserIsBadRequest() throws Exception {
             UserCreationDto testUser = new UserCreationDto();
             testUser.setEmail("test1@ntnu.no");
             testUser.setAge(1);
@@ -171,11 +180,14 @@ public class AuthenticationIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testUser);
 
-            mockMvc.perform(post("http://localhost:8080/api/auth/register")
+            MvcResult result = mockMvc.perform(post("http://localhost:8080/api/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("One or more fields are missing",responseString);
         }
     }
 }

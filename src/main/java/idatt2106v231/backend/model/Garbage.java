@@ -1,6 +1,7 @@
 package idatt2106v231.backend.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,6 @@ public class Garbage {
     private int garbageId;
 
     @Column
-
     private YearMonth date;
 
     @Column

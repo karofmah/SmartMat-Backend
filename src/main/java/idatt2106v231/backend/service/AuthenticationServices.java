@@ -16,6 +16,7 @@ import idatt2106v231.backend.repository.ShoppingListRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.WeekMenuRepository;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,44 +40,17 @@ public class AuthenticationServices {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    /**
-     * Sets the refrigerator repository to use for database access.
-     *
-     * @param refRepo the category repository to use
-     */
     @Autowired
-    public void setRefRepo(RefrigeratorRepository refRepo) {
-        this.refRepo = refRepo;
-    }
-
-    /**
-     * Sets the user repository to use for database access.
-     *
-     * @param userRepo the category repository to use
-     */
-    @Autowired
-    public void setUserRepo(UserRepository userRepo) {
+    public AuthenticationServices(UserRepository userRepo, RefrigeratorRepository refRepo, WeekMenuRepository weekMenuRepo,
+                                  ShoppingListRepository shoppingListRepo, PasswordEncoder passwordEncoder,
+                                  JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
-    }
-
-    /**
-     * Sets the week menu repository to use for database access.
-     *
-     * @param weekMenuRepo the category repository to use
-     */
-    @Autowired
-    public void setWeekMenuRepo(WeekMenuRepository weekMenuRepo) {
+        this.refRepo = refRepo;
         this.weekMenuRepo = weekMenuRepo;
-    }
-
-    /**
-     * Sets the shopping list repository to use for database access.
-     *
-     * @param shoppingListRepo the category repository to use
-     */
-    @Autowired
-    public void setShoppingListRepo(ShoppingListRepository shoppingListRepo) {
         this.shoppingListRepo = shoppingListRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     /**

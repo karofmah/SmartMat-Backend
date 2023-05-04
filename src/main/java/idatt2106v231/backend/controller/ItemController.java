@@ -22,18 +22,16 @@ import java.util.List;
 @Tag(name = "Item API", description = "API for managing items")
 public class ItemController {
 
-    private final Logger logger = LoggerFactory.getLogger(ItemController.class);
+    private final Logger logger;
 
-    private ItemServices services;
-    private CategoryServices categoryServices;
+    private final ItemServices services;
+    private final CategoryServices categoryServices;
 
     @Autowired
-    public void setServices(ItemServices services) {
+    public ItemController(ItemServices services, CategoryServices categoryServices) {
         this.services = services;
-    }
-    @Autowired
-    public void setCategoryServices(CategoryServices categoryServices) {
         this.categoryServices = categoryServices;
+        this.logger = LoggerFactory.getLogger(ItemController.class);
     }
 
     @PostMapping("/saveItem")
