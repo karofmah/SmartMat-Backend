@@ -4,7 +4,6 @@ import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
-import idatt2106v231.backend.model.Garbage;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.dto.refrigerator.*;
 import idatt2106v231.backend.model.ItemExpirationDate;
@@ -14,13 +13,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.time.YearMonth;
-import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -217,7 +214,7 @@ public class RefrigeratorServices {
 
             var itemExpirationDate = ItemExpirationDate.builder()
                     .amount(itemRefDto.getAmount())
-                    .date(null)
+                    .date(parseDate(itemRefDto.getDate()))
                     .itemRefrigerator(itemRef)
                     .build();
 
@@ -255,7 +252,7 @@ public class RefrigeratorServices {
 
             var itemExpirationDate = ItemExpirationDate.builder()
                     .amount(amount)
-                    .date(null)
+                    .date(parseDate(itemRefDto.getDate()))
                     .itemRefrigerator(itemRef)
                     .build();
 
@@ -279,6 +276,7 @@ public class RefrigeratorServices {
             ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
 
             if (itemRefDto.getAmount() >= itemExp.getAmount()){
+                itemRef.getItemExpirationDates().remove(itemExp);
                 itemExpRepo.delete(itemExp);
                 if (itemRef.getItemExpirationDates().isEmpty()){
                     itemRefRepo.delete(itemRef);
@@ -374,5 +372,13 @@ public class RefrigeratorServices {
                 .toList();
         test.forEach(s -> System.out.println(s.getName()));
         return test.stream().map(obj -> mapper.map(obj, ItemDto.class)).toList();
+    }
+
+    private Date parseDate(String date){
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        }catch (Exception e){
+            return null;
+        }
     }
 }

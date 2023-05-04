@@ -13,5 +13,6 @@ public class ItemInRefrigeratorCreationDto {
     private String itemName;
     private int refrigeratorId;
     private double amount;
+    private String date;
     private Measurement measurementType;
 }
