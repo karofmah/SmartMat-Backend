@@ -20,4 +20,5 @@ public interface GarbageRepository extends CrudRepository<Garbage, Integer> {
     List<Garbage> findAllByDateIsBetween(YearMonth start,YearMonth end);
 
 
+
 }

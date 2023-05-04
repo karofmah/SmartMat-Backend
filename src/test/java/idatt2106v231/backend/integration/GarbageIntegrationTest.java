@@ -81,8 +81,19 @@ public class GarbageIntegrationTest {
                 .household(4)
                 .build();
 
+        User user3=User.builder().
+                email("test3@ntnu.no")
+                .firstName("First name")
+                .lastName("Last name")
+                .phoneNumber(39183940)
+                .age(20)
+                .password("123")
+                .household(4)
+                .build();
+
         userRepository.save(user1);
         userRepository.save(user2);
+        userRepository.save(user3);
 
         Category category = Category.builder()
                 .description("category1")
@@ -110,9 +121,12 @@ public class GarbageIntegrationTest {
                 .user(user2)
                 .build();
 
-
+        Refrigerator refrigerator3=Refrigerator.builder()
+                .user(user3)
+                .build();
         refrigeratorRepository.save(refrigerator1);
         refrigeratorRepository.save(refrigerator2);
+        refrigeratorRepository.save(refrigerator3);
 
         Garbage garbage1=Garbage.builder().refrigerator(refrigerator1).amount(1).date(YearMonth.of(2023,3)).build();
         Garbage garbage2=Garbage.builder().refrigerator(refrigerator1).amount(2).date(YearMonth.of(2023,2)).build();
@@ -122,12 +136,17 @@ public class GarbageIntegrationTest {
         Garbage garbage5=Garbage.builder().refrigerator(refrigerator2).amount(10).date(YearMonth.of(2023,4)).build();
         Garbage garbage6=Garbage.builder().refrigerator(refrigerator2).amount(20).date(YearMonth.of(2023,3)).build();
 
+        Garbage garbage7=Garbage.builder().refrigerator(refrigerator3).amount(5).date(YearMonth.of(2023,3)).build();
+        Garbage garbage8=Garbage.builder().refrigerator(refrigerator3).amount(3).date(YearMonth.of(2023,3)).build();
+
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
         garbageRepository.save(garbage3);
         garbageRepository.save(garbage4);
         garbageRepository.save(garbage5);
         garbageRepository.save(garbage6);
+        garbageRepository.save(garbage7);
+        garbageRepository.save(garbage8);
 
 
     }
@@ -236,8 +255,8 @@ public class GarbageIntegrationTest {
     @Test
     @Transactional
     @WithMockUser("USER")
-    @DisplayName("Test calculation of total amount of garbage")
-    public void totalGarbageAmountYearIsOk() throws Exception {
+    @DisplayName("Test calculation of average amount of garbage from all other refrigerators")
+    public void averageGarbageAmountYearIsOk() throws Exception {
 
         MvcResult result = mockMvc.perform(get("/api/garbages/averageAmountYear/1?year=2023")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -251,7 +270,7 @@ public class GarbageIntegrationTest {
         });
 
 
-        Assertions.assertEquals(15, averageAmount);
+        Assertions.assertEquals(19, averageAmount);
 
     }
 

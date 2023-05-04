@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -53,16 +54,21 @@ public class GarbageServices {
             List<Garbage> totalGarbageList =
                     garbageRepository.findAllByDateIsBetween(YearMonth.of(year,1),YearMonth.of(year,12));
             int totalAmount=0;
-
-            List<Garbage> otherGarbageList=new ArrayList<>();
-
+            int [] totalAmountList=new int [totalGarbageList.size()];
+            int size=0;
             for (Garbage garbage : totalGarbageList) {
                 if(garbage.getRefrigerator().getRefrigeratorId()!=id){
-                    otherGarbageList.add(garbage);
-                    totalAmount += garbage.getAmount();
+                    totalAmountList[garbage.getRefrigerator().getRefrigeratorId()]+=garbage.getAmount();
                 }
             }
-            return totalAmount/otherGarbageList.size();
+            for (int amount:totalAmountList) {
+                if(amount>0){
+                    size++;
+                }
+                totalAmount+=amount;
+            }
+
+            return totalAmount/ size;
         } catch (Exception e){
             System.out.println(e.getMessage());
             return -1;
