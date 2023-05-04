@@ -155,10 +155,43 @@ public class RefrigeratorServices {
 
             List<ItemInRefrigeratorDto> list = getItemsInRefrigerator(refrigeratorId);
 
-            list.forEach(obj -> {
-                obj.setItemsInRefrigerator(obj.getItemsInRefrigerator().stream().filter(itemWhichExpires::contains).toList());
+            list.forEach(obj ->
+                obj.setItemsInRefrigerator(
+                        obj.getItemsInRefrigerator()
+                                .stream()
+                                .filter(itemWhichExpires::contains)
+                                .toList())
+            );
 
-            });
+            return list.stream().filter(obj -> !obj.getItemsInRefrigerator().isEmpty()).toList();
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Method to get specified amount of items in a refrigerator by expiration date
+     *
+     * @param refrigeratorId the refrigerator id
+     * @return the items in the refrigerator as dto objects
+     */
+    public List<ItemInRefrigeratorDto> getTopItemsInRefrigeratorByExpirationDate(int refrigeratorId, int amount) {
+        try {
+            List<ItemExpirationDateDto> itemWhichExpires = itemExpRepo
+                    .findAllByItemRefrigerator_RefrigeratorRefrigeratorIdOrderByDate(refrigeratorId)
+                    .stream()
+                    .limit(amount)
+                    .map(obj -> mapper.map(obj, ItemExpirationDateDto.class))
+                    .toList();
+
+            List<ItemInRefrigeratorDto> list = getItemsInRefrigerator(refrigeratorId);
+
+            list.forEach(obj -> obj.setItemsInRefrigerator(
+                    obj.getItemsInRefrigerator()
+                            .stream()
+                            .filter(itemWhichExpires::contains)
+                            .toList())
+            );
 
             return list.stream().filter(obj -> !obj.getItemsInRefrigerator().isEmpty()).toList();
         } catch(Exception e) {
