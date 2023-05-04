@@ -427,12 +427,14 @@ public class DataLoader implements CommandLineRunner {
     public void setItemsInShoppingList(){
         List<Item> items = itemRepo.findAll();
         List<ShoppingList> shoppingLists = shoppingListRepo.findAll();
+        List<SubUser> subUserList = subUserRepo.findAll();
 
         var itemShoppingList1 = ItemShoppingList.builder()
                 .amount(1)
                 .measurementType(Measurement.KG)
                 .shoppingList(shoppingLists.get(0))
                 .item(items.get(0))
+                .subUser(subUserList.get(0))
                 .build();
 
         var itemShoppingList2 = ItemShoppingList.builder()
@@ -440,6 +442,7 @@ public class DataLoader implements CommandLineRunner {
                 .measurementType(Measurement.L)
                 .shoppingList(shoppingLists.get(0))
                 .item(items.get(3))
+                .subUser(subUserList.get(1))
                 .build();
 
         var itemShoppingList3 = ItemShoppingList.builder()
@@ -447,6 +450,7 @@ public class DataLoader implements CommandLineRunner {
                 .measurementType(Measurement.KG)
                 .shoppingList(shoppingLists.get(1))
                 .item(items.get(1))
+                .subUser(subUserList.get(2))
                 .build();
 
         var itemShoppingList4 = ItemShoppingList.builder()
@@ -454,6 +458,7 @@ public class DataLoader implements CommandLineRunner {
                 .measurementType(Measurement.L)
                 .shoppingList(shoppingLists.get(2))
                 .item(items.get(4))
+                .subUser(subUserList.get(3))
                 .build();
 
         var itemShoppingList5 = ItemShoppingList.builder()
@@ -461,6 +466,7 @@ public class DataLoader implements CommandLineRunner {
                 .measurementType(Measurement.L)
                 .shoppingList(shoppingLists.get(3))
                 .item(items.get(2))
+                .subUser(subUserList.get(4))
                 .build();
 
         var itemShoppingList6 = ItemShoppingList.builder()
@@ -468,6 +474,7 @@ public class DataLoader implements CommandLineRunner {
                 .measurementType(Measurement.L)
                 .shoppingList(shoppingLists.get(4))
                 .item(items.get(3))
+                .subUser(subUserList.get(5))
                 .build();
 
         var itemShoppingList7 = ItemShoppingList.builder()
@@ -475,6 +482,7 @@ public class DataLoader implements CommandLineRunner {
                 .measurementType(Measurement.L)
                 .shoppingList(shoppingLists.get(0))
                 .item(items.get(1))
+                .subUser(subUserList.get(5))
                 .build();
 
         itemShoppingListRepo.save(itemShoppingList1);

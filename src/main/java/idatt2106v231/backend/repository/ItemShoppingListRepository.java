@@ -13,6 +13,8 @@ public interface ItemShoppingListRepository extends JpaRepository<ItemShoppingLi
 
     List<ItemShoppingList> findAllByShoppingListShoppingListId(int id);
 
+    Optional<ItemShoppingList> findByItemNameAndShoppingList_ShoppingListId(String name, int shoppingListId);
+
     Optional<ItemShoppingList> findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(
             String name, int shoppingListId, boolean subUserAccessLevel);
 }

@@ -243,6 +243,7 @@ public class ShoppingListIntegrationTest {
         var itemRefrigerator1 = ItemRefrigerator.builder()
                 .item(item1)
                 .refrigerator(refrigerator1)
+                .measurementType(Measurement.KG)
                 .build();
 
         itemRefrigeratorRepository.save(itemRefrigerator1);
@@ -315,10 +316,10 @@ public class ShoppingListIntegrationTest {
                     .andReturn();
 
              assertEquals(size+1,itemShoppingListRepository.findAll().size());
-            //  Assertions.assertEquals(itemInShoppingListCreationDto.getMeasurementType(), itemShoppingListRepository.findAllByShoppingListShoppingListId("Milk",2).get().getMeasurementType());
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Adds to amount field when item already exists in the shoppinglist")
         public void addItemAlreadyExists() throws Exception {
@@ -340,6 +341,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Returns error when item is invalid")
         public void addItemItemIsInvalid() throws Exception {
@@ -361,6 +363,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return error when amount is invalid")
         public void addItemAmountIsInvalid() throws Exception {
@@ -382,6 +385,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return error when measurement is invalid")
         public void addItemMeasurementIsInvalid() throws Exception {
@@ -407,14 +411,17 @@ public class ShoppingListIntegrationTest {
     class TestDeleteItemFromShoppingList {
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void deleteItemAllArgsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(2)
+                    .itemShoppingListId(2)
                     .itemName("Milk")
                     .amount(1)
                     .measurementType(Measurement.L)
+                    .subUserId(2)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);

@@ -106,14 +106,16 @@ public class ShoppingListController {
     public ResponseEntity<Object> deleteItemFromShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
-        if (response.getStatusCode() != HttpStatus.OK){
-            logger.info((String)response.getBody());
-            return response;
+        if (response.getStatusCode() == HttpStatus.OK){
+
+            if(shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto)) {
+                response = new ResponseEntity<>("Item was updated", HttpStatus.OK);
+            } else {
+                response = new ResponseEntity<>("Could not delete item from shoppinglist", HttpStatus.NOT_FOUND);
+            }
         }
 
-        shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto);
-        response = new ResponseEntity<>("Item deleted from shoppinglist", HttpStatus.OK);
-        logger.info((String)response.getBody());
+        logger.info(response.getBody() + "");
         return response;
     }
 
@@ -171,6 +173,8 @@ public class ShoppingListController {
 
         if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
+        } else if(!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+            response = new ResponseEntity<>("Subuser doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(itemInShoppingListCreationDto.getAmount() <= 0) {

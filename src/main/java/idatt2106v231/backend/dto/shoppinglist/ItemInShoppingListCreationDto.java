@@ -12,7 +12,8 @@ public class ItemInShoppingListCreationDto {
 
     private String itemName;
     private int shoppingListId;
+    private int itemShoppingListId;
     private int subUserId;
-    private int amount;
+    private double amount;
     private Measurement measurementType;
 }
