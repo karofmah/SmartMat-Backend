@@ -189,7 +189,7 @@ public class RefrigeratorController {
         else if(!isGarbage && refrigeratorServices.deleteItemFromRefrigerator(dto)){
             response = new ResponseEntity<>("Item is removed from refrigerator", HttpStatus.OK);
         }
-        else if(isGarbage && garbageServices.addToGarbage(dto) && refrigeratorServices.deleteItemFromRefrigerator(dto)){
+        else if(dto.isGarbage() && garbageServices.addToGarbage(dto) && refrigeratorServices.deleteItemFromRefrigerator(dto)){
             response = new ResponseEntity<>("Item is removed from refrigerator and thrown in garbage", HttpStatus.OK);
         }
         else{

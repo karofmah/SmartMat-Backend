@@ -82,7 +82,7 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to get all items in a refrigerator which match a specified category
+     * Method to get all items in a refrigerator who match a specified category
      *
      * @param refrigeratorId the refrigerator id
      * @return the items in the refrigerator as dto objects
@@ -113,10 +113,11 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to add an item to a refrigerator.
+     * Method to add a new item to a refrigerator. The method first creates a row in ItemRefrigerator,
+     * then a row in ItemExpirationDate.
      *
-     * @param itemRefDto the itemRefrigerator object to add
-     * @return true if the item is added to the refrigerator
+     * @param itemRefDto the item object to add to the database
+     * @return true if the item is added to the refrigerator, false if something crashed in the process
      */
     public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto, boolean refrigeratorContainsItem){
         try {
@@ -143,9 +144,9 @@ public class RefrigeratorServices {
             }
 
             var itemExpirationDate = ItemExpirationDate.builder()
-                    .amount(amount)
-                    .date(itemRefDto.getDate())
-                    .itemRefrigerator(itemRefRepo.findById(entityId).get())
+                    .amount(itemRefDto.getAmount())
+                    .date(null)
+                    .itemRefrigerator(itemRef)
                     .build();
 
             itemExpRepo.save(itemExpirationDate);
@@ -158,10 +159,10 @@ public class RefrigeratorServices {
     /**
      * Method to delete item from refrigerator. Removes the item which has the first expiration date.
      *
-     * @param itemRefDto the item to be removed
-     * @return true if the item is deleted
+     * @param itemRefDto the item and amount to be removed
+     * @return true if the item is deleted, false if something crashed in the process
      */
-    public boolean deleteItemFromRefrigerator(EditItemInRefrigeratorDto itemRefDto){
+    public boolean deleteItemFromRefrigerator(ItemInRefrigeratorRemovalDto itemRefDto){
         try {
             ItemRefrigerator itemRefrigerator = itemRefRepo
                     .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
@@ -196,7 +197,7 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to update amount of an item in a refrigerator.
+     * Method to add an amount of a pre-exisisting item to a refrigerator.
      *
      * @param itemRefDto the itemRefrigerator object with updated information
      * @return true if the item is updated
@@ -264,7 +265,13 @@ public class RefrigeratorServices {
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
     }
 
-    public boolean itemExpirationDateContainsItem(int itemExpirationDateId) {
+    /**
+     * Method to check if an item exists in the ItemExpirationDate table
+     *
+     * @param itemExpirationDateId id of the item to check
+     * @return true or false based on its existence
+     */
+    public boolean itemExpirationDateExists(int itemExpirationDateId) {
         return itemExpRepo.findById(itemExpirationDateId).isPresent();
     }
 }
