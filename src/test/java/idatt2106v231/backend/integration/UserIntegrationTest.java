@@ -58,12 +58,12 @@ public class UserIntegrationTest {
     }
 
     @Nested
-    class TestGetUser{
+    class GetUser{
 
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting valid user")
-        public void getValidUser() throws Exception {
+        public void getUserIsOk() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=test@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -77,7 +77,7 @@ public class UserIntegrationTest {
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test getting invalid user")
-        public void getInvalidUser() throws Exception {
+        public void getUserIsNotFound() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/users/login/getUser?email=invalid@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
@@ -91,7 +91,7 @@ public class UserIntegrationTest {
     @Test
     @WithMockUser(username = "USER")
     @DisplayName("Test updating a user")
-    public void updateUser() throws Exception {
+    public void updateUserIsOk() throws Exception {
 
         UserUpdateDto userUpdateDto = UserUpdateDto.builder()
                 .email("test@ntnu.no")

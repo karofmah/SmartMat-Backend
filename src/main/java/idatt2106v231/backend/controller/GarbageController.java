@@ -143,7 +143,7 @@ public class GarbageController {
         else if (!refrigeratorServices.refrigeratorExists(refrigeratorId)) {
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
         } else if (garbageServices.refrigeratorIsEmpty(refrigeratorId)){
-            response = new ResponseEntity<>("Refrigerator does not have garbages", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Refrigerator does not have garbage", HttpStatus.NOT_FOUND);
 
         }
         return response;
