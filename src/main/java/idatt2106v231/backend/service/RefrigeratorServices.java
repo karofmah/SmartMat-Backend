@@ -1,8 +1,6 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
-import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
-import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
+import idatt2106v231.backend.dto.refrigerator.*;
 import idatt2106v231.backend.model.ItemExpirationDate;
 import idatt2106v231.backend.model.ItemRefrigerator;
 import idatt2106v231.backend.repository.*;
@@ -54,6 +52,7 @@ public class RefrigeratorServices {
                     .getRefrigeratorId();
 
             List<ItemInRefrigeratorDto> items = getItemsInRefrigerator(refrigeratorId);
+
             return new RefrigeratorDto(refrigeratorId, items);
         }
         catch (Exception e) {
@@ -69,14 +68,38 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigerator(int refrigeratorId) {
         try {
-           return refRepo.findById(refrigeratorId)
-                   .get()
-                   .getItemsInRefrigerator()
-                   .stream()
-                   .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
-                   .toList();
+            List<ItemInRefrigeratorDto> list = refRepo.findById(refrigeratorId)
+                    .get()
+                    .getItemsInRefrigerator()
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
+                    .toList();
+
+            list.forEach(obj -> obj.setItemsInRefrigerator(getItemExpirationInRefrigerator(obj.getItemRefrigeratorId())));
+
+            return list;
         }catch (Exception e) {
-            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Method to get all items of a specific item in a refrigerator.
+     *
+     * @param itemRefrigeratorId the items in refrigerator id
+     * @return the items in the refrigerator as dto objects
+     */
+    public List<ItemExpirationDateDto> getItemExpirationInRefrigerator(int itemRefrigeratorId) {
+        try {
+            List<ItemExpirationDateDto> list = itemRefRepo.findById(itemRefrigeratorId)
+                    .get()
+                    .getItemExpirationDates()
+                    .stream()
+                    .map(obj -> mapper.map(obj, ItemExpirationDateDto.class))
+                    .toList();
+
+            return list;
+        }catch (Exception e) {
             return null;
         }
     }
@@ -89,24 +112,43 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByCategory(int refrigeratorId, int categoryId) {
         try {
-            return refRepo.findById(refrigeratorId)
+            List<ItemInRefrigeratorDto> list = refRepo.findById(refrigeratorId)
                     .get()
                     .getItemsInRefrigerator()
                     .stream()
                     .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
                     .filter(obj -> obj.getItem().getCategoryId() == categoryId)
                     .toList();
+
+            list.forEach(obj -> obj.setItemsInRefrigerator(getItemExpirationInRefrigerator(obj.getItemRefrigeratorId())));
+
+            return list;
         }catch (Exception e) {
             return null;
         }
     }
 
+    /**
+     * Method to get all items in a refrigerator by expiration date
+     *
+     * @param refrigeratorId the refrigerator id
+     * @return the items in the refrigerator as dto objects
+     */
     public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByExpirationDate(Date start, Date end, int refrigeratorId) {
         try {
-            return itemExpRepo.findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(refrigeratorId, start, end)
+            List<ItemExpirationDateDto> itemWhichExpires = itemExpRepo.findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(refrigeratorId, start, end)
                     .stream()
-                    .map(obj -> mapper.map(obj, ItemInRefrigeratorDto.class))
+                    .map(obj -> mapper.map(obj, ItemExpirationDateDto.class))
                     .toList();
+
+            List<ItemInRefrigeratorDto> list = getItemsInRefrigerator(refrigeratorId);
+
+            list.forEach(obj -> {
+                obj.setItemsInRefrigerator(obj.getItemsInRefrigerator().stream().filter(itemWhichExpires::contains).toList());
+
+            });
+
+            return list.stream().filter(obj -> !obj.getItemsInRefrigerator().isEmpty()).toList();
         } catch(Exception e) {
             return null;
         }
@@ -119,29 +161,14 @@ public class RefrigeratorServices {
      * @param itemRefDto the item object to add to the database
      * @return true if the item is added to the refrigerator, false if something crashed in the process
      */
-    public boolean addItemToRefrigerator(EditItemInRefrigeratorDto itemRefDto, boolean refrigeratorContainsItem){
+    public boolean addItemInRefrigerator(ItemInRefrigeratorCreationDto itemRefDto){
         try {
-            int entityId;
-            double amount;
-
-            if (!refrigeratorContainsItem) {
-                var itemRef = ItemRefrigerator.builder()
+            ItemRefrigerator itemRef = ItemRefrigerator.builder()
                         .refrigerator(refRepo.findById(itemRefDto.getRefrigeratorId()).get())
                         .item(itemRepo.findByName(itemRefDto.getItemName()).get())
                         .measurementType(itemRefDto.getMeasurementType())
                         .build();
-
-                entityId = itemRefRepo.save(itemRef).getItemRefrigeratorId();
-                amount = itemRefDto.getAmount();
-
-            } else {
-                ItemRefrigerator itemRefrigerator = itemRefRepo
-                        .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
-                        .get();
-
-                amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
-                entityId = itemRefDto.getRefrigeratorId();
-            }
+            itemRefRepo.save(itemRef);
 
             var itemExpirationDate = ItemExpirationDate.builder()
                     .amount(itemRefDto.getAmount())
@@ -157,37 +184,64 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to delete item from refrigerator. Removes the item which has the first expiration date.
+     * Method to add an item to a refrigerator which already contains said item.
+     * Creates a new row in ItemExpirationDate table, but uses the pre-exisiting
+     * id in ItemRefrigerator
+     *
+     * @param itemRefDto the item object to add to the database
+     * @return true if the item is added to the refrigerator, false if something crashed in the process
+     */
+    public boolean addExpirationDateItem(ItemInRefrigeratorCreationDto itemRefDto){
+        try {
+            ItemRefrigerator itemRef = itemRefRepo
+                    .findByItemNameAndRefrigeratorRefrigeratorId(
+                            itemRefDto.getItemName(),
+                            itemRefDto.getRefrigeratorId()
+                    ).get();
+
+
+            double amount = measurementServices
+                    .changeAmountToWantedMeasurement(
+                            itemRefDto.getAmount(),
+                            itemRefDto.getMeasurementType(),
+                            itemRef.getMeasurementType(),
+                            itemRef.getItem().getName()
+                    );
+
+            var itemExpirationDate = ItemExpirationDate.builder()
+                    .amount(amount)
+                    .date(null)
+                    .itemRefrigerator(itemRef)
+                    .build();
+
+            itemExpRepo.save(itemExpirationDate);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    /**
+     * Method to delete an amount of an item from a refrigerator. Remove or updates the item
+     * based on how much is removed and how much is left
      *
      * @param itemRefDto the item and amount to be removed
      * @return true if the item is deleted, false if something crashed in the process
      */
     public boolean deleteItemFromRefrigerator(ItemInRefrigeratorRemovalDto itemRefDto){
         try {
-            ItemRefrigerator itemRefrigerator = itemRefRepo
-                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
-                    .get();
+            ItemExpirationDate itemExp = itemExpRepo.findById(itemRefDto.getItemExpirationDateId()).get();
+            ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
 
-            double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
-            List<ItemExpirationDate> items = itemExpRepo.findAllByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId());
-
-
-            while (!items.isEmpty() || amount > 0){
-                ItemExpirationDate itemExp = items.get(0);
-
-                if (amount >= itemExp.getAmount()){
-                    amount -= itemExp.getAmount();
-                    itemExpRepo.delete(itemExp);
-                    items.remove(0);
-                }else{
-                    itemExp.updateAmount(-amount);
-                    itemExpRepo.save(itemExp);
-                    break;
+            if (itemRefDto.getAmount() >= itemExp.getAmount()){
+                itemExpRepo.delete(itemExp);
+                if (itemRef.getItemExpirationDates().isEmpty()){
+                    itemRefRepo.delete(itemRef);
                 }
             }
-
-            if (items.isEmpty()){
-                itemRefRepo.delete(itemRefrigerator);
+            else {
+                itemExp.updateAmount(-itemRefDto.getAmount());
+                itemExpRepo.save(itemExp);
             }
 
             return true;
@@ -202,44 +256,25 @@ public class RefrigeratorServices {
      * @param itemRefDto the itemRefrigerator object with updated information
      * @return true if the item is updated
      */
-    public boolean updateItemInRefrigeratorAmount(EditItemInRefrigeratorDto itemRefDto){
+    public boolean updateItemInRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         try {
-            ItemRefrigerator itemRefrigerator = itemRefRepo
-                    .findByItemNameAndRefrigeratorRefrigeratorId(itemRefDto.getItemName(), itemRefDto.getRefrigeratorId())
-                    .get();
+            ItemExpirationDate itemExp = itemExpRepo.findById(itemRefDto.getItemExpirationDateId()).get();
+            ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
 
-            double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
+            double amount = measurementServices
+                    .changeAmountToWantedMeasurement(
+                            itemRefDto.getAmount(),
+                            itemRefDto.getMeasurementType(),
+                            itemRef.getMeasurementType(),
+                            itemRef.getItem().getName()
+                            );
 
-            List<ItemExpirationDate> allEqualItemsInRefrigerator = itemExpRepo.findAllByItemRefrigerator_ItemRefrigeratorId(itemRefrigerator.getItemRefrigeratorId());
+            itemExp.setAmount(amount);
+            itemExp.setDate(itemRefDto.getDate());
+            itemExpRepo.save(itemExp);
 
-            for(ItemExpirationDate itemExpDate : allEqualItemsInRefrigerator) {
-
-                //If the item exists and the date is null
-                if(itemExpDate.getDate() == null) {
-                    itemExpDate.updateAmount(amount);
-                    itemExpRepo.save(itemExpDate);
-                    return true;
-                //If item exists and the date is equal to the desired date
-                } else if (itemExpDate.getDate().equals(itemRefDto.getDate())) {
-                    itemExpDate.updateAmount(amount);
-                    itemExpRepo.save(itemExpDate);
-                    return true;
-                }
-            }
-
-            return false;
-        }catch (Exception e){
-            return false;
-        }
-    }
-
-    public boolean updateItemDate(int itemExpirationDateId, Date newDate) {
-        try {
-            ItemExpirationDate item = itemExpRepo.findById(itemExpirationDateId).get();
-            item.setDate(newDate);
-            itemExpRepo.save(item);
             return true;
-        } catch (Exception e) {
+        }catch (Exception e){
             return false;
         }
     }
