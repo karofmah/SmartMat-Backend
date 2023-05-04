@@ -5,6 +5,7 @@ import idatt2106v231.backend.enums.Measurement;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @ToString
@@ -14,8 +15,6 @@ import java.util.Date;
 public class ItemInRefrigeratorDto {
 
     private ItemDto item;
-    private double amount;
     private Measurement measurementType;
-    private int itemExpirationDateId;
-    private Date date;
+    private List<ItemExpirationDateDto> itemsInRefrigerator;
 }
