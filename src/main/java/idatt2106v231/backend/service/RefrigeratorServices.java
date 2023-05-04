@@ -1,9 +1,9 @@
 package idatt2106v231.backend.service;
 
+import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
-import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Garbage;
 import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.model.ItemExpirationDate;
@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.YearMonth;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class to manage Refrigerator objects.
@@ -279,5 +279,26 @@ public class RefrigeratorServices {
      */
     public boolean refrigeratorContainsItem(String itemName, int refrigeratorId){
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
+    }
+
+    /**
+     * Gets the n most popular items across all refrigerators
+     *
+     * @param n the number of items
+     * @return the items
+     */
+    public List<ItemDto> getNMostPopularItems(int n) {
+
+        List<Item> allItems = itemRefRepo.findAll().stream().map(ItemRefrigerator::getItem).toList();
+
+        List<Item> test = allItems.stream().collect(Collectors.groupingBy(i -> i,
+                Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .map(Map.Entry::getKey)
+                .limit(n)
+                .toList();
+        test.forEach(s -> System.out.println(s.getName()));
+        return test.stream().map(obj -> mapper.map(obj, ItemDto.class)).toList();
     }
 }
