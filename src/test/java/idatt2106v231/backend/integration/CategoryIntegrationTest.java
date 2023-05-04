@@ -55,13 +55,13 @@ public class CategoryIntegrationTest {
     public void setup() {
 
         var category1 = Category.builder()
-                .description("test")
+                .description("Drinks")
                 .build();
         var category2 = Category.builder()
-                .description("test2")
+                .description("Dessert")
                 .build();
         var category3 = Category.builder()
-                .description("test3")
+                .description("Dairy")
                 .build();
 
         categoryRepository.save(category1);
@@ -93,8 +93,8 @@ public class CategoryIntegrationTest {
         @Test
         @WithMockUser(username = "ADMIN")
         @Transactional
-        @DisplayName("Testing the endpoint for retrieving all categories")
-        public void getCategoriesNotFound() throws Exception {
+        @DisplayName("Testing the endpoint for retrieving categories that does not exist")
+        public void getCategoriesIsNotFound() throws Exception {
             categoryRepository.deleteAll();
 
             MvcResult result = mockMvc.perform(get("/api/categories/getAllCategories")
@@ -144,7 +144,7 @@ public class CategoryIntegrationTest {
         @DisplayName("Testing the endpoint for saving a category to database when it already exists")
         public void saveCategoryIsImUsed() throws Exception {
             CategoryDto existingCategoryDto = CategoryDto.builder()
-                    .description("test")
+                    .description("Drinks")
                     .build();
 
             String existingCategoryJson=  objectMapper.writeValueAsString(existingCategoryDto);

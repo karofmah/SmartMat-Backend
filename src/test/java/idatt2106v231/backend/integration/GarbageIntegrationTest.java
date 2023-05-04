@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
-import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -97,18 +96,18 @@ public class GarbageIntegrationTest {
         userRepository.save(user3);
 
         Category category = Category.builder()
-                .description("category1")
+                .description("Drinks")
                 .build();
 
         categoryRepository.save(category);
 
         Item item1 = Item.builder()
-                .name("test10")
+                .name("Water")
                 .category(category)
                 .build();
 
         Item item2 = Item.builder()
-                .name("test11")
+                .name("orange juice")
                 .category(category)
                 .build();
 
@@ -166,7 +165,7 @@ public class GarbageIntegrationTest {
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Test calculation of total amount of garbage")
+        @DisplayName("Test calculation of total amount of garbage from a refrigerator in a specific year")
         public void totalGarbageAmountYearIsOk() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/1?year=2023")
@@ -179,14 +178,12 @@ public class GarbageIntegrationTest {
             ObjectMapper mapper = new ObjectMapper();
             double totalAmount = mapper.readValue(responseString, new TypeReference<>() {
             });
-
             Assertions.assertEquals(14, totalAmount);
-
         }
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Test calculation of total amount of garbage when no refrigerator exist")
+        @DisplayName("Test calculation of total amount of garbage when no refrigerator exists")
         public void totalGarbageAmountYearRefrigeratorIsNotFound() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/totalAmountYear/30?year=2023")
@@ -197,13 +194,12 @@ public class GarbageIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Assertions.assertEquals("Refrigerator does not exist", responseString);
-
         }
         @Test
         @Transactional
         @WithMockUser("USER")
         @DisplayName("Test calculation of total amount of garbage when refrigerator does not have any garbages")
-        public void totalGarbageAmountYearGarbagesIsNotFound() throws Exception {
+        public void totalGarbageAmountYearGarbageIsNotFound() throws Exception {
 
             garbageRepository.deleteAll();
 
@@ -214,8 +210,7 @@ public class GarbageIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals("Refrigerator does not have garbages", responseString);
-
+            Assertions.assertEquals("Refrigerator does not have garbage", responseString);
         }
 
         @Test
@@ -231,15 +226,13 @@ public class GarbageIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Assertions.assertEquals("Data is not specified", responseString);
-
         }
     }
-
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Test calculation of amount of garbage each month in a specific year")
+        @DisplayName("Test calculation of total amount of garbage from a refrigerator each month in a specific year")
         public void amountEachMonthIsOk() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/garbages/refrigerator/amountEachMonth/1?year=2023")
@@ -267,7 +260,7 @@ public class GarbageIntegrationTest {
     @Test
     @Transactional
     @WithMockUser("USER")
-    @DisplayName("Test calculation of average amount of garbage from all other refrigerators")
+    @DisplayName("Test calculation of average amount of garbage from all other refrigerators in a specific year")
     public void averageGarbageAmountYearIsOk() throws Exception {
 
         MvcResult result = mockMvc.perform(get("/api/garbages/averageAmountYear/1?year=2023")
@@ -282,12 +275,11 @@ public class GarbageIntegrationTest {
         });
 
         Assertions.assertEquals(37.5, averageAmount);
-
     }
     @Test
     @Transactional
     @WithMockUser("USER")
-    @DisplayName("Test calculation of amount of garbage each month in a specific year")
+    @DisplayName("Test calculation of average amount of garbage from all other refrigerators each month in a specific year")
     public void averageAmountEachMonthIsOk() throws Exception {
 
         MvcResult result = mockMvc.perform(get("/api/garbages/averageAmountEachMonth/1?year=2023")
@@ -307,12 +299,8 @@ public class GarbageIntegrationTest {
         expectedAverageAmountEachMonth[3]=18;
         expectedAverageAmountEachMonth[2]=14;
 
-
-        System.out.println("expected: " +Arrays.toString(expectedAverageAmountEachMonth));
-        System.out.println("actual: " +Arrays.toString(amountEachMonth));
         for (int i = 0; i < amountEachMonth.length; i++) {
             Assertions.assertEquals(expectedAverageAmountEachMonth[i], amountEachMonth[i]);
         }
     }
-
-    }
+}

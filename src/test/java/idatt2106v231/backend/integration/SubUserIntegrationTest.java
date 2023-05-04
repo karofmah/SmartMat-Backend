@@ -125,15 +125,14 @@ public class SubUserIntegrationTest {
 
 
     @Nested
-    class GetUsersFromMaster {
+    class GetSubUsersFromMaster {
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Retrieves the correct number of subusers")
-        public void retrieveSubUsersFromMaster() throws Exception {
+        @DisplayName("Test that the correct number of sub users are retrieved")
+        public void getSubUsersFromMasterIsOk() throws Exception {
 
-            MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster")
-                            .param("email", "test1@ntnu.no"))
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster?email=test1@ntnu.no"))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -144,22 +143,24 @@ public class SubUserIntegrationTest {
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns error when wrong master is given")
-        public void returnErrorWhenGivenWrongParam() throws Exception {
-            mockMvc.perform(get("/api/subusers/getUsersFromMaster")
-                            .param("email", "invalidEmail"))
+        @DisplayName("Test retrieving users from a master user that does not exist")
+        public void getSubUsersFromMasterIsNotFound() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUsersFromMaster?email=invalidEmail"))
                     .andExpect(status().isNotFound())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Master user not found",responseString);
         }
     }
 
     @Nested
-    class GetUser {
+    class GetMasterUser {
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns correct user")
-        public void returnCorrectUser() throws Exception {
+        @DisplayName("Test retrieval of master user given the sub user")
+        public void getMasterUserIsOk() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/subusers/getUser/1"))
                     .andExpect(status().isOk())
                     .andReturn();
@@ -171,13 +172,15 @@ public class SubUserIntegrationTest {
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns incorrect user")
-        public void returnIncorrectUser() throws Exception {
-            mockMvc.perform(get("/api/subusers/getUser/13"))
+        @DisplayName("Test retrieval of a master user that does not exist")
+        public void getMasterUserIsNotFound() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/subusers/getUser/13"))
                     .andExpect(status().isNotFound())
                     .andReturn();
-        }
 
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Subuser not found",responseString);
+        }
     }
 
     @Nested
@@ -186,8 +189,8 @@ public class SubUserIntegrationTest {
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Returns ok when requirements are met")
-        public void addSubUserAllArgsOk() throws Exception {
+        @DisplayName("Test adding sub user to database")
+        public void addSubUserIsCreated() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("testSubUser");
@@ -195,17 +198,22 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            mockMvc.perform(post("/api/subusers/addSubUser")
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertTrue(subUserRepository.findByUserEmailAndName("test1@ntnu.no","testSubUser").isPresent());
+            Assertions.assertEquals("Subuser saved successfully",responseString);
         }
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns error when masteruser doesnt exist")
-        public void addSubUserMasterDoesntExist() throws Exception {
+        @DisplayName("Test adding sub user to database when master user doesnt exist")
+        public void addSubUserIsNotFound() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("invalidMaster");
             testSubUser.setName("testSubUser");
@@ -213,17 +221,20 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            mockMvc.perform(post("/api/subusers/addSubUser")
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isNotFound())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Masteruser not found",responseString);
         }
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns error when subuser already exist")
-        public void addSubUserSubUserExists() throws Exception {
+        @DisplayName("Test adding sub user to database when sub user already exists")
+        public void addSubUserIsImUsed() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setName("subUser1Name");
@@ -233,77 +244,87 @@ public class SubUserIntegrationTest {
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            mockMvc.perform(post("/api/subusers/addSubUser")
+           MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isImUsed())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Subuser already exists",responseString);
         }
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns error when masteruser is undefined")
-        public void addSubUserMasterUndefined() throws Exception {
+        @DisplayName("Test adding sub user to database when master user is undefined")
+        public void addSubUserMasterUserIsBadRequest() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setName("testSubUser");
             testSubUser.setAccessLevel(false);
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            mockMvc.perform(post("/api/subusers/addSubUser")
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Data is not valid",responseString);
         }
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns error when name is undefined")
-        public void addSubUserNameUndefined() throws Exception {
+        @DisplayName("Test adding sub user to database when sub user name is undefined")
+        public void addSubUserSubUserIsBadRequest() throws Exception {
             SubUserCreationDto testSubUser = new SubUserCreationDto();
             testSubUser.setUserEmail("test1@ntnu.no");
             testSubUser.setAccessLevel(false);
 
             String userJson = objectMapper.writeValueAsString(testSubUser);
 
-            mockMvc.perform(post("/api/subusers/addSubUser")
+            MvcResult result = mockMvc.perform(post("/api/subusers/addSubUser")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(userJson))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Data is not valid",responseString);
         }
     }
 
     @Nested
-    class DeleteUser {
+    class DeleteSubUser {
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Returns ok when requirements are met")
-        public void deleteSubUserAllArgsOk() throws Exception {
+        @DisplayName("Test deletion of sub user")
+        public void deleteSubUserIsOk() throws Exception {
 
-            mockMvc.perform(delete("/api/subusers/deleteSubUser/4")
+            MvcResult result = mockMvc.perform(delete("/api/subusers/deleteSubUser/4")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Subuser deleted",responseString);
         }
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Returns error when subuser doesnt exist")
-        public void deleteSubUserDoesntExist() throws Exception {
-            SubUserDto testSubUser = new SubUserDto();
-            testSubUser.setName("invalidName");
+        @DisplayName("Test deletion of a sub user that does not exist")
+        public void deleteSubUserIsNotFound() throws Exception {
 
-            String userJson = objectMapper.writeValueAsString(testSubUser);
-
-            mockMvc.perform(delete("/api/subusers/deleteSubUser")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(userJson))
+            MvcResult result = mockMvc.perform(delete("/api/subusers/deleteSubUser/30")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Subuser not found",responseString);
         }
     }
 

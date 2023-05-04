@@ -56,12 +56,12 @@ public class ItemIntegrationTest {
     @DisplayName("Add test data to test database")
     public void setup() {
 
-        Category category = Category.builder().description("category").build();
+        Category category = Category.builder().description("Drinks").build();
         categoryRepository.save(category);
 
-        Item item1 = Item.builder().name("test1").category(category).build();
-        Item item2 = Item.builder().name("test2").category(category).build();
-        Item item3 = Item.builder().name("test3").category(category).build();
+        Item item1 = Item.builder().name("Water").category(category).build();
+        Item item2 = Item.builder().name("Orange juice").category(category).build();
+        Item item3 = Item.builder().name("Apple juice").category(category).build();
 
         itemRepository.save(item1);
         itemRepository.save(item2);
@@ -124,7 +124,7 @@ public class ItemIntegrationTest {
             ItemDto retrievedItem = objectMapper.readValue(responseString, new TypeReference<>() {
             });
 
-            Assertions.assertEquals("test1", retrievedItem.getName());
+            Assertions.assertEquals("Water", retrievedItem.getName());
         }
 
         @Test
@@ -146,10 +146,10 @@ public class ItemIntegrationTest {
         @Test
         @Transactional
         @WithMockUser("ADMIN")
-        @DisplayName("Testing the endpoint for saving an Item to database")
+        @DisplayName("Testing the endpoint for saving an item to database")
         public void saveItemIsCreated() throws Exception {
             ItemDto newItemDto = ItemDto.builder()
-                    .name("newTest")
+                    .name("Apple")
                     .categoryId(1)
                     .build();
 
@@ -177,7 +177,7 @@ public class ItemIntegrationTest {
         @DisplayName("Testing the endpoint for saving an item to database when it already exists")
         public void saveItemIsImUsed() throws Exception {
             ItemDto existingItemDto = ItemDto.builder()
-                    .name("test1")
+                    .name("Water")
                     .categoryId(1)
                     .build();
 
@@ -199,7 +199,7 @@ public class ItemIntegrationTest {
         @DisplayName("Testing the endpoint for saving an item of a category that does not exist")
         public void saveItemIsNotFound() throws Exception {
             ItemDto existingItemDto = ItemDto.builder()
-                    .name("test4")
+                    .name("Cheese")
                     .categoryId(10)
                     .build();
 
