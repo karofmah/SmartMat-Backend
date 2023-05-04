@@ -23,12 +23,9 @@ public class ItemRefrigerator {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int itemRefrigeratorId;
 
-    /*@Column
+    @Column
     @NotNull
-    private int amount;*/
-
-    /*@Column
-    private Measurement measurementType;*/
+    private Measurement measurementType;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)

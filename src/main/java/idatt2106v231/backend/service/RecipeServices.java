@@ -16,48 +16,17 @@ import java.util.Optional;
 @Service
 public class RecipeServices {
 
-    private AiServices aiServices;
-    private RefrigeratorServices refrigeratorServices;
-    private WeekMenuRepository weekMenuRepository;
-    private UserRepository userRepository;
+    private final AiServices aiServices;
+    private final RefrigeratorServices refrigeratorServices;
+    private final WeekMenuRepository weekMenuRepository;
+    private final UserRepository userRepository;
 
-    /**
-     * Sets the AI Service for AI queries.
-     *
-     * @param aiServices the service to use.
-     */
     @Autowired
-    public void setAiServices(AiServices aiServices) {
+    public RecipeServices(AiServices aiServices, RefrigeratorServices refrigeratorServices, WeekMenuRepository weekMenuRepository,
+                          UserRepository userRepository) {
         this.aiServices = aiServices;
-    }
-
-    /**
-     * Sets the refrigerator service.
-     *
-     * @param refrigeratorServices the service to use
-     */
-    @Autowired
-    public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
         this.refrigeratorServices = refrigeratorServices;
-    }
-
-    /**
-     * Sets the week menu repository
-     *
-     * @param weekMenuRepository the repository to use
-     */
-    @Autowired
-    public void setWeekMenuRepository(WeekMenuRepository weekMenuRepository) {
         this.weekMenuRepository = weekMenuRepository;
-    }
-
-    /**
-     * Sets user repository
-     *
-     * @param userRepository the user repository
-     */
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -127,7 +96,7 @@ public class RecipeServices {
      * @param menu the updated weekly menu
      * @return if the weekly menu is saved
      */
-    private boolean saveWeeklyMenu(String userEmail, String menu) {
+    public boolean saveWeeklyMenu(String userEmail, String menu) {
         try {
             Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
 
@@ -142,7 +111,6 @@ public class RecipeServices {
             }
             _weeklyMenu.setMenu(menu);
             weekMenuRepository.save(_weeklyMenu);
-            // TODO Move new menu functionality to user creation
             return true;
         } catch (IllegalArgumentException e){
             return false;

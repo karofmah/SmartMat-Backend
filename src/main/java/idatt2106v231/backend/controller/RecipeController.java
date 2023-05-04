@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Recipe API", description = "API for managing Recipes")
 public class RecipeController {
 
-    private final Logger logger = LoggerFactory.getLogger(RecipeController.class);
+    private final Logger logger;
 
-    private RecipeServices recipeServices;
+    private final RecipeServices recipeServices;
 
     @Autowired
-    public void setRecipeServices(RecipeServices recipeServices) {
+    public RecipeController(RecipeServices recipeServices) {
         this.recipeServices = recipeServices;
+         this.logger = LoggerFactory.getLogger(RecipeController.class);
     }
 
     @GetMapping("/generateRecipe")

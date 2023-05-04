@@ -2,10 +2,7 @@ package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.shoppinglist.ItemInShoppingListCreationDto;
 import idatt2106v231.backend.dto.shoppinglist.WeeklyMenuShoppingListDto;
-import idatt2106v231.backend.service.ItemServices;
-import idatt2106v231.backend.service.ShoppingListServices;
-import idatt2106v231.backend.service.SubUserServices;
-import idatt2106v231.backend.service.UserServices;
+import idatt2106v231.backend.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -21,19 +18,27 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("http://localhost:8000/")
 public class ShoppingListController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubUserServices.class);
+    private final Logger logger;
+
+    private final ShoppingListServices shoppingListServices;
+
+    private final UserServices userServices;
+
+    private final ItemServices itemServices;
 
     @Autowired
-    private ShoppingListServices shoppingListServices;
-
-    @Autowired
-    private UserServices userServices;
-
-    @Autowired
-    private ItemServices itemServices;
+    public ShoppingListController(ShoppingListServices shoppingListServices, UserServices userServices, ItemServices itemServices) {
+        this.shoppingListServices = shoppingListServices;
+        this.userServices = userServices;
+        this.itemServices = itemServices;
+        this.logger = LoggerFactory.getLogger(SubUserServices.class);
+    }
 
     @Autowired
     private SubUserServices subUserServices;
+
+    @Autowired
+    private RefrigeratorServices refrigeratorServices;
 
     @GetMapping("/getItemsFromShoppingList")
     @Operation(summary = "Get all items from a shoppinglist")
@@ -46,7 +51,7 @@ public class ShoppingListController {
 
         if(!userServices.checkIfUserExists(email)) {
             response = new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         } else {
             response = new ResponseEntity<>(shoppingListServices.getShoppingListByUserEmail(email), HttpStatus.OK);
             logger.info("Retrieving all items in shoppinglist with email: " + email);
@@ -68,7 +73,7 @@ public class ShoppingListController {
         }
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -87,7 +92,8 @@ public class ShoppingListController {
         }
 
 
-        logger.info(response.getBody() + "");
+
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -131,6 +137,32 @@ public class ShoppingListController {
             response = new ResponseEntity<>("Items added to shopping list", HttpStatus.OK);
         } else {
             response = new ResponseEntity<>("Failed to add items to shopping list", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        logger.info(response.getBody() + "");
+        return response;
+    }
+
+    @PostMapping("/addMostPopularItems")
+    @Operation(summary = "Add 5 most popular fridge items to a shopping list")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Items added to shopping list"),
+            @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
+    })
+    public ResponseEntity<Object> addMostPopularItems(@RequestParam int shoppingListId, int subUserId) {
+
+        ResponseEntity<Object> response;
+
+        if (!shoppingListServices.shoppingListExists(shoppingListId)) {
+            response = new ResponseEntity<>("Shopping list does not exist", HttpStatus.NOT_FOUND);
+        } else if (!subUserServices.subUserExists(subUserId)) {
+            response = new ResponseEntity<>("Sub user does not exists", HttpStatus.NOT_FOUND);
+        } else if (!subUserServices.getMasterUser(subUserId).getEmail()
+                .equals(shoppingListServices.getUserEmail(shoppingListId))) {
+            response = new ResponseEntity<>("Sub user does not have access to this shopping list", HttpStatus.BAD_REQUEST);
+        } else if (shoppingListServices.addMostPopularItems(shoppingListId, subUserId)) {
+            response = new ResponseEntity<>("Successfully added popular items that are not already in the shopping list", HttpStatus.OK);
+        } else {
+            response = new ResponseEntity<>("Failed to add popular items to the shopping list", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         logger.info(response.getBody() + "");
         return response;

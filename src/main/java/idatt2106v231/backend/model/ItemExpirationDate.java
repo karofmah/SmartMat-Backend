@@ -1,6 +1,5 @@
 package idatt2106v231.backend.model;
 
-import idatt2106v231.backend.enums.Measurement;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -24,15 +23,10 @@ public class ItemExpirationDate {
 
     @Column
     @NotNull
-    private Measurement measurement;
-
-    @Column
-    @NotNull
     private double amount;
 
     @Column
     @Temporal(TemporalType.DATE)
-    //Prøver java.util, mulig må bruke java.sql
     private Date date;
 
     @NotNull
@@ -45,7 +39,7 @@ public class ItemExpirationDate {
      *
      * @param newAmount the amount to add or remove
      */
-    public void addAmount(double newAmount){
+    public void updateAmount(double newAmount){
         this.amount += newAmount;
     }
 }

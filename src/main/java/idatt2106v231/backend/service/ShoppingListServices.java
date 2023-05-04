@@ -9,6 +9,9 @@ import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.model.ItemShoppingList;
 import idatt2106v231.backend.repository.*;
+import idatt2106v231.backend.repository.ItemRepository;
+import idatt2106v231.backend.repository.ItemShoppingListRepository;
+import idatt2106v231.backend.repository.ShoppingListRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +31,24 @@ public class ShoppingListServices {
 
     private final SubUserRepository subUserRepository;
 
-    private final AiServices aiServices;
-
     private final CategoryRepository categoryRepository;
+
+    private final AiServices aiServices;
 
     private final ItemServices itemServices;
 
     private final SubUserServices subUserServices;
 
-    private final ModelMapper mapper = new ModelMapper();
+    private final RefrigeratorServices refrigeratorServices;
+
+    private final ModelMapper mapper;
 
     @Autowired
     public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
                                 ItemShoppingListRepository itemShoppingListRepository, AiServices aiServices,
                                 CategoryRepository categoryRepository, ItemServices itemServices,
-                                SubUserRepository subUserRepository, SubUserServices subUserServices) {
+                                SubUserRepository subUserRepository, SubUserServices subUserServices,
+                                RefrigeratorServices refrigeratorServices) {
         this.itemRepository = itemRepository;
         this.shoppingListRepository = shoppingListRepository;
         this.itemShoppingListRepository = itemShoppingListRepository;
@@ -51,6 +57,8 @@ public class ShoppingListServices {
         this.categoryRepository = categoryRepository;
         this.itemServices = itemServices;
         this.subUserServices = subUserServices;
+        this.refrigeratorServices = refrigeratorServices;
+        this.mapper = new ModelMapper();
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getSubUser().isAccessLevel(), ItemShoppingListDto::setSubUserAccessLevel));
@@ -88,7 +96,7 @@ public class ShoppingListServices {
             var itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(itemInShoppingListCreationDto.getMeasurementType())
+                            .measurementType(itemInShoppingListCreationDto.getMeasurementType())
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getSubUserId()).get())
                             .build();
@@ -111,6 +119,7 @@ public class ShoppingListServices {
                 updateAmount(itemInShoppingListCreationDto);
             }
             return true;
+
         } catch (Exception e) {
             return false;
         }
@@ -260,6 +269,7 @@ public class ShoppingListServices {
 
     /**
      * Gets a specific item from a shopping list
+     *
      * @param shoppingListId the id of the shopping list
      * @param itemName the name of the item
      * @param subUserAccessLevel the access level of the subUser that added the item
@@ -289,13 +299,47 @@ public class ShoppingListServices {
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
                     .amount(currentItem.getAmount() + dto.getAmount())
-                    .measurement(dto.getMeasurementType()) // TODO Add measurement support
+                    .measurementType(dto.getMeasurementType()) // TODO Add measurement support
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())
                     .build();
 
             itemShoppingListRepository.save(itemShoppingList);
 
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Adds the 5 most popular refrigerator items in a shopping list
+     *
+     * @param shoppingListId the ID of the shopping list
+     * @param subUserId the ID of the sub user performing the operation
+     * @return if the items were successfully added to the shopping list
+     */
+    public boolean addMostPopularItems(int shoppingListId, int subUserId) {
+        try {
+            List<ItemDto> popularItems = refrigeratorServices.getNMostPopularItems(5);
+
+            for (ItemDto item : popularItems) {
+
+                ItemInShoppingListCreationDto newItem = ItemInShoppingListCreationDto
+                        .builder()
+                        .itemName(item.getName())
+                        .shoppingListId(shoppingListId)
+                        .subUserId(subUserId)
+                        .amount(1)
+                        .measurementType(Measurement.UNIT)
+                        .build();
+
+
+                if (!itemExistsWithAccessLevel(shoppingListId, item.getName(),
+                        subUserServices.getAccessLevel(subUserId))) {
+                    saveItemToShoppingList(newItem);
+                }
+            }
             return true;
         } catch (Exception e) {
             return false;
