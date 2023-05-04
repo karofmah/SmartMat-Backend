@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ItemInRefrigeratorDto {
 
+    private int itemRefrigeratorId;
     private ItemDto item;
     private Measurement measurementType;
     private List<ItemExpirationDateDto> itemsInRefrigerator;
