@@ -127,7 +127,7 @@ public class RecipeServices {
      * @param menu the updated weekly menu
      * @return if the weekly menu is saved
      */
-    private boolean saveWeeklyMenu(String userEmail, String menu) {
+    public boolean saveWeeklyMenu(String userEmail, String menu) {
         try {
             Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
 
@@ -142,7 +142,6 @@ public class RecipeServices {
             }
             _weeklyMenu.setMenu(menu);
             weekMenuRepository.save(_weeklyMenu);
-            // TODO Move new menu functionality to user creation
             return true;
         } catch (IllegalArgumentException e){
             return false;
