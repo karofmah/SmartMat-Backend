@@ -100,13 +100,14 @@ public class ShoppingListController {
     public ResponseEntity<Object> deleteItemFromShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
-        if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
-            return response;
+        if (response.getStatusCode() == HttpStatus.OK){
+            if(shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto)) {
+                response = new ResponseEntity<>("Item deleted from shoppinglist", HttpStatus.OK);
+            } else {
+                response = new ResponseEntity<>("Could not delete item from shoppinglist", HttpStatus.NOT_FOUND);
+            }
         }
 
-        shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto);
-        response = new ResponseEntity<>("Item deleted from shoppinglist", HttpStatus.OK);
         logger.info(response.getBody() + "");
         return response;
     }

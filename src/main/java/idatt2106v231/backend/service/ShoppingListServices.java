@@ -22,10 +22,8 @@ public class ShoppingListServices {
 
     private final ItemRepository itemRepository;
 
-    //@Autowired
     private final ShoppingListRepository shoppingListRepository;
 
-    //@Autowired
     private final ItemShoppingListRepository itemShoppingListRepository;
 
     private final SubUserRepository subUserRepository;
@@ -39,11 +37,6 @@ public class ShoppingListServices {
     private final SubUserServices subUserServices;
 
     private final ModelMapper mapper = new ModelMapper();
-
-    /*@Autowired
-    public void setItemRepository(ItemRepository itemRepository) {
-        this.itemRepository = itemRepository;
-    }*/
 
     @Autowired
     public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
@@ -61,12 +54,7 @@ public class ShoppingListServices {
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getSubUser().isAccessLevel(), ItemShoppingListDto::setSubUserAccessLevel));
-        TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
-        //propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getShoppingList().getShoppingListId(), ItemShoppingList::setShoppingList));
-        //propertyMapper2.addMappings(mapper -> mapper.map(obj -> this.itemRepository.findByName(obj.getItemName()).get(), ItemShoppingList::setItem));
-        //propertyMapper2.addMappings(mapper -> mapper.map(obj -> this.shoppingListRepository.findById(obj.getShoppingListId()).get(), ItemShoppingList::setShoppingList));
-        //propertyMapper2.addMappings(mapper -> mapper.map(obj -> Measurement.L, ItemShoppingList::setMeasurement));
-    }
+     }
 
 
 
@@ -93,11 +81,6 @@ public class ShoppingListServices {
         } catch(Exception e) {
             return null;
         }
-        /*List<ItemShoppingList> items = itemShoppingListRepository.findAllByShoppingListShoppingListId(shoppingListRepository.findDistinctByUserEmail(email).get().getShoppingListId());
-        List<ItemShoppingListDto> itemDtos = new ArrayList<>();
-
-        items.forEach(obj -> itemDtos.add(mapper.map(obj, ItemShoppingListDto.class)));
-        return itemDtos;*/
     }
 
     public boolean saveItemToShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
@@ -119,22 +102,13 @@ public class ShoppingListServices {
     public boolean deleteItemFromShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         try {
             ItemShoppingList item = itemShoppingListRepository
-                    .findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(
+                    .findByItemNameAndShoppingList_ShoppingListId(
                             itemInShoppingListCreationDto.getItemName(),
-                            itemInShoppingListCreationDto.getShoppingListId(),
-                            subUserServices.getAccessLevel(itemInShoppingListCreationDto.getSubUserId()))
+                            itemInShoppingListCreationDto.getShoppingListId())
                     .get();
             itemShoppingListRepository.delete(item);
             return true;
 
-            /*var itemRef = ItemShoppingList.builder()
-                    .item(itemRepository.findByName(itemShoppingListDto.getItemName()).get())
-                    .amount(itemShoppingListDto.getAmount())
-                    .measurement(Measurement.L)
-                    .shoppingList(shoppingListRepository.findById(itemShoppingListDto.getShoppingListId()).get())
-                    .build();
-            itemShoppingListRepository.delete(itemRef);
-            return true;*/
         } catch (Exception e) {
             return false;
         }
