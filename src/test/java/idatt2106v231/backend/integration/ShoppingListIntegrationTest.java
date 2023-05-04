@@ -227,16 +227,6 @@ public class ShoppingListIntegrationTest {
         itemShoppingListRepository.save(itemShoppingListUser3);
     }
 
-    /*@AfterEach
-    @DisplayName("Teardown of database")
-    public void teardown() {
-        itemShoppingListRepository.deleteAll();
-        itemRepository.deleteAll();
-        categoryRepository.deleteAll();
-        shoppingListRepository.deleteAll();
-        userRepository.deleteAll();
-    }*/
-
     @Nested
     class TestGetItemsFromShoppingList {
 
@@ -282,6 +272,7 @@ public class ShoppingListIntegrationTest {
     class TestAddItemToShoppingList {
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void addItemAllArgsOk() throws Exception {
@@ -303,6 +294,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Adds to amount field when item already exists in the shoppinglist")
         public void addItemAlreadyExists() throws Exception {
@@ -324,6 +316,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Returns error when item is invalid")
         public void addItemItemIsInvalid() throws Exception {
@@ -345,6 +338,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return error when amount is invalid")
         public void addItemAmountIsInvalid() throws Exception {
@@ -366,6 +360,7 @@ public class ShoppingListIntegrationTest {
         }
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return error when measurement is invalid")
         public void addItemMeasurementIsInvalid() throws Exception {
@@ -391,14 +386,17 @@ public class ShoppingListIntegrationTest {
     class TestDeleteItemFromShoppingList {
 
         @Test
+        @Transactional
         @WithMockUser("USER")
         @DisplayName("Return ok when all requirements are met")
         public void deleteItemAllArgsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(2)
+                    .itemShoppingListId(2)
                     .itemName("Milk")
                     .amount(1)
                     .measurementType(Measurement.L)
+                    .subUserId(2)
                     .build();
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);

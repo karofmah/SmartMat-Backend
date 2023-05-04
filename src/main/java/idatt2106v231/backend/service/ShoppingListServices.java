@@ -88,7 +88,7 @@ public class ShoppingListServices {
             var itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(Measurement.L) // TODO Add measurement support
+                            .measurement(itemInShoppingListCreationDto.getMeasurementType())
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getSubUserId()).get())
                             .build();
@@ -101,14 +101,16 @@ public class ShoppingListServices {
 
     public boolean deleteItemFromShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         try {
-            ItemShoppingList item = itemShoppingListRepository
-                    .findByItemNameAndShoppingList_ShoppingListId(
-                            itemInShoppingListCreationDto.getItemName(),
-                            itemInShoppingListCreationDto.getShoppingListId())
-                    .get();
-            itemShoppingListRepository.delete(item);
-            return true;
 
+            ItemShoppingList item = itemShoppingListRepository.findById(itemInShoppingListCreationDto.getItemShoppingListId()).get();
+
+            if(itemInShoppingListCreationDto.getAmount() >= item.getAmount()) {
+                itemShoppingListRepository.delete(item);
+            } else {
+                itemInShoppingListCreationDto.setAmount(-itemInShoppingListCreationDto.getAmount());
+                updateAmount(itemInShoppingListCreationDto);
+            }
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -283,10 +285,11 @@ public class ShoppingListServices {
                     subUserServices.getAccessLevel(dto.getSubUserId()));
 
             var itemShoppingList = ItemShoppingList.builder()
+                    .itemShoppingListId(dto.getItemShoppingListId())
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
                     .amount(currentItem.getAmount() + dto.getAmount())
-                    .measurement(Measurement.L) // TODO Add measurement support
+                    .measurement(dto.getMeasurementType()) // TODO Add measurement support
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())
                     .build();
