@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,14 +49,38 @@ public class RefrigeratorController {
         this.logger = LoggerFactory.getLogger(RefrigeratorController.class);
     }
 
-    /*@PutMapping("/updateDateInItem")
+    @PutMapping("/updateDateInItem")
     @Operation(summary = "Update date in an item in a refrigerator")
     @ApiResponses(value = {
-
+            @ApiResponse(responseCode = "200", description = "Date of the item is updated"),
+            @ApiResponse(responseCode = "400", description = "Parameters are invalid"),
+            @ApiResponse(responseCode = "404", description = "Item not found"),
+            @ApiResponse(responseCode = "500", description = "Failed to update item")
     })
-    public ResponseEntity<Object> updateDateInItem(@RequestParam ) {
+    public ResponseEntity<Object> updateDateInItem(@RequestParam int itemExpirationDateId,
+                                                   @Valid @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date newDate) {
+        ResponseEntity<Object> response;
+        Calendar calendar = Calendar.getInstance();
 
-    }*/
+        if(!refrigeratorServices.itemExpirationDateContainsItem(itemExpirationDateId)) {
+            response = new ResponseEntity<>("Item does not exist in refrigerator", HttpStatus.NOT_FOUND);
+
+        } else if(newDate == null) {
+            response = new ResponseEntity<>("Date is null", HttpStatus.BAD_REQUEST);
+
+        } else if(newDate.before(calendar.getTime())) {
+            response = new ResponseEntity<>("Date is in the past", HttpStatus.BAD_REQUEST);
+
+        } else if(refrigeratorServices.updateItemDate(itemExpirationDateId, newDate)) {
+            response = new ResponseEntity<>("Date was updated", HttpStatus.OK);
+
+        } else {
+            response = new ResponseEntity<>("Couldn't update item", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        logger.info(response.getBody() + "");
+        return response;
+    }
 
     @GetMapping("/getRefrigeratorByUser")
     @Operation(summary = "Get refrigerator by user")

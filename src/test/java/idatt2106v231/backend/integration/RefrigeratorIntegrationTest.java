@@ -29,8 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes= BackendApplication.class
@@ -184,6 +183,12 @@ public class RefrigeratorIntegrationTest {
                 .itemRefrigerator(itemRefrigerator2_3)
                 .build();
 
+        ItemExpirationDate itemExpirationDate2_4 = ItemExpirationDate.builder()
+                .amount(2.0)
+                .date(format.parse(format.format(date4)))
+                .itemRefrigerator(itemRefrigerator2_3)
+                .build();
+
         Garbage garbage = Garbage.builder()
                 .refrigerator(refrigerator)
                 .amount(1)
@@ -210,18 +215,59 @@ public class RefrigeratorIntegrationTest {
         itemExpirationDateRepository.save(itemExpirationDate2_1);
         itemExpirationDateRepository.save(itemExpirationDate2_2);
         itemExpirationDateRepository.save(itemExpirationDate2_3);
+        itemExpirationDateRepository.save(itemExpirationDate2_4);
 
         garbageRepo.save(garbage);
     }
 
+    @Nested
+    class UpdateDate {
+
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test updating item date all args ok")
+        public void updateItemDateAllArgsOk() throws Exception {
+
+            MvcResult result = mockMvc.perform(put("/api/refrigerators/updateDateInItem?itemExpirationDateId=5&newDate=2023-08-01")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            Optional<ItemExpirationDate> itemExpirationDate = itemExpirationDateRepository.findById(5);
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date targetDate = simpleDateFormat.parse("2023-08-01");
+
+            Assertions.assertTrue(itemExpirationDate.isPresent());
+            Assertions.assertEquals(targetDate, itemExpirationDate.get().getDate());
+        }
+
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test updating item date when new date is in the past")
+        public void updateItemDateNewDateIsInThePast() throws Exception {
+
+            MvcResult result = mockMvc.perform(put("/api/refrigerators/updateDateInItem?itemExpirationDateId=5&newDate=2023-01-01")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("Date is in the past", responseString);
+        }
+    }
 
     @Nested
     class GetRefrigerator {
 
         @Test
+        @Transactional
         @WithMockUser(username = "USER")
         @DisplayName("Test getting an Refrigerator that exists in database")
         public void getItemsInRefrigeratorIsOk() throws Exception {
+
+
 
 
             MvcResult result = mockMvc.perform(get("/api/refrigerators/getRefrigeratorByUser?userEmail=test1@ntnu.no")
