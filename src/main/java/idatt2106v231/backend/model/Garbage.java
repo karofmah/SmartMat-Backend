@@ -1,8 +1,10 @@
 package idatt2106v231.backend.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.YearMonth;
@@ -25,7 +27,7 @@ public class Garbage {
     private YearMonth date;
 
     @Column
-    private int amount;
+    private double amount;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "refrigerator_id", referencedColumnName = "refrigeratorId")

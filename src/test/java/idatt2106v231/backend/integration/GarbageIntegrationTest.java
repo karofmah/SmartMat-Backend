@@ -177,11 +177,10 @@ public class GarbageIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             ObjectMapper mapper = new ObjectMapper();
-            int totalAmount = mapper.readValue(responseString, new TypeReference<>() {
+            double totalAmount = mapper.readValue(responseString, new TypeReference<>() {
             });
 
-
-            Assertions.assertEquals(9, totalAmount);
+            Assertions.assertEquals(14, totalAmount);
 
         }
         @Test
@@ -251,13 +250,14 @@ public class GarbageIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             ObjectMapper mapper = new ObjectMapper();
-            int[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
+            double[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
             });
 
-            int[] expectedAmountEachMonth=new int[12];
+            double[] expectedAmountEachMonth=new double[12];
             expectedAmountEachMonth[1]=2;
             expectedAmountEachMonth[2]=1;
             expectedAmountEachMonth[3]=6;
+            expectedAmountEachMonth[11]=5;
 
 
             for (int i = 0; i < amountEachMonth.length; i++) {
@@ -278,11 +278,10 @@ public class GarbageIntegrationTest {
         String responseString = result.getResponse().getContentAsString();
 
         ObjectMapper mapper = new ObjectMapper();
-        int averageAmount = mapper.readValue(responseString, new TypeReference<>() {
+        double averageAmount = mapper.readValue(responseString, new TypeReference<>() {
         });
 
-
-        Assertions.assertEquals(19, averageAmount);
+        Assertions.assertEquals(37.5, averageAmount);
 
     }
     @Test
@@ -299,12 +298,12 @@ public class GarbageIntegrationTest {
         String responseString = result.getResponse().getContentAsString();
 
         ObjectMapper mapper = new ObjectMapper();
-        int[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
+        double[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
         });
 
-        int[] expectedAverageAmountEachMonth=new int[12];
+        double[] expectedAverageAmountEachMonth=new double[12];
 
-        expectedAverageAmountEachMonth[11]=5;
+        expectedAverageAmountEachMonth[11]=5.5;
         expectedAverageAmountEachMonth[3]=18;
         expectedAverageAmountEachMonth[2]=14;
 
