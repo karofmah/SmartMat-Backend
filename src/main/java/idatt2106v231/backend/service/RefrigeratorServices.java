@@ -210,6 +210,17 @@ public class RefrigeratorServices {
         }
     }
 
+    public boolean updateItemDate(int itemExpirationDateId, Date newDate) {
+        try {
+            ItemExpirationDate item = itemExpRepo.findById(itemExpirationDateId).get();
+            item.setDate(newDate);
+            itemExpRepo.save(item);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Checks if the refrigerator exists by id.
      *
@@ -229,5 +240,9 @@ public class RefrigeratorServices {
      */
     public boolean refrigeratorContainsItem(String itemName, int refrigeratorId){
         return itemRefRepo.findByItemNameAndRefrigeratorRefrigeratorId(itemName, refrigeratorId).isPresent();
+    }
+
+    public boolean itemExpirationDateContainsItem(int itemExpirationDateId) {
+        return itemExpRepo.findById(itemExpirationDateId).isPresent();
     }
 }
