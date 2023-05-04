@@ -279,6 +279,7 @@ public class RefrigeratorServices {
             ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
 
             if (itemRefDto.getAmount() >= itemExp.getAmount()){
+                itemRef.getItemExpirationDates().remove(itemExp);
                 itemExpRepo.delete(itemExp);
                 if (itemRef.getItemExpirationDates().isEmpty()){
                     itemRefRepo.delete(itemRef);
