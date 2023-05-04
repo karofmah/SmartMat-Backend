@@ -63,6 +63,12 @@ public class ShoppingListIntegrationTest {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    RefrigeratorRepository refrigeratorRepository;
+
+    @Autowired
+    ItemRefrigeratorRepository itemRefrigeratorRepository;
+
     @BeforeAll
     @Transactional
     @DisplayName("Populating the database with testdata")
@@ -224,6 +230,22 @@ public class ShoppingListIntegrationTest {
         itemShoppingListRepository.save(itemShoppingList3);
         itemShoppingListRepository.save(itemShoppingListUser2);
         itemShoppingListRepository.save(itemShoppingListUser3);
+
+
+        var refrigerator1 = Refrigerator.builder()
+                .refrigeratorId(1)
+                .user(user1)
+                .build();
+
+        refrigeratorRepository.save(refrigerator1);
+
+
+        var itemRefrigerator1 = ItemRefrigerator.builder()
+                .item(item1)
+                .refrigerator(refrigerator1)
+                .build();
+
+        itemRefrigeratorRepository.save(itemRefrigerator1);
     }
 
     /*@AfterEach
@@ -396,6 +418,22 @@ public class ShoppingListIntegrationTest {
             mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
+                    .andExpect(status().isOk())
+                    .andReturn();
+        }
+    }
+
+    @Nested
+    class TestAddMostPopularItemsToShoppingList {
+
+        @Test
+        @DisplayName("Return ok when all requirements are met")
+        public void addPopularItemsAllArgsOk() throws Exception {
+
+
+            mockMvc.perform(post("/api/shoppingList/addMostPopularItems")
+                            .param("shoppingListId","1")
+                            .param("subUserId","1"))
                     .andExpect(status().isOk())
                     .andReturn();
         }
