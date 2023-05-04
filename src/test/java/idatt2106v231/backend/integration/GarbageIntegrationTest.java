@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
+import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,7 +72,29 @@ public class GarbageIntegrationTest {
                 .household(4)
                 .build();
 
+        User user2=User.builder().
+                email("test2@ntnu.no")
+                .firstName("First name")
+                .lastName("Last name")
+                .phoneNumber(39183940)
+                .age(20)
+                .password("123")
+                .household(4)
+                .build();
+
+        User user3=User.builder().
+                email("test3@ntnu.no")
+                .firstName("First name")
+                .lastName("Last name")
+                .phoneNumber(39183940)
+                .age(20)
+                .password("123")
+                .household(4)
+                .build();
+
         userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
 
         Category category = Category.builder()
                 .description("category1")
@@ -92,22 +115,49 @@ public class GarbageIntegrationTest {
         itemRepository.save(item1);
         itemRepository.save(item2);
 
-        Refrigerator refrigerator=Refrigerator.builder()
+        Refrigerator refrigerator1=Refrigerator.builder()
                 .user(user1)
                 .build();
+        Refrigerator refrigerator2=Refrigerator.builder()
+                .user(user2)
+                .build();
+
+        Refrigerator refrigerator3=Refrigerator.builder()
+                .user(user3)
+                .build();
+        refrigeratorRepository.save(refrigerator1);
+        refrigeratorRepository.save(refrigerator2);
+        refrigeratorRepository.save(refrigerator3);
+
+        Garbage garbage1=Garbage.builder().refrigerator(refrigerator1).amount(1).date(YearMonth.of(2023,3)).build();
+        Garbage garbage2=Garbage.builder().refrigerator(refrigerator1).amount(2).date(YearMonth.of(2023,2)).build();
+        Garbage garbage3=Garbage.builder().refrigerator(refrigerator1).amount(3).date(YearMonth.of(2023,4)).build();
+        Garbage garbage4=Garbage.builder().refrigerator(refrigerator1).amount(3).date(YearMonth.of(2023,4)).build();
+        Garbage garbage12=Garbage.builder().refrigerator(refrigerator1).amount(5).date(YearMonth.of(2023,12)).build();
 
 
-        refrigeratorRepository.save(refrigerator);
+        Garbage garbage5=Garbage.builder().refrigerator(refrigerator2).amount(10).date(YearMonth.of(2023,4)).build();
+        Garbage garbage6=Garbage.builder().refrigerator(refrigerator2).amount(20).date(YearMonth.of(2023,3)).build();
+        Garbage garbage11=Garbage.builder().refrigerator(refrigerator2).amount(10).date(YearMonth.of(2023,12)).build();
 
-        Garbage garbage1=Garbage.builder().refrigerator(refrigerator).amount(1).date(YearMonth.of(2023,3)).build();
-        Garbage garbage2=Garbage.builder().refrigerator(refrigerator).amount(2).date(YearMonth.of(2023,2)).build();
-        Garbage garbage3=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
-        Garbage garbage4=Garbage.builder().refrigerator(refrigerator).amount(3).date(YearMonth.of(2023,4)).build();
+
+        Garbage garbage7=Garbage.builder().refrigerator(refrigerator3).amount(5).date(YearMonth.of(2023,3)).build();
+        Garbage garbage8=Garbage.builder().refrigerator(refrigerator3).amount(3).date(YearMonth.of(2023,3)).build();
+        Garbage garbage9=Garbage.builder().refrigerator(refrigerator3).amount(26).date(YearMonth.of(2023,4)).build();
+        Garbage garbage10=Garbage.builder().refrigerator(refrigerator3).amount(1).date(YearMonth.of(2023,12)).build();
 
         garbageRepository.save(garbage1);
         garbageRepository.save(garbage2);
         garbageRepository.save(garbage3);
         garbageRepository.save(garbage4);
+        garbageRepository.save(garbage5);
+        garbageRepository.save(garbage6);
+        garbageRepository.save(garbage7);
+        garbageRepository.save(garbage8);
+        garbageRepository.save(garbage9);
+        garbageRepository.save(garbage10);
+        garbageRepository.save(garbage11);
+        garbageRepository.save(garbage12);
 
 
     }
@@ -127,11 +177,10 @@ public class GarbageIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             ObjectMapper mapper = new ObjectMapper();
-            int totalAmount = mapper.readValue(responseString, new TypeReference<>() {
+            double totalAmount = mapper.readValue(responseString, new TypeReference<>() {
             });
 
-
-            Assertions.assertEquals(9, totalAmount);
+            Assertions.assertEquals(14, totalAmount);
 
         }
         @Test
@@ -201,17 +250,69 @@ public class GarbageIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             ObjectMapper mapper = new ObjectMapper();
-            int[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
+            double[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
             });
 
-            int[] expectedAmountEachMonth=new int[12];
+            double[] expectedAmountEachMonth=new double[12];
             expectedAmountEachMonth[1]=2;
             expectedAmountEachMonth[2]=1;
             expectedAmountEachMonth[3]=6;
+            expectedAmountEachMonth[11]=5;
+
 
             for (int i = 0; i < amountEachMonth.length; i++) {
                 Assertions.assertEquals(expectedAmountEachMonth[i], amountEachMonth[i]);
             }
         }
+    @Test
+    @Transactional
+    @WithMockUser("USER")
+    @DisplayName("Test calculation of average amount of garbage from all other refrigerators")
+    public void averageGarbageAmountYearIsOk() throws Exception {
+
+        MvcResult result = mockMvc.perform(get("/api/garbages/averageAmountYear/1?year=2023")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        double averageAmount = mapper.readValue(responseString, new TypeReference<>() {
+        });
+
+        Assertions.assertEquals(37.5, averageAmount);
+
+    }
+    @Test
+    @Transactional
+    @WithMockUser("USER")
+    @DisplayName("Test calculation of amount of garbage each month in a specific year")
+    public void averageAmountEachMonthIsOk() throws Exception {
+
+        MvcResult result = mockMvc.perform(get("/api/garbages/averageAmountEachMonth/1?year=2023")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String responseString = result.getResponse().getContentAsString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        double[] amountEachMonth = mapper.readValue(responseString, new TypeReference<>() {
+        });
+
+        double[] expectedAverageAmountEachMonth=new double[12];
+
+        expectedAverageAmountEachMonth[11]=5.5;
+        expectedAverageAmountEachMonth[3]=18;
+        expectedAverageAmountEachMonth[2]=14;
+
+
+        System.out.println("expected: " +Arrays.toString(expectedAverageAmountEachMonth));
+        System.out.println("actual: " +Arrays.toString(amountEachMonth));
+        for (int i = 0; i < amountEachMonth.length; i++) {
+            Assertions.assertEquals(expectedAverageAmountEachMonth[i], amountEachMonth[i]);
+        }
+    }
 
     }
