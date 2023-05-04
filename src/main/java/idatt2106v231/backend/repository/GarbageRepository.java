@@ -17,5 +17,9 @@ public interface GarbageRepository extends CrudRepository<Garbage, Integer> {
     List<Garbage> findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(int refrigeratorId, YearMonth start, YearMonth end);
     List<Garbage> findAllByRefrigeratorRefrigeratorId(int refrigeratorId);
 
+    List<Garbage> findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(int refrigeratorId,YearMonth start,YearMonth end);
+
+
+
 
 }
