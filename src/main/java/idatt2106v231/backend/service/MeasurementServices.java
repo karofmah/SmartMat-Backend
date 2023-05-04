@@ -50,22 +50,22 @@ public class MeasurementServices {
      * Method to change the amount of an item in the refrigerator to KG,
      * if the amount is measured in units, a call to AI is made.
      *
-     * @param itemRefDto the item in refrigerator to change amount
+     * @param amount the current amount
      * @return the amount in kg.
      */
-    private double changeAmountToKG(EditItemInRefrigeratorDto itemRefDto){
-        if (itemRefDto.getMeasurementType().equals(Measurement.UNIT)){
-            return changeAmountFromUnitToKG(itemRefDto.getAmount(), itemRefDto.getItemName());
+    private double changeAmountToKG(double amount, Measurement currentMeasurement, String itemName){
+        if (currentMeasurement.equals(Measurement.UNIT)){
+            return changeAmountFromUnitToKG(amount, itemName);
         }
-        else if (itemRefDto.getMeasurementType().equals(Measurement.KG)
-                || itemRefDto.getMeasurementType().equals(Measurement.L)){
-            return itemRefDto.getAmount();
+        else if (currentMeasurement.equals(Measurement.KG)
+                || currentMeasurement.equals(Measurement.L)){
+            return amount;
         }
-        if (itemRefDto.getMeasurementType() == Measurement.DL){
-            return itemRefDto.getAmount() / 10;
+        if (currentMeasurement.equals(Measurement.DL)){
+            return amount / 10;
         }
-        if (itemRefDto.getMeasurementType() == Measurement.G){
-            return itemRefDto.getAmount() / 1000;
+        if (currentMeasurement.equals(Measurement.G)){
+            return amount / 1000;
         }
         return 0;
     }
@@ -74,26 +74,25 @@ public class MeasurementServices {
      * Method to change the amount of an item in the refrigerator to a specified measurement,
      * if the amount is measured in units, a call to AI is made.
      *
-     * @param itemRefDto information about the item in the refrigerator
+     * @param amount the current amount
      * @param wantedMeasurement the new measurement
      * @return the amount in wantedMeasurement.
      */
-    public double changeAmountToWantedMeasurement(EditItemInRefrigeratorDto itemRefDto, Measurement wantedMeasurement){
-        Measurement actualMeasurement = itemRefDto.getMeasurementType();
+    public double changeAmountToWantedMeasurement(double amount, Measurement currentMeasurement, Measurement wantedMeasurement, String name){
 
-        if (actualMeasurement.equals(wantedMeasurement)) return itemRefDto.getAmount();
+        if (currentMeasurement.equals(wantedMeasurement)) return amount;
 
         if (wantedMeasurement.equals(Measurement.KG) || wantedMeasurement.equals(Measurement.L)) {
-            return changeAmountToKG(itemRefDto);
+            return changeAmountToKG(amount, currentMeasurement, name);
         }
         else if (wantedMeasurement.equals(Measurement.G)) {
-            return changeAmountToKG(itemRefDto) * 1000;
+            return changeAmountToKG(amount, currentMeasurement, name) * 1000;
         }
         else if (wantedMeasurement.equals(Measurement.DL)){
-            return changeAmountToKG(itemRefDto) * 10;
+            return changeAmountToKG(amount, currentMeasurement, name) * 10;
         }
         else if (wantedMeasurement.equals(Measurement.UNIT)){
-            return changeAmountToUnit(itemRefDto);
+            return changeAmountToUnit(amount, currentMeasurement, name);
         }
         else {
             return 0;
@@ -104,24 +103,25 @@ public class MeasurementServices {
      * Method to change the amount of an item in the refrigerator to unit,
      * a call to AI is made.
      *
-     * @param itemRefDto information about the item in the refrigerator
+     * @param amount the amount to change
      * @return the amount in unit.
      */
-    private double changeAmountToUnit(EditItemInRefrigeratorDto itemRefDto){
-        double unit = changeAmountFromUnitToKG(1, itemRefDto.getItemName());
+    private double changeAmountToUnit(double amount, Measurement currentMeasurement, String itemName){
+        double unit = changeAmountFromUnitToKG(1, itemName);
 
-        if (itemRefDto.getMeasurementType().equals(Measurement.KG) ||
-                itemRefDto.getMeasurementType().equals(Measurement.L)){
-            return itemRefDto.getAmount() / unit;
+        if (currentMeasurement.equals(Measurement.KG) ||
+                currentMeasurement.equals(Measurement.L)){
+            return amount / unit;
         }
-        else if (itemRefDto.getMeasurementType().equals(Measurement.G)){
-            return itemRefDto.getAmount() / 1000 / unit;
+        else if (currentMeasurement.equals(Measurement.G)){
+            return amount / 1000 / unit;
         }
-        else if (itemRefDto.getMeasurementType().equals(Measurement.DL)){
-            return itemRefDto.getAmount() / 10 / unit;
+        else if (currentMeasurement.equals(Measurement.DL)){
+            return amount / 10 / unit;
         }
         else {
             return -1;
         }
     }
+
 }
