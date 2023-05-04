@@ -26,22 +26,20 @@ public class ShoppingListController {
 
     private final ItemServices itemServices;
 
+    private final SubUserServices subUserServices;
+
     @Autowired
-    public ShoppingListController(ShoppingListServices shoppingListServices, UserServices userServices, ItemServices itemServices) {
+    public ShoppingListController(ShoppingListServices shoppingListServices, UserServices userServices, ItemServices itemServices,
+                                  SubUserServices subUserServices) {
         this.shoppingListServices = shoppingListServices;
         this.userServices = userServices;
         this.itemServices = itemServices;
+        this.subUserServices = subUserServices;
         this.logger = LoggerFactory.getLogger(SubUserServices.class);
     }
 
-    @Autowired
-    private SubUserServices subUserServices;
-
-    @Autowired
-    private RefrigeratorServices refrigeratorServices;
-
     @GetMapping("/getItemsFromShoppingList")
-    @Operation(summary = "Get all items from a shoppinglist")
+    @Operation(summary = "Get all items from a shopping list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Retrieved items from database"),
             @ApiResponse(responseCode = "400", description = "User does not exist in database")
@@ -54,15 +52,15 @@ public class ShoppingListController {
             logger.info((String)response.getBody());
         } else {
             response = new ResponseEntity<>(shoppingListServices.getShoppingListByUserEmail(email), HttpStatus.OK);
-            logger.info("Retrieving all items in shoppinglist with email: " + email);
+            logger.info("Retrieving all items in shopping list with email: " + email);
         }
         return response;
     }
 
     @PostMapping("/addItemToShoppingList")
-    @Operation(summary = "Add item to a shoppinglist")
+    @Operation(summary = "Add item to a shopping list")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Added item to shoppinglist"),
+            @ApiResponse(responseCode = "200", description = "Added item to shopping list"),
             @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
     })
     public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
@@ -70,6 +68,8 @@ public class ShoppingListController {
 
         if (!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
             response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
+            logger.info((String)response.getBody());
+            return response;
         }
 
         if (response.getStatusCode() != HttpStatus.OK){
@@ -88,19 +88,17 @@ public class ShoppingListController {
             response = new ResponseEntity<>("Updated amount of the item", HttpStatus.OK);
         } else {
             shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
-            response = new ResponseEntity<>("Item saved to shoppinglist", HttpStatus.OK);
+            response = new ResponseEntity<>("Item saved to shopping list", HttpStatus.OK);
         }
-
-
 
         logger.info((String)response.getBody());
         return response;
     }
 
     @DeleteMapping("/deleteItemFromShoppingList")
-    @Operation(summary = "Delete item from shoppinglist")
+    @Operation(summary = "Delete item from shopping list")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Deleted item from shoppinglist"),
+            @ApiResponse(responseCode = "200", description = "Deleted item from shopping list"),
             @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
     })
     public ResponseEntity<Object> deleteItemFromShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
@@ -111,11 +109,11 @@ public class ShoppingListController {
             if(shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto)) {
                 response = new ResponseEntity<>("Item was updated", HttpStatus.OK);
             } else {
-                response = new ResponseEntity<>("Could not delete item from shoppinglist", HttpStatus.NOT_FOUND);
+                response = new ResponseEntity<>("Could not delete item from shopping list", HttpStatus.NOT_FOUND);
             }
         }
 
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -129,7 +127,7 @@ public class ShoppingListController {
         ResponseEntity<Object> response = validateWeeklyMenuShoppingListDto(dto);
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -138,7 +136,7 @@ public class ShoppingListController {
         } else {
             response = new ResponseEntity<>("Failed to add items to shopping list", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -154,54 +152,80 @@ public class ShoppingListController {
 
         if (!shoppingListServices.shoppingListExists(shoppingListId)) {
             response = new ResponseEntity<>("Shopping list does not exist", HttpStatus.NOT_FOUND);
-        } else if (!subUserServices.subUserExists(subUserId)) {
+        }
+        else if (!subUserServices.subUserExists(subUserId)) {
             response = new ResponseEntity<>("Sub user does not exists", HttpStatus.NOT_FOUND);
-        } else if (!subUserServices.getMasterUser(subUserId).getEmail()
+        }
+        else if (!subUserServices.getMasterUser(subUserId).getEmail()
                 .equals(shoppingListServices.getUserEmail(shoppingListId))) {
             response = new ResponseEntity<>("Sub user does not have access to this shopping list", HttpStatus.BAD_REQUEST);
-        } else if (shoppingListServices.addMostPopularItems(shoppingListId, subUserId)) {
+        }
+        else if (shoppingListServices.addMostPopularItems(shoppingListId, subUserId)) {
             response = new ResponseEntity<>("Successfully added popular items that are not already in the shopping list", HttpStatus.OK);
-        } else {
+        }
+        else {
             response = new ResponseEntity<>("Failed to add popular items to the shopping list", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
+    /**
+     *
+     * Method to validate the input
+     * @param itemInShoppingListCreationDto Dto object containing data to be validated
+     * @return Different HTTP status messages based on the validity of the data
+     */
     public ResponseEntity<Object> validateItemShoppingListDto(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response;
 
         if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
-            response = new ResponseEntity<>("Subuser doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
+        }
+        else if(!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+            response = new ResponseEntity<>("Sub user doesnt exist", HttpStatus.BAD_REQUEST);
+        }
+        else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
-        } else if(itemInShoppingListCreationDto.getAmount() <= 0) {
+        }
+        else if(itemInShoppingListCreationDto.getAmount() <= 0) {
             response = new ResponseEntity<>("Invalid amount", HttpStatus.BAD_REQUEST);
-        } else if(itemInShoppingListCreationDto.getMeasurementType() == null) {
+        }
+        else if(itemInShoppingListCreationDto.getMeasurementType() == null) {
             response = new ResponseEntity<>("Measurement is not specified", HttpStatus.BAD_REQUEST);
-        } else {
+        }
+        else {
             response = new ResponseEntity<>(HttpStatus.OK);
         }
 
         return response;
     }
 
+
+    /**
+     *
+     * Method to validate the input
+     * @param dto Dto object containing data to be validated
+     * @return Different HTTP status messages based on the validity of the data
+     */
     public ResponseEntity<Object> validateWeeklyMenuShoppingListDto(WeeklyMenuShoppingListDto dto) {
         ResponseEntity<Object> response;
 
 
         if (!shoppingListServices.shoppingListExists(dto.getShoppingListId())) {
             response = new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
-        } else if (subUserServices.getMasterUser(dto.getSubUserId()) == null) {
+        }
+        else if (subUserServices.getMasterUser(dto.getSubUserId()) == null) {
             response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
-        } else if (!subUserServices.getMasterUser(dto.getSubUserId()).getEmail().equals(
+        }
+        else if (!subUserServices.getMasterUser(dto.getSubUserId()).getEmail().equals(
                 shoppingListServices.getUserEmail(dto.getShoppingListId()))) {
             response = new ResponseEntity<>("Sub user does not have access to this shopping list", HttpStatus.BAD_REQUEST);
-        } else if (dto.getIngredients().size() == 0) {
+        }
+        else if (dto.getIngredients().size() == 0) {
             response = new ResponseEntity<>("Ingredients list is empty", HttpStatus.BAD_REQUEST);
-        } else {
+        }
+        else {
             response = new ResponseEntity<>(HttpStatus.OK);
         }
 

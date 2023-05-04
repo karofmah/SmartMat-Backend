@@ -115,7 +115,7 @@ public class RefrigeratorController {
 
         if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -136,7 +136,7 @@ public class RefrigeratorController {
 
         if (items == null){
             response = new ResponseEntity<>("Failed to retrieve items in refrigerator", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(items, HttpStatus.OK);
@@ -200,7 +200,7 @@ public class RefrigeratorController {
         else {
             response = new ResponseEntity<>("Item is not updated", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -208,7 +208,6 @@ public class RefrigeratorController {
     @Operation(summary = "Remove item from refrigerator")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Removed item from refrigerator"),
-            @ApiResponse(responseCode = "400", description = "Data is not valid"),
             @ApiResponse(responseCode = "404", description = "Refrigerator or/and item does not exist"),
             @ApiResponse(responseCode = "500", description = "Item is not removed from refrigerator")
     })
@@ -231,6 +230,12 @@ public class RefrigeratorController {
         return response;
     }
 
+    /**
+     *
+     * Method to validate the input
+     * @param dto Dto object containing data to be validated
+     * @return Different HTTP status messages based on the validity of the data
+     */
     private ResponseEntity<Object> validateItemInRefrigeratorCreationDto(ItemInRefrigeratorCreationDto dto){
         ResponseEntity<Object> response;
         if (dto.getRefrigeratorId() == -1 || dto.getItemName().isEmpty()
@@ -249,6 +254,12 @@ public class RefrigeratorController {
         return response;
     }
 
+    /**
+     *
+     * Method to validate the input
+     * @param dto Dto object containing data to be validated
+     * @return Different HTTP status messages based on the validity of the data
+     */
     private ResponseEntity<Object> validateItemInRefrigeratorEditDto(EditItemInRefrigeratorDto dto){
         ResponseEntity<Object> response;
         if (dto.getAmount() == 0 || dto.getMeasurementType() == null || dto.getDate() == null){

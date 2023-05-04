@@ -19,20 +19,17 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Garbage API", description = "API for managing garbages")
 public class GarbageController {
 
-    private final Logger logger = LoggerFactory.getLogger(GarbageController.class);
+    private final Logger logger;
 
-    private GarbageServices garbageServices;
+    private final GarbageServices garbageServices;
 
-    private RefrigeratorServices refrigeratorServices;
-
-    @Autowired
-    public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
-        this.refrigeratorServices = refrigeratorServices;
-    }
+    private final RefrigeratorServices refrigeratorServices;
 
     @Autowired
-    public void setGarbageServices(GarbageServices garbageServices) {
+    public GarbageController(GarbageServices garbageServices, RefrigeratorServices refrigeratorServices) {
         this.garbageServices = garbageServices;
+        this.refrigeratorServices = refrigeratorServices;
+        this.logger = LoggerFactory.getLogger(GarbageController.class);
     }
 
     @GetMapping("/refrigerator/totalAmountYear/{refrigeratorId}")
@@ -44,21 +41,22 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateTotalAmountByIdYear(@PathVariable int refrigeratorId,@RequestParam int year) {
+    public ResponseEntity<Object> calculateTotalAmountByIdYear(@PathVariable int refrigeratorId, @RequestParam int year) {
 
-        ResponseEntity <Object> response=validateGarbage(refrigeratorId,year);
+        ResponseEntity <Object> response=validateGarbage(refrigeratorId, year);
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateTotalAmount(refrigeratorId,year)!=-1){
+            if (garbageServices.calculateTotalAmount(refrigeratorId, year) != -1){
                 response = new ResponseEntity<>(garbageServices.calculateTotalAmount(refrigeratorId, year), HttpStatus.OK);
             }
             else {
                 response = new ResponseEntity<>("Total amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        logger.info(String.valueOf(response.getBody()));
+        logger.info((String)response.getBody());
         return response;
     }
+
     @GetMapping("/refrigerator/amountEachMonth/{refrigeratorId}")
     @Operation(summary = "Calculate amount of garbage each month in a specific year")
     @ApiResponses(value = {
@@ -68,22 +66,23 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateAmountEachMonth(@PathVariable int refrigeratorId,@RequestParam int year) {
+    public ResponseEntity<Object> calculateAmountEachMonth(@PathVariable int refrigeratorId, @RequestParam int year) {
 
-        ResponseEntity <Object> response=validateGarbage(refrigeratorId,year);
+        ResponseEntity <Object> response=validateGarbage(refrigeratorId, year);
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year)!=null) {
+            if (garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year) != null) {
                 response = new ResponseEntity<>(
-                        garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year),
-                        HttpStatus.OK);
-            }else{
+                        garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+
+            } else {
                 response = new ResponseEntity<>("Could not calculate amount of garbage each month",HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        logger.info(String.valueOf(response.getBody()));
+        logger.info((String)response.getBody());
         return response;
     }
+
     @GetMapping("/averageAmountYear/{refrigeratorId}")
     @Operation(summary = "Calculate amount of garbage each month in a specific year")
     @ApiResponses(value = {
@@ -93,22 +92,23 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateAverageAmountYear(@PathVariable int refrigeratorId,@RequestParam int year) {
+    public ResponseEntity<Object> calculateAverageAmountYear(@PathVariable int refrigeratorId, @RequestParam int year) {
 
-        ResponseEntity <Object> response=validateGarbage(refrigeratorId,year);
+        ResponseEntity <Object> response=validateGarbage(refrigeratorId, year);
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateAverageAmount(refrigeratorId, year)!=-1) {
+            if (garbageServices.calculateAverageAmount(refrigeratorId, year) != -1) {
                 response = new ResponseEntity<>(
-                        garbageServices.calculateAverageAmount(refrigeratorId, year),
-                        HttpStatus.OK);
-            }else{
-                response = new ResponseEntity<>("Average amount of garbage can not be calculated",HttpStatus.INTERNAL_SERVER_ERROR);
+                        garbageServices.calculateAverageAmount(refrigeratorId, year), HttpStatus.OK);
+
+            } else {
+                response = new ResponseEntity<>("Average amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        logger.info(String.valueOf(response.getBody()));
+        logger.info((String)response.getBody());
         return response;
     }
+
     @GetMapping("/averageAmountEachMonth/{refrigeratorId}")
     @Operation(summary = "Calculate amount of garbage each month in a specific year")
     @ApiResponses(value = {
@@ -118,37 +118,45 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateAverageEachMonth(@PathVariable int refrigeratorId,@RequestParam int year) {
+    public ResponseEntity<Object> calculateAverageEachMonth(@PathVariable int refrigeratorId, @RequestParam int year) {
 
-        ResponseEntity <Object> response = validateGarbage(refrigeratorId,year);
+        ResponseEntity <Object> response = validateGarbage(refrigeratorId, year);
 
         if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year)!=null) {
+            if (garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year) != null) {
                 response = new ResponseEntity<>(
-                        garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year),
-                        HttpStatus.OK);
-            }else{
-                response = new ResponseEntity<>("Average amount of garbage can not be calculated",HttpStatus.INTERNAL_SERVER_ERROR);
+                        garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+
+            } else {
+                response = new ResponseEntity<>("Average amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        logger.info(String.valueOf(response.getBody()));
+        logger.info((String)response.getBody());
         return response;
     }
-    public ResponseEntity<Object> validateGarbage(int refrigeratorId,int year){
+
+    /**
+     *
+     * Method to validate the input
+     * @param refrigeratorId Id of the refrigerator being sent in
+     * @param year Year being sent in
+     * @return Different HTTP status messages based on the validity of the data
+     */
+    public ResponseEntity<Object> validateGarbage(int refrigeratorId, int year){
+
         ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
 
-        if(refrigeratorId<=0 || year<=0){
+        if(refrigeratorId <= 0 || year <= 0){
             response =  new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
         }
         else if (!refrigeratorServices.refrigeratorExists(refrigeratorId)) {
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
-        } else if (garbageServices.refrigeratorIsEmpty(refrigeratorId)){
+        }
+        else if (garbageServices.refrigeratorIsEmpty(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not have garbages", HttpStatus.NOT_FOUND);
 
         }
         return response;
     }
-
-
 }
 

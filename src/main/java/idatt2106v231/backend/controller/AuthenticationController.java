@@ -3,9 +3,7 @@ package idatt2106v231.backend.controller;
 import idatt2106v231.backend.auth.AuthenticationResponse;
 import idatt2106v231.backend.dto.user.UserAuthenticationDto;
 import idatt2106v231.backend.dto.user.UserCreationDto;
-import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.service.AuthenticationServices;
-import idatt2106v231.backend.service.RefrigeratorServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -48,7 +46,7 @@ public class AuthenticationController {
             return response;
         }
 
-        AuthenticationResponse responseToken = service.register(request); // få med try catch i services?
+        AuthenticationResponse responseToken = service.register(request);
         response = new ResponseEntity<>(responseToken, HttpStatus.CREATED);
         logger.info("Creating user with token and refrigerator");
 
@@ -59,8 +57,6 @@ public class AuthenticationController {
     @Operation(summary = "Log in a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User authenticated"),
-            @ApiResponse(responseCode = "226", description = "User already exists"),
-            @ApiResponse(responseCode = "400", description = "One or more fields are missing"),
             @ApiResponse(responseCode = "403", description = "Wrong username or password")
     })
     public ResponseEntity<Object> authenticate(@RequestBody UserAuthenticationDto request) {
@@ -73,6 +69,13 @@ public class AuthenticationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    /**
+     *
+     * Method to validate the input when creating a new user
+     * @param request Dto object containing data of a new user
+     * @return Different HTTP status messages based on the validity of the data
+     */
     private ResponseEntity<Object> validateUser(UserCreationDto request){
         if(request.getEmail() == null ||
                 request.getPassword() == null ||
@@ -87,5 +90,4 @@ public class AuthenticationController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

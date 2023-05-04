@@ -3,6 +3,9 @@ package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.service.AiServices;
 import idatt2106v231.backend.service.RecipeServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,41 +31,66 @@ public class RecipeController {
     }
 
     @GetMapping("/generateRecipe")
+    @Operation(summary = "Generate new recipe")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Recipe generated"),
+            @ApiResponse(responseCode = "500", description = "Failed to generate recipe")
+    })
     public ResponseEntity<String> generateRecipe(@RequestParam int refrigeratorId) {
         try{
-
             String recipe = recipeServices.generateRecipe(refrigeratorId);
 
-            return new ResponseEntity<>(recipe, HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseEntity<String> response = new ResponseEntity<>(recipe, HttpStatus.OK);
+            logger.info("Recipe generated");
 
+            return response;
+        }catch (Exception e){
+            logger.info("Failed to create recipe");
+
+            return new ResponseEntity<>("Failed to create recipe", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/getWeeklyMenu/{userEmail}")
+    @Operation(summary = "Retrieve a users weekly menu")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Weekly menu retrieved"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve weekly menu")
+    })
     public ResponseEntity<String> getWeeklyMenu(@PathVariable("userEmail") String userEmail) {
         try {
-
             String recipe = recipeServices.getWeeklyMenu(userEmail);
 
-            return new ResponseEntity<>(recipe, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseEntity<String> response = new ResponseEntity<>(recipe, HttpStatus.OK);
+            logger.info("Weekly menu retrieved");
 
+            return response;
+        } catch (Exception e){
+            logger.info("Failed to retrieve weekly menu");
+
+            return new ResponseEntity<>("Failed to retrieve weekly menu", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @Operation(summary = "Generate weekly menu")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Weekly menu generated"),
+            @ApiResponse(responseCode = "500", description = "Failed to generate weekly menu")
+    })
     @GetMapping("/generateWeeklyMenu/{userEmail}")
     public ResponseEntity<String> generateWeeklyMenu(@PathVariable("userEmail") String userEmail, @RequestParam int numPeople) {
         try {
-
             String weeklyMenu = recipeServices.generateWeeklyMenu(userEmail, numPeople);
 
-            return new ResponseEntity<>(weeklyMenu, HttpStatus.OK);
-        } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            ResponseEntity<String> response = new ResponseEntity<>(weeklyMenu, HttpStatus.OK);
+            logger.info("Weekly menu generated generated");
 
+            return response;
+
+        } catch (Exception e){
+            logger.info("Failed to generate weekly menu");
+
+            return new ResponseEntity<>("Failed to generate weekly menu", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
