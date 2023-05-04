@@ -1,8 +1,6 @@
 package idatt2106v231.backend.model;
 
-import idatt2106v231.backend.enums.Measurement;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -22,7 +20,6 @@ public class Garbage {
     private int garbageId;
 
     @Column
-
     private YearMonth date;
 
     @Column
