@@ -156,7 +156,7 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to delete item from refrigerator.
+     * Method to delete item from refrigerator. Removes the item which has the first expiration date.
      *
      * @param itemRefDto the item to be removed
      * @return true if the item is deleted
@@ -168,15 +168,27 @@ public class RefrigeratorServices {
                     .get();
 
             double amount = measurementServices.changeAmountToWantedMeasurement(itemRefDto, itemRefrigerator.getMeasurementType());
+            List<ItemExpirationDate> items = itemExpRepo.findAllByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId());
 
-            ItemExpirationDate itemExpirationDate = itemExpRepo.findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(itemRefDto.getRefrigeratorId()).get();
 
-            if (amount >= itemExpirationDate.getAmount()){
-                itemRefRepo.delete(itemRefrigerator);
-            }else{
-                itemExpirationDate.addAmount(-amount);
-                itemExpRepo.save(itemExpirationDate);
+            while (!items.isEmpty() || amount > 0){
+                ItemExpirationDate itemExp = items.get(0);
+
+                if (amount >= itemExp.getAmount()){
+                    amount -= itemExp.getAmount();
+                    itemExpRepo.delete(itemExp);
+                    items.remove(0);
+                }else{
+                    itemExp.updateAmount(-amount);
+                    itemExpRepo.save(itemExp);
+                    break;
+                }
             }
+
+            if (items.isEmpty()){
+                itemRefRepo.delete(itemRefrigerator);
+            }
+
             return true;
         }catch (Exception e){
             return false;
@@ -203,12 +215,12 @@ public class RefrigeratorServices {
 
                 //If the item exists and the date is null
                 if(itemExpDate.getDate() == null) {
-                    itemExpDate.addAmount(amount);
+                    itemExpDate.updateAmount(amount);
                     itemExpRepo.save(itemExpDate);
                     return true;
                 //If item exists and the date is equal to the desired date
                 } else if (itemExpDate.getDate().equals(itemRefDto.getDate())) {
-                    itemExpDate.addAmount(amount);
+                    itemExpDate.updateAmount(amount);
                     itemExpRepo.save(itemExpDate);
                     return true;
                 }
@@ -216,7 +228,6 @@ public class RefrigeratorServices {
 
             return false;
         }catch (Exception e){
-            System.out.println(e);
             return false;
         }
     }

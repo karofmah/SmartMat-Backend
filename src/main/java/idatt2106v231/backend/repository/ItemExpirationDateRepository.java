@@ -15,4 +15,6 @@ public interface ItemExpirationDateRepository extends JpaRepository<ItemExpirati
     Optional<ItemExpirationDate> findTopByItemRefrigerator_ItemRefrigeratorIdOrderByDate(int id);
 
     List<ItemExpirationDate> findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(int id, Date start, Date end);
+
+    List<ItemExpirationDate> findAllByItemRefrigerator_ItemRefrigeratorIdOrderByDate(int id);
 }

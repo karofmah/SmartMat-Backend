@@ -65,7 +65,6 @@ public class MeasurementServices {
             return itemRefDto.getAmount() / 10;
         }
         if (itemRefDto.getMeasurementType() == Measurement.G){
-            System.out.println("den vet at du har gram og at " + itemRefDto.getAmount());
             return itemRefDto.getAmount() / 1000;
         }
         return 0;
