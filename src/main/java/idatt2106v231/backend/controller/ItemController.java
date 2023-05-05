@@ -92,7 +92,7 @@ public class ItemController {
         ResponseEntity<Object> response;
 
         if (services.itemNotExist(name)){
-            response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         }
         else {
@@ -169,7 +169,7 @@ public class ItemController {
             logger.info((String)response.getBody());
         }
         else if (items.isEmpty()){
-            response = new ResponseEntity<>("There are no items registered under this category", HttpStatus.NO_CONTENT);
+            response = new ResponseEntity<>("There are no items registered under this category", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         }
         else {
@@ -188,7 +188,7 @@ public class ItemController {
     private ResponseEntity<Object> getItem(ItemDto item) {
         ResponseEntity<Object> response;
         if (item == null) {
-            response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.NOT_FOUND);
+            response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.INTERNAL_SERVER_ERROR);
             logger.info((String)response.getBody());
         } else {
             response = new ResponseEntity<>(item, HttpStatus.OK);

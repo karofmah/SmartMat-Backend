@@ -279,4 +279,87 @@ public class ItemIntegrationTest {
             Assertions.assertEquals("Item does not exist", responseString);
         }
     }
+    @Nested
+    class GetItemsByCategory {
+
+        @Test
+        @WithMockUser(username = "ADMIN")
+        @DisplayName("Testing the endpoint for retrieving all items by category")
+        public void getItemsByCategoryIsOk() throws Exception {
+
+            MvcResult result = mockMvc.perform(get("/api/items/getAllItemsByCategory?categoryId=1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            List<ItemDto> actualItems = objectMapper.readValue(responseString, new TypeReference<>() {
+            });
+            Assertions.assertEquals(itemRepository.findAll().size(), actualItems.size());
+        }
+
+        @Test
+        @WithMockUser(username = "ADMIN")
+        @DisplayName("Testing the endpoint for retrieving all items by a category that does not exist")
+        public void getItemsIsBadRequest() throws Exception {
+
+            MvcResult result = mockMvc.perform(get("/api/items/getAllItemsByCategory?categoryId=30")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Category does not exist", responseString);
+        }
+        @Test
+        @Transactional
+        @WithMockUser(username = "ADMIN")
+        @DisplayName("Testing the endpoint for retrieving all items by a category that does not have items")
+        public void getItemsIsBadRequestIsNotFound() throws Exception {
+
+            itemRepository.deleteAll();
+
+            MvcResult result = mockMvc.perform(get("/api/items/getAllItemsByCategory?categoryId=1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("There are no items registered under this category", responseString);
+        }
+    }
+    @Nested
+    class GetItemByName {
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test getting an item that exists in database")
+
+        public void getItemByNameIsOk() throws Exception {
+
+            MvcResult result = mockMvc.perform(get("/api/items/getItem?name=Water")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            ItemDto retrievedItem = objectMapper.readValue(responseString, new TypeReference<>() {
+            });
+
+            Assertions.assertEquals("Water", retrievedItem.getName());
+        }
+
+        @Test
+        @WithMockUser(username = "USER")
+        @DisplayName("Test getting an item that does not exist in database")
+        public void getItemByNameIsNotFound() throws Exception {
+            MvcResult result = mockMvc.perform(get("/api/items/getItem?name=Milk")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            Assertions.assertEquals("Item does not exist", responseString);
+        }
+    }
 }

@@ -184,7 +184,9 @@ public class GarbageServices {
                     .mapToDouble(Double::doubleValue)
                     .sum();
 
-            return totalAmount / map.size();
+            double averageAmount = totalAmount / map.size()
+
+            return Math.round(averageAmount * 100.0) / 100.0;
         } catch (Exception e){
             return -1;
         }
@@ -245,16 +247,6 @@ public class GarbageServices {
             return null;
         }
     }
-
-    /**
-     * Checks if a refrigerator has registered garbage
-     *
-     * @param id the refrigerator id
-     * @return true is a refrigerator has garbage
-     */
-    public boolean hasGarbage(int id) {
-        return garbRepo.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
-    } //TODO brukes denne?
 
     /**
      * Checks if a refrigerator has registered garbage in a specified year

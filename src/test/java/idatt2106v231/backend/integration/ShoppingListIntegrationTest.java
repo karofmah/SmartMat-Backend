@@ -252,12 +252,12 @@ public class ShoppingListIntegrationTest {
     }
 
     @Nested
-    class TestGetItemsFromShoppingList {
+    class GetItemsFromShoppingList {
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Retrieve correct items from shoppinglist")
-        public void retrieveItemsFromShoppingList() throws Exception {
+        @DisplayName("Test retrieval of items from shopping list")
+        public void getItemsFromShoppingListIsOk() throws Exception {
 
             MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
                     .param("email","test1@ntnu.no"))
@@ -267,40 +267,33 @@ public class ShoppingListIntegrationTest {
             ShoppingListDto shoppinglist = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertEquals(3, shoppinglist.getItems().size());
             assertEquals(1, shoppinglist.getItems().get(0).getItemShoppingListId());
-        }
-
-        @Test
-        @WithMockUser("USER")
-        @DisplayName("Retrieve correct accesslevel from item")
-        public void retrieveCorrectAccessLevel() throws Exception {
-            MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
-                            .param("email","test3@ntnu.no"))
-                    .andExpect(status().isOk())
-                    .andReturn();
-
-            ShoppingListDto shoppinglist = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertTrue(shoppinglist.getItems().get(0).isSubUserAccessLevel());
+
         }
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Return error when supplied invalid user")
-        public void returnErrorWithInvalidUser() throws Exception {
-             mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
+        @DisplayName("Test retrieval of items from shopping list of an invalid user")
+        public void getItemsFromShoppingListIsBadRequest() throws Exception {
+             MvcResult result = mockMvc.perform(get("/api/shoppingList/getItemsFromShoppingList")
                             .param("email","invalidUser"))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+
+            Assertions.assertEquals("User not found",responseString);
         }
     }
 
     @Nested
-    class TestAddItemToShoppingList {
+    class AddItemToShoppingList {
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Return ok when all requirements are met")
-        public void addItemAllArgsOk() throws Exception {
+        @DisplayName("Test adding item to shopping list")
+        public void addItemToShoppingListIsCreated() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(2)
                     .itemName("Milk")
@@ -312,20 +305,24 @@ public class ShoppingListIntegrationTest {
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
             int size=itemShoppingListRepository.findAll().size();
-             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+             MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(shoppingListJson))
-                    .andExpect(status().isOk())
+                    .andExpect(status().isCreated())
                     .andReturn();
 
+            String responseString = result.getResponse().getContentAsString();
+
+             assertEquals("Item saved to shopping list",responseString);
              assertEquals(size+1,itemShoppingListRepository.findAll().size());
+
         }
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Adds to amount field when item already exists in the shoppinglist")
-        public void addItemAlreadyExists() throws Exception {
+        @DisplayName("Test adding an existing item to shopping list ")
+        public void addItemToShoppingListIsOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(1)
                     .itemName("Cheese")
@@ -336,12 +333,15 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-             mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+             MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isOk())
                     .andReturn();
 
+            String responseString = result.getResponse().getContentAsString();
+
+            assertEquals("Updated amount of the item",responseString);
             Optional<ItemShoppingList> item = itemShoppingListRepository.findById(1);
             Assertions.assertEquals(1.5, item.get().getAmount());
         }
@@ -349,8 +349,8 @@ public class ShoppingListIntegrationTest {
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Returns error when item is invalid")
-        public void addItemItemIsInvalid() throws Exception {
+        @DisplayName("Test adding an invalid item to shopping list")
+        public void addItemToShoppingListIsBadRequest() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(1)
                     .itemName("invalidItem")
@@ -361,18 +361,21 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            assertEquals("Item doesnt exist",responseString);
         }
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Return error when amount is invalid")
-        public void addItemAmountIsInvalid() throws Exception {
+        @DisplayName("Test adding an item to shopping list when amount of item is invalid")
+        public void addItemToShoppingListAmountIsBadRequest() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(1)
                     .itemName("Milk")
@@ -383,18 +386,21 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            assertEquals("Invalid amount",responseString);
         }
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Return error when measurement is invalid")
-        public void addItemMeasurementIsInvalid() throws Exception {
+        @DisplayName("Test adding an item to shopping list when measurement is invalid")
+        public void addItemToShoppingListMeasurementIsBadRequest() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(1)
                     .itemName("Milk")
@@ -405,22 +411,25 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-            mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
+            MvcResult result = mockMvc.perform(post("/api/shoppingList/addItemToShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isBadRequest())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            assertEquals("Measurement is not specified",responseString);
         }
     }
 
     @Nested
-    class TestDeleteItemFromShoppingList {
+    class DeleteItemFromShoppingList {
 
         @Test
         @Transactional
         @WithMockUser("USER")
-        @DisplayName("Return ok when all requirements are met")
-        public void deleteItemAllArgsOk() throws Exception {
+        @DisplayName("Test deletion of item from shopping list")
+        public void deleteItemFromShoppingListOk() throws Exception {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(2)
                     .itemShoppingListId(2)
@@ -432,28 +441,46 @@ public class ShoppingListIntegrationTest {
 
             String shoppingListJson = objectMapper.writeValueAsString(itemInShoppingListCreationDto);
 
-             mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
+            MvcResult result = mockMvc.perform(delete("/api/shoppingList/deleteItemFromShoppingList")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(shoppingListJson))
                     .andExpect(status().isOk())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            assertEquals("Item was updated",responseString);
         }
     }
 
     @Nested
-    class TestAddMostPopularItemsToShoppingList {
+    class AddMostPopularItemsToShoppingList {
 
         @Test
         @WithMockUser("USER")
-        @DisplayName("Return ok when all requirements are met")
-        public void addPopularItemsAllArgsOk() throws Exception {
+        @DisplayName("Test adding most popular items to shopping list")
+        public void addMostPopularItemsToShoppingListIsOk() throws Exception {
 
-
-            mockMvc.perform(get("/api/shoppingList/addMostPopularItems")
+            MvcResult result = mockMvc.perform(get("/api/shoppingList/addMostPopularItems")
                             .param("shoppingListId","1")
                             .param("subUserId","1"))
                     .andExpect(status().isOk())
                     .andReturn();
+
+            String responseString = result.getResponse().getContentAsString();
+            assertEquals("Successfully added popular items that are not already in the shopping list"
+                    ,responseString);
+        }
+
+        @Nested
+        class AddWeeklyMenuToShoppingList{
+
+            @Test
+            @WithMockUser(username = "USER")
+            @DisplayName("")
+            public void addWeeklyMenuToShoppingListIsCreated(){
+
+            }
         }
     }
+
 }
