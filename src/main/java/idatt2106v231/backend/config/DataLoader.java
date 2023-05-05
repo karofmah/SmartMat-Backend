@@ -56,24 +56,18 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        setGarbage();
-/*
-
-
-        setUsers();
+        /*setUsers();
         setRefrigerators();
         setShoppingLists();
         setWeekMenu();
+        setGarbage();
         setSubUsers();
 
         setCategories();
         setItems();
         setItemsInRefrigerator();
         setItemsInShoppingList();
-        setItemExpirationDate();
-
- */
-
+        setItemExpirationDate(); */
     }
 
     public void setUsers() {
