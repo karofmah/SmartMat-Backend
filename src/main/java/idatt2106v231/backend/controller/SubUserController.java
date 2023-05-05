@@ -43,7 +43,7 @@ public class SubUserController {
     })
     public ResponseEntity<Object> getUsersFromMaster(@RequestParam String email) {
         ResponseEntity<Object> response;
-        if(!userServices.checkIfUserExists(email)) {
+        if(userServices.userNotExists(email)) {
             response = new ResponseEntity<>("Master user not found", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -71,7 +71,7 @@ public class SubUserController {
     public ResponseEntity<Object> getSubUser(@PathVariable("subUserId") int subUserId) {
         ResponseEntity<Object> response;
 
-        if (!subUserServices.subUserExists(subUserId)) {
+        if (subUserServices.subUserNotExists(subUserId)) {
             response = new ResponseEntity<>("Sub user not found", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -105,7 +105,7 @@ public class SubUserController {
             logger.info((String)response.getBody());
             return response;
         }
-        if (subUserServices.subUserExists(subDto.getName(), subDto.getUserEmail())) {
+        if (subUserServices.subUserExists(subDto.getUserEmail(), subDto.getName())) {
             response = new ResponseEntity<>("Sub user already exists", HttpStatus.IM_USED);
         }
         else if (subUserServices.saveSubUser(subDto)){
@@ -129,7 +129,7 @@ public class SubUserController {
     public ResponseEntity<Object> deleteSubUser(@PathVariable("subUserId") int subUserId) {
         ResponseEntity<Object> response;
 
-        if (!subUserServices.subUserExists(subUserId)) {
+        if (subUserServices.subUserNotExists(subUserId)) {
             response = new ResponseEntity<>("Sub user not found", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -149,7 +149,7 @@ public class SubUserController {
     public ResponseEntity<Object> validatePinCode(@RequestBody SubUserValidationDto subUser){
         ResponseEntity<Object> response;
 
-        if (!subUserServices.subUserExists(subUser.getSubUserId())) {
+        if (subUserServices.subUserNotExists(subUser.getSubUserId())) {
             response = new ResponseEntity<>("Sub user not found", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -176,7 +176,7 @@ public class SubUserController {
     public ResponseEntity<Object> updateSubUser(@RequestBody SubUserDto subDto) {
         ResponseEntity<Object> response;
 
-        if (!subUserServices.subUserExists(subDto.getSubUserId())) {
+        if (subUserServices.subUserNotExists(subDto.getSubUserId())) {
             response = new ResponseEntity<>("Sub user does not exists", HttpStatus.NOT_FOUND);
         }
         else if(subDto.getName().isEmpty()){
@@ -205,7 +205,7 @@ public class SubUserController {
                 subDto.getName() == null || subDto.getName().isEmpty()) {
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
-        else if (!userServices.checkIfUserExists(subDto.getUserEmail())) {
+        else if (userServices.userNotExists(subDto.getUserEmail())) {
             response = new ResponseEntity<>("Master user not found", HttpStatus.NOT_FOUND);
         }
         else {

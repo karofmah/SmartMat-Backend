@@ -21,11 +21,8 @@ public class ShoppingListController {
     private final Logger logger;
 
     private final ShoppingListServices shoppingListServices;
-
     private final UserServices userServices;
-
     private final ItemServices itemServices;
-
     private final SubUserServices subUserServices;
 
     @Autowired
@@ -47,7 +44,7 @@ public class ShoppingListController {
     public ResponseEntity<Object> getAllItemsFromShoppingList(@RequestParam String email) {
         ResponseEntity<Object> response;
 
-        if(!userServices.checkIfUserExists(email)) {
+        if(userServices.userNotExists(email)) {
             response = new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
             logger.info((String)response.getBody());
         } else {
@@ -66,7 +63,7 @@ public class ShoppingListController {
     public ResponseEntity<Object> addItemToShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
-        if (!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+        if (subUserServices.subUserNotExists(itemInShoppingListCreationDto.getSubUserId())) {
             response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
             logger.info((String)response.getBody());
             return response;
@@ -79,7 +76,7 @@ public class ShoppingListController {
 
 
         //Updates the amount instead of creating new row if the item already exists in the db
-        if (shoppingListServices.itemExistsWithAccessLevel(
+        if (shoppingListServices.itemInShoppinglistExistsWithAccessLevel(
                 itemInShoppingListCreationDto.getShoppingListId(),
                 itemInShoppingListCreationDto.getItemName(),
                 subUserServices.getAccessLevel(itemInShoppingListCreationDto.getSubUserId()))) {
@@ -88,7 +85,7 @@ public class ShoppingListController {
 
             response = new ResponseEntity<>("Updated amount of the item", HttpStatus.OK);
         } else {
-            shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
+            shoppingListServices.addItemToShoppingList(itemInShoppingListCreationDto);
             response = new ResponseEntity<>("Item saved to shopping list", HttpStatus.CREATED);
         }
 
@@ -151,14 +148,14 @@ public class ShoppingListController {
 
         ResponseEntity<Object> response;
 
-        if (!shoppingListServices.shoppingListExists(shoppingListId)) {
+        if (shoppingListServices.shoppingListNotExists(shoppingListId)) {
             response = new ResponseEntity<>("Shopping list does not exist", HttpStatus.NOT_FOUND);
         }
-        else if (!subUserServices.subUserExists(subUserId)) {
+        else if (subUserServices.subUserNotExists(subUserId)) {
             response = new ResponseEntity<>("Sub user does not exists", HttpStatus.NOT_FOUND);
         }
-        else if (!subUserServices.getMasterUser(subUserId).getEmail()
-                .equals(shoppingListServices.getUserEmail(shoppingListId))) {
+        else if (!subUserServices.getMasterUserEmail(subUserId)
+                .equals(shoppingListServices.getShoppingListUserEmail(shoppingListId))) {
             response = new ResponseEntity<>("Sub user does not have access to this shopping list", HttpStatus.BAD_REQUEST);
         }
         else if (shoppingListServices.addMostPopularItems(shoppingListId, subUserId)) {
@@ -180,13 +177,13 @@ public class ShoppingListController {
     public ResponseEntity<Object> validateItemShoppingListDto(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response;
 
-        if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
+        if(shoppingListServices.shoppingListNotExists(itemInShoppingListCreationDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
         }
-        else if(!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+        else if(subUserServices.subUserNotExists(itemInShoppingListCreationDto.getSubUserId())) {
             response = new ResponseEntity<>("Sub user doesnt exist", HttpStatus.BAD_REQUEST);
         }
-        else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
+        else if(itemServices.itemNotExist(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
         }
         else if(itemInShoppingListCreationDto.getAmount() <= 0) {
@@ -212,15 +209,14 @@ public class ShoppingListController {
     public ResponseEntity<Object> validateWeeklyMenuShoppingListDto(WeeklyMenuShoppingListDto dto) {
         ResponseEntity<Object> response;
 
-
-        if (!shoppingListServices.shoppingListExists(dto.getShoppingListId())) {
-            response = new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
+        if (shoppingListServices.shoppingListNotExists(dto.getShoppingListId())) {
+            response = new ResponseEntity<>("Shoppinglist does not exist", HttpStatus.NOT_FOUND);
         }
-        else if (subUserServices.getMasterUser(dto.getSubUserId()) == null) {
+        else if (subUserServices.getMasterUserEmail(dto.getSubUserId()) == null) {
             response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);
         }
-        else if (!subUserServices.getMasterUser(dto.getSubUserId()).getEmail().equals(
-                shoppingListServices.getUserEmail(dto.getShoppingListId()))) {
+        else if (!subUserServices.getMasterUserEmail(dto.getSubUserId()).equals(
+                shoppingListServices.getShoppingListUserEmail(dto.getShoppingListId()))) {
             response = new ResponseEntity<>("Sub user does not have access to this shopping list", HttpStatus.BAD_REQUEST);
         }
         else if (dto.getIngredients().size() == 0) {

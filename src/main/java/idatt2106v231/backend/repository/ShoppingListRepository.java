@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface ShoppingListRepository extends JpaRepository<ShoppingList, Integer> {
     Optional<ShoppingList> findDistinctByUserEmail(String email);
+
+    boolean existsShoppingListByShoppingListId(int id);
 }

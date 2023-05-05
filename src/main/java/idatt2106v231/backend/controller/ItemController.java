@@ -68,7 +68,7 @@ public class ItemController {
     public ResponseEntity<Object> deleteItem(@PathVariable int itemId) {
         ResponseEntity<Object> response;
 
-        if (!services.checkIfItemExists(itemId)){
+        if (services.itemNotExist(itemId)){
             response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
         }
         else if (services.deleteItem(itemId)){
@@ -91,7 +91,7 @@ public class ItemController {
     public ResponseEntity<Object> getItemByName(@RequestParam("name") String name) {
         ResponseEntity<Object> response;
 
-        if (!services.checkIfItemExists(name)){
+        if (services.itemNotExist(name)){
             response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         }
@@ -112,7 +112,7 @@ public class ItemController {
     public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
         ResponseEntity<Object> response;
 
-        if (!services.checkIfItemExists(id)){
+        if (services.itemNotExist(id)){
             response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         } else {
@@ -157,7 +157,7 @@ public class ItemController {
     })
     public ResponseEntity<Object> getAllItemsByCategory(@RequestParam int categoryId) {
         ResponseEntity<Object> response;
-        if(!categoryServices.categoryExist(categoryId)){
+        if(categoryServices.categoryNotExist(categoryId)){
             response = new ResponseEntity<>("Category does not exist", HttpStatus.BAD_REQUEST);
             logger.info((String)response.getBody());
             return response;
@@ -209,10 +209,10 @@ public class ItemController {
         if (dto.getName().isEmpty() || dto.getCategoryId() == -1){
             response =  new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
         }
-        else if (services.checkIfItemExists(dto.getName())){
+        else if (!services.itemNotExist(dto.getName())){
             response = new ResponseEntity<>("Item already exists", HttpStatus.IM_USED);
         }
-        else if (!categoryServices.categoryExist(dto.getCategoryId())){
+        else if (categoryServices.categoryNotExist(dto.getCategoryId())){
             response =  new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
         return response;

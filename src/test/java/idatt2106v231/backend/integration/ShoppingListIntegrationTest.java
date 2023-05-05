@@ -468,19 +468,7 @@ public class ShoppingListIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
             assertEquals("Successfully added popular items that are not already in the shopping list"
-                    ,responseString);
-        }
-
-        @Nested
-        class AddWeeklyMenuToShoppingList{
-
-            @Test
-            @WithMockUser(username = "USER")
-            @DisplayName("")
-            public void addWeeklyMenuToShoppingListIsCreated(){
-
-            }
+                    , responseString);
         }
     }
-
 }

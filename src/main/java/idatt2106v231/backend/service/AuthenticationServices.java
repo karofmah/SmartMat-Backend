@@ -9,14 +9,11 @@ import idatt2106v231.backend.dto.user.UserCreationDto;
 import idatt2106v231.backend.model.Refrigerator;
 import idatt2106v231.backend.enums.Role;
 import idatt2106v231.backend.model.WeeklyMenu;
-import idatt2106v231.backend.model.ShoppingList;
-import idatt2106v231.backend.model.WeeklyMenu;
 import idatt2106v231.backend.repository.RefrigeratorRepository;
-import idatt2106v231.backend.repository.ShoppingListRepository;
 import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.WeekMenuRepository;
-import lombok.AllArgsConstructor;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +37,9 @@ public class AuthenticationServices {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Constructor which sets the repositories to use for database access.
+     */
     @Autowired
     public AuthenticationServices(UserRepository userRepo, RefrigeratorRepository refRepo, WeekMenuRepository weekMenuRepo,
                                   ShoppingListRepository shoppingListRepo, PasswordEncoder passwordEncoder,
@@ -54,7 +54,7 @@ public class AuthenticationServices {
     }
 
     /**
-     * Register a user.
+     * Method to register a user.
      *
      * @param request email and password for the user
      * @return a token which authenticates the user
