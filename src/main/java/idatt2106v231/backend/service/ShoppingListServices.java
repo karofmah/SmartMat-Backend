@@ -294,7 +294,7 @@ public class ShoppingListServices {
                     .itemShoppingListId(dto.getItemShoppingListId())
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
-                    .amount(currentItem.getAmount() + dto.getAmount())
+                    .amount(dto.getAmount())
                     .measurementType(dto.getMeasurementType())
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())

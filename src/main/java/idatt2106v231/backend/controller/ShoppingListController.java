@@ -141,13 +141,13 @@ public class ShoppingListController {
         return response;
     }
 
-    @PostMapping("/addMostPopularItems")
+    @GetMapping("/addMostPopularItems")
     @Operation(summary = "Add 5 most popular fridge items to a shopping list")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Items added to shopping list"),
             @ApiResponse(responseCode = "400", description = "One or more fields are invalid")
     })
-    public ResponseEntity<Object> addMostPopularItems(@RequestParam int shoppingListId, int subUserId) {
+    public ResponseEntity<Object> addMostPopularItems(@RequestParam int shoppingListId, @RequestParam int subUserId) {
 
         ResponseEntity<Object> response;
 
