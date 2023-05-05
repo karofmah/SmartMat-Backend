@@ -28,6 +28,8 @@ pages:
   script:
     - echo "Building Javadoc"
     - mvn javadoc:javadoc
+    - mvn jacoco:prepare-agent install jacoco:report
+
   artifacts:
     paths:
       - public
