@@ -1,5 +1,5 @@
-/*
-package idatt2106v231.backend.config;
+
+/*package idatt2106v231.backend.config;
 
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.enums.Role;
@@ -223,20 +223,38 @@ public class DataLoader implements CommandLineRunner {
         Random random = new Random();
         List<Refrigerator> refrigerators = refRepo.findAll();
 
-        for (int i = 2020; i<2024; i++){
-            for (int j = 1; j<=12; j++){
+        for (int i = 2020; i <= 2022; i++){
+            for (int j = 1; j <= 12; j++){
                 for (Refrigerator refrigerator: refrigerators) {
                     Garbage garbage = Garbage.builder()
                             .refrigerator(refrigerator)
-                            .amount(random.nextInt(70) + 30)
-                            .date(YearMonth.of(i,j))
+                            .amount(random.nextInt(5) + 10)
+                            .date(YearMonth.of(i, j))
                             .build();
                     garbageRepo.save(garbage);
                 }
             }
         }
 
+        for (int j = 1; j <= 4; j++){
+            for (Refrigerator refrigerator: refrigerators) {
+                Garbage garbage = Garbage.builder()
+                        .refrigerator(refrigerator)
+                        .amount(random.nextInt(5) + 10)
+                        .date(YearMonth.of(2023, j))
+                        .build();
+                garbageRepo.save(garbage);
+            }
+        }
 
+        for (Refrigerator refrigerator: refrigerators) {
+            Garbage garbage = Garbage.builder()
+                    .refrigerator(refrigerator)
+                    .amount(random.nextInt(0) + 5)
+                    .date(YearMonth.of(2023, 4))
+                    .build();
+            garbageRepo.save(garbage);
+        }
     }
 
     public void setSubUsers(){
