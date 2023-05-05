@@ -147,11 +147,13 @@ public class GarbageServices {
                     map.put(key, updatedValue);
                 }
             }
-
             double totalAmount = map.values().stream().mapToDouble(Double::doubleValue).sum();
+            double averageAmount=totalAmount/map.size();
+            averageAmount = Math.round(averageAmount * 100.0) / 100.0;
 
-            return totalAmount / map.size();
+            return averageAmount;
         } catch (Exception e){
+            System.out.println(e.getMessage());
             return -1;
         }
     }
