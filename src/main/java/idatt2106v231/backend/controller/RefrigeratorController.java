@@ -56,7 +56,7 @@ public class RefrigeratorController {
     public ResponseEntity<Object> getRefrigeratorByUser(@RequestParam String userEmail) {
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(userEmail)){
+        if (userServices.userNotExists(userEmail)){
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -84,7 +84,7 @@ public class RefrigeratorController {
     public ResponseEntity<Object> getItemsInRefrigeratorByCategory(@PathVariable("refrigeratorId") int refrigeratorId, @RequestParam int categoryId) {
         ResponseEntity<Object> response;
 
-        if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
+        if (refrigeratorServices.refrigeratorNotExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -113,7 +113,7 @@ public class RefrigeratorController {
     public ResponseEntity<Object> getItemsInRefrigeratorByExpirationDate(@PathVariable("refrigeratorId") int refrigeratorId) throws ParseException {
         ResponseEntity<Object> response;
 
-        if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
+        if (refrigeratorServices.refrigeratorNotExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exists", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -214,7 +214,7 @@ public class RefrigeratorController {
     public ResponseEntity<Object> removeItemFromRefrigerator(@RequestBody ItemInRefrigeratorRemovalDto dto) {
         ResponseEntity<Object> response;
 
-        if (!refrigeratorServices.itemExpirationDateExists(dto.getItemExpirationDateId()) ) {
+        if (refrigeratorServices.itemExpirationDateNotExists(dto.getItemExpirationDateId())) {
             response = new ResponseEntity<>("Item does not exist in refrigerator", HttpStatus.NOT_FOUND);
         }
         else if(!dto.isGarbage() && refrigeratorServices.deleteItemFromRefrigerator(dto)){
@@ -242,10 +242,10 @@ public class RefrigeratorController {
                 || dto.getAmount() == 0 || dto.getMeasurementType() == null){
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
-        else if(!refrigeratorServices.refrigeratorExists(dto.getRefrigeratorId())){
+        else if(refrigeratorServices.refrigeratorNotExists(dto.getRefrigeratorId())){
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
         }
-        else if(!itemServices.checkIfItemExists(dto.getItemName())){
+        else if(itemServices.itemNotExist(dto.getItemName())){
             response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
         }
         else {
@@ -265,7 +265,7 @@ public class RefrigeratorController {
         if (dto.getAmount() == 0 || dto.getMeasurementType() == null || dto.getDate() == null){
             response = new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
-        else if(!refrigeratorServices.itemExpirationDateExists(dto.getItemExpirationDateId())){
+        else if(refrigeratorServices.itemExpirationDateNotExists(dto.getItemExpirationDateId())){
             response = new ResponseEntity<>("Item does not exist in refrigerator", HttpStatus.NOT_FOUND);
         }
         else if(dto.getDate().before(Calendar.getInstance().getTime())){

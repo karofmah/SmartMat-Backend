@@ -1,8 +1,6 @@
 
 package idatt2106v231.backend.controller;
 
-import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
-import idatt2106v231.backend.service.AiServices;
 import idatt2106v231.backend.service.RecipeServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -47,7 +45,7 @@ public class RecipeController {
 
         ResponseEntity<String> response;
 
-        if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
+        if (refrigeratorServices.refrigeratorNotExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -75,7 +73,7 @@ public class RecipeController {
 
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(userEmail)){
+        if (userServices.userNotExists(userEmail)){
             response = new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;
@@ -103,7 +101,7 @@ public class RecipeController {
 
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(userEmail)){
+        if (userServices.userNotExists(userEmail)){
             response = new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;

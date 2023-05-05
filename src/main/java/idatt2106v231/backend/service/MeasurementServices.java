@@ -1,15 +1,20 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.enums.Measurement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Class to change measurement types
+ */
 @Service
 public class MeasurementServices {
 
     private final AiServices aiServices;
 
+    /**
+     * Constructor which sets the AiServices.
+     */
     @Autowired
     public MeasurementServices(AiServices aiServices){
         this.aiServices = aiServices;
@@ -124,5 +129,4 @@ public class MeasurementServices {
             return -1;
         }
     }
-
 }

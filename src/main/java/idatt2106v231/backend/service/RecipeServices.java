@@ -7,7 +7,6 @@ import idatt2106v231.backend.repository.WeekMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -16,18 +15,22 @@ import java.util.*;
 @Service
 public class RecipeServices {
 
-    private final AiServices aiServices;
-    private final RefrigeratorServices refrigeratorServices;
-    private final WeekMenuRepository weekMenuRepository;
-    private final UserRepository userRepository;
+    private final WeekMenuRepository weekMenuRepo;
+    private final UserRepository userRepo;
 
+    private final AiServices aiServices;
+    private final RefrigeratorServices refServices;
+
+    /**
+     * Constructor which sets the repositories to use for database access, and services.
+     */
     @Autowired
-    public RecipeServices(AiServices aiServices, RefrigeratorServices refrigeratorServices, WeekMenuRepository weekMenuRepository,
-                          UserRepository userRepository) {
+    public RecipeServices(AiServices aiServices, RefrigeratorServices refServices, WeekMenuRepository weekMenuRepo,
+                          UserRepository userRepo) {
         this.aiServices = aiServices;
-        this.refrigeratorServices = refrigeratorServices;
-        this.weekMenuRepository = weekMenuRepository;
-        this.userRepository = userRepository;
+        this.refServices = refServices;
+        this.weekMenuRepo = weekMenuRepo;
+        this.userRepo = userRepo;
     }
 
     /**
@@ -39,10 +42,12 @@ public class RecipeServices {
     public String generateRecipe(int refrigeratorId) {
         try {
 
-            List<ItemInRefrigeratorDto> ingredients = new ArrayList<>(
-                    refrigeratorServices.getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 5));
+            List<ItemInRefrigeratorDto> ingredients = refServices
+                    .getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 5);
 
-            List<ItemInRefrigeratorDto> otherIngredients = new ArrayList<>(refrigeratorServices.getItemsInRefrigerator(refrigeratorId));
+            List<ItemInRefrigeratorDto> otherIngredients = refServices
+                    .getItemsInRefrigerator(refrigeratorId);
+
 
             Random rand = new Random();
             while (ingredients.size() < 5 && !otherIngredients.isEmpty()) {
@@ -80,11 +85,17 @@ public class RecipeServices {
                     "then the directions. Add a combined shopping list at the end. Keep the recipes basic. " +
                     "I have some ingredients in my fridge that I would like to use up: ");
 
-            int refrigeratorId = refrigeratorServices.getRefrigeratorByUserEmail(userEmail).getRefrigeratorId();
-            List<ItemInRefrigeratorDto> ingredients = new ArrayList<>(
-                    refrigeratorServices.getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 7));
 
-            List<ItemInRefrigeratorDto> otherIngredients = new ArrayList<>(refrigeratorServices.getItemsInRefrigerator(refrigeratorId));
+            int refrigeratorId = refServices
+                    .getRefrigeratorByUserEmail(userEmail)
+                    .getRefrigeratorId();
+
+            List<ItemInRefrigeratorDto> ingredients = refServices
+                    .getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 7);
+
+            List<ItemInRefrigeratorDto> otherIngredients = refServices
+                    .getItemsInRefrigerator(refrigeratorId);
+
 
             Random rand = new Random();
             while (ingredients.size() < 7 && !otherIngredients.isEmpty()) {
@@ -119,19 +130,14 @@ public class RecipeServices {
      */
     public boolean saveWeeklyMenu(String userEmail, String menu) {
         try {
-            Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
+            Optional<WeeklyMenu> existingWeeklyMenu = weekMenuRepo.findByUserEmail(userEmail);
 
-            WeeklyMenu _weeklyMenu;
-            if (weeklyMenu.isPresent()) {
-                _weeklyMenu = weeklyMenu.get();
-                _weeklyMenu.setMenu(menu);
-            } else {
-                _weeklyMenu = WeeklyMenu.builder()
-                        .user(userRepository.findByEmail(userEmail).get())
-                        .build();
-            }
-            _weeklyMenu.setMenu(menu);
-            weekMenuRepository.save(_weeklyMenu);
+            WeeklyMenu weeklyMenu = existingWeeklyMenu.orElseGet(() -> WeeklyMenu.builder()
+                    .user(userRepo.findByEmail(userEmail).get())
+                    .build());
+
+            weeklyMenu.setMenu(menu);
+            weekMenuRepo.save(weeklyMenu);
             return true;
         } catch (IllegalArgumentException e){
             return false;
@@ -146,7 +152,7 @@ public class RecipeServices {
      */
     public String getWeeklyMenu(String userEmail) {
         try {
-            Optional<WeeklyMenu> weeklyMenu = weekMenuRepository.findByUserEmail(userEmail);
+            Optional<WeeklyMenu> weeklyMenu = weekMenuRepo.findByUserEmail(userEmail);
             return weeklyMenu.map(WeeklyMenu::getMenu).orElse(null);
         } catch (Exception e) {
             return null;

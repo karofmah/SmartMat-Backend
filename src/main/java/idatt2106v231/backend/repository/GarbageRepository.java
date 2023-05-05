@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface GarbageRepository extends CrudRepository<Garbage, Integer> {
+
     List<Garbage> findAll();
 
     Optional<Garbage> findByRefrigeratorRefrigeratorIdAndDate(int refrigeratorId, YearMonth date);

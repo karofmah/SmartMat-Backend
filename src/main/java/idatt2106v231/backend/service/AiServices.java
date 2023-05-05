@@ -29,17 +29,15 @@ public class AiServices {
     private final OpenAiKeyRepository openAiKeyRepo;
 
     /**
-     * Sets the Open AI key repository
-     *
-     * @param openAiKeyRepo the repository to use
+     * Constructor which sets the Open AI key repository.
      */
-
     @Autowired
     public AiServices(OpenAiKeyRepository openAiKeyRepo) {
         this.openAiKeyRepo = openAiKeyRepo;
     }
+
     /**
-     * Gets a chat completion using OpenAI GPT-3
+     * Gets a chat completion using OpenAI GPT-3.
      *
      * @param content the content of the query
      * @return the answer produced by the AI
@@ -82,9 +80,9 @@ public class AiServices {
     }
 
     /**
-     * Gets the OpenAi API key
+     * Gets the OpenAi API key.
      * This must either be stored in the table 'open_ai_key' in the database,
-     * or in a .env file in the root of the project folder as OPENAI_TOKEN=your_token
+     * or in a .env file in the root of the project folder as OPENAI_TOKEN=your_token.
      *
      * @return the key
      */

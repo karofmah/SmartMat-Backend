@@ -14,14 +14,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServices {
 
-    private UserRepository userRepo;
+    private final UserRepository userRepo;
 
     private final ModelMapper mapper;
 
     /**
-     * Sets the user repository to use for database access.
-     *
-     * @param userRepo the user repository to use
+     * Constructor which sets the user repository to use for database access.
      */
     @Autowired
     public UserServices(UserRepository userRepo) {
@@ -37,7 +35,9 @@ public class UserServices {
      */
     public UserDto getUser(String email) {
         try{
-            User user = userRepo.findByEmail(email).get();
+            User user = userRepo
+                    .findByEmail(email)
+                    .get();
             return mapper.map(user, UserDto.class);
         }catch (Exception e){
             return null;
@@ -66,12 +66,12 @@ public class UserServices {
     }
 
     /**
-     * Method to check if a user exist.
+     * Method to check if a user not exist.
      *
      * @param email the email address of the user
-     * @return true if the user exist
+     * @return true if the user not exist
      */
-    public boolean checkIfUserExists(String email){
-        return userRepo.findById(email).isPresent();
+    public boolean userNotExists(String email){
+        return !userRepo.existsByEmail(email);
     }
 }

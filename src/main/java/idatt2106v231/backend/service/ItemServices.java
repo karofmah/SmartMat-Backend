@@ -24,6 +24,9 @@ public class ItemServices {
 
     private final ModelMapper mapper;
 
+    /**
+     * Constructor which sets the Item repository to use for database access.
+     */
     @Autowired
     public ItemServices(ItemRepository itemRepo, CategoryRepository categoryRepository) {
         this.itemRepo = itemRepo;
@@ -131,40 +134,22 @@ public class ItemServices {
     }
 
     /**
-     * Method to get the amount of refrigerators containing a specific item.
-     *
-     * @param itemId the items id
-     * @return the amount
-     */
-    public int getAmountOfRefrigeratorsContainingItem(int itemId){
-        try{
-            return itemRepo
-                    .findById(itemId)
-                    .get()
-                    .getItemInRefrigerators()
-                    .size();
-        }catch (Exception e){
-            return -1;
-        }
-    }
-
-    /**
-     * Method to check if an item exists by name.
+     * Method to check if an item not exists in database by name.
      *
      * @param name the items name
      * @return true if the item exists
      */
-    public boolean checkIfItemExists(String name){
-        return itemRepo.findByName(name).isPresent();
+    public boolean itemNotExist(String name){
+        return itemRepo.findByName(name).isEmpty();
     }
 
     /**
-     * Method to check if an item exists by id
+     * Method to check if an item not exists in database by id.
      *
      * @param itemId the items id
      * @return true if the item exists
      */
-    public boolean checkIfItemExists(int itemId){
-        return itemRepo.existsById(itemId);
+    public boolean itemNotExist(int itemId){
+        return !itemRepo.existsById(itemId);
     }
 }

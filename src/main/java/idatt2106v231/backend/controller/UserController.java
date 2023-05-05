@@ -37,7 +37,7 @@ public class UserController {
     })
     public ResponseEntity<Object> getUser(@RequestParam String email){
         ResponseEntity<Object> response;
-        if (!userServices.checkIfUserExists(email)){
+        if (userServices.userNotExists(email)){
            response = new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
            logger.info((String)response.getBody());
            return response;
@@ -64,7 +64,7 @@ public class UserController {
     public ResponseEntity<Object> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
         ResponseEntity<Object> response;
 
-        if (!userServices.checkIfUserExists(userUpdateDto.getEmail())){
+        if (userServices.userNotExists(userUpdateDto.getEmail())){
             response = new ResponseEntity<>("User does not exists", HttpStatus.NOT_FOUND);
         }
         else if(userServices.updateUser(userUpdateDto)){
