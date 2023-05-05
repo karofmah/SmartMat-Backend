@@ -105,7 +105,7 @@ public class SubUserController {
             logger.info((String)response.getBody());
             return response;
         }
-        if (subUserServices.subUserExists(subDto.getName(), subDto.getUserEmail())) {
+        if (subUserServices.subUserExists(subDto.getUserEmail(), subDto.getName())) {
             response = new ResponseEntity<>("Sub user already exists", HttpStatus.IM_USED);
         }
         else if (subUserServices.saveSubUser(subDto)){

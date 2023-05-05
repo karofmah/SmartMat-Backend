@@ -127,7 +127,7 @@ public class SubUserServices {
      * @return true if the sub-user is exists.
      */
     public boolean subUserExists(String email, String name) {
-        return subUserRepo.existsByUserEmailAndName(email ,name);
+        return subUserRepo.findByUserEmailAndName(email ,name).isPresent();
     }
 
     /**

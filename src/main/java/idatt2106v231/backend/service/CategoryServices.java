@@ -99,7 +99,7 @@ public class CategoryServices {
      * @return true if the category exists
      */
     public boolean categoryNotExist(int categoryId){
-        return catRepo.existsCategoriesByCategoryId(categoryId);
+        return !catRepo.existsCategoriesByCategoryId(categoryId);
     }
 
     /**

@@ -209,9 +209,8 @@ public class ShoppingListController {
     public ResponseEntity<Object> validateWeeklyMenuShoppingListDto(WeeklyMenuShoppingListDto dto) {
         ResponseEntity<Object> response;
 
-
         if (shoppingListServices.shoppingListNotExists(dto.getShoppingListId())) {
-            response = new ResponseEntity<>("User does not exist", HttpStatus.BAD_REQUEST);
+            response = new ResponseEntity<>("Shoppinglist does not exist", HttpStatus.NOT_FOUND);
         }
         else if (subUserServices.getMasterUserEmail(dto.getSubUserId()) == null) {
             response = new ResponseEntity<>("Sub user does not exist", HttpStatus.BAD_REQUEST);

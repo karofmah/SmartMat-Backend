@@ -362,7 +362,7 @@ public class ShoppingListServices {
      * @return true if the shoppinglist exists
      */
     public boolean shoppingListNotExists(int shoppingListId) {
-        return shpListRepo.existsShoppingListByShoppingListId(shoppingListId);
+        return !shpListRepo.existsShoppingListByShoppingListId(shoppingListId);
     }
 
     /**
