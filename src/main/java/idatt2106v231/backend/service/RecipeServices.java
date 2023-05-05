@@ -50,7 +50,6 @@ public class RecipeServices {
                 ingredients.add(otherIngredients.get(r));
                 otherIngredients.remove(r);
             }
-            ingredients.forEach(c -> System.out.println(c.getItem().getName()));
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
 
@@ -62,7 +61,7 @@ public class RecipeServices {
 
             return aiServices.getChatCompletion(query.toString());
         } catch (Exception e){
-            return null;
+            return "ERROR: " + e.getMessage();
         }
     }
 
@@ -101,12 +100,13 @@ public class RecipeServices {
             query.append("Do not include any of these ingredients more than in one day/meal. Use metric measurements.");
 
             String menu = aiServices.getChatCompletion(query.toString());
+            if (menu.startsWith("ERROR: ")) throw new Exception();
 
             saveWeeklyMenu(userEmail, menu);
 
             return menu;
-        } catch (IllegalArgumentException e){
-            return null;
+        } catch (Exception e){
+            return "ERROR: " + e.getMessage();
         }
     }
 
