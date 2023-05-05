@@ -60,6 +60,9 @@ In our code, each model has a correlating repository, and each controller has a 
 ### Security
 The application uses tokens provided by JWT to authenticate a user each time they maneuver the application. To use the application and access their data, they need to log in with their email and password. If correct, they recieve a token which is stored in the frontend ????. This token needs to be provided with every API-call, in order to access the endpoint. The token is deleted from the frontend when logging out. Using BCryptPasswordEncoder, all passwords are salted and hashed in the database, no passwords are stored in clear text. 
 
+### How to run and install the backend
+To run backend, you need some prerequisite programs. You need both Java and Maven downloaded and installed.
+
 
 
 
