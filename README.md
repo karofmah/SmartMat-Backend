@@ -63,6 +63,33 @@ The application uses tokens provided by JWT to authenticate a user each time the
 ### How to run and install the backend
 To run backend, you need some prerequisite programs. You need both Java and Maven downloaded and installed.
 
+-You can download Java [here](https://www.oracle.com/java/technologies/downloads/#java17)
+
+-And Maven [here](https://maven.apache.org/download.cgi)
+
+Once these are installed you are ready to begin. 
+To ensure you have maven correctly installed run:mvn 
+
+    mvn --version
+
+If this returns the version of Maven you just installed, run the following command to clone the project:
+
+    git clone https://gitlab.stud.idi.ntnu.no/hasanro/idatt2106_2022_05_backend.git
+
+You might have to type in your personal password when cloning. When the project has been cloned down, the pom.xml dependencies must be downloaded using the command:
+
+    mvn dependency:resolve
+
+After that, the package must be installed into the local repository, using the commmand:
+
+    mvn install 
+
+To run the application, maneuver to root directory containing the pom.xml file and run:
+
+    mvn spring-boot:run
+
+Congratulations! Your Smartmat backend is now up and running!
+
 
 
 
