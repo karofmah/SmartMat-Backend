@@ -17,4 +17,5 @@ public class ItemShoppingListDto {
     private int amount;
     private Measurement measurementType;
     private boolean subUserAccessLevel;
+    private int subUserId;
 }

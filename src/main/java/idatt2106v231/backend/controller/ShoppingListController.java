@@ -18,16 +18,21 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("http://localhost:8000/")
 public class ShoppingListController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubUserServices.class);
+    private final Logger logger;
+
+    private final ShoppingListServices shoppingListServices;
+
+    private final UserServices userServices;
+
+    private final ItemServices itemServices;
 
     @Autowired
-    private ShoppingListServices shoppingListServices;
-
-    @Autowired
-    private UserServices userServices;
-
-    @Autowired
-    private ItemServices itemServices;
+    public ShoppingListController(ShoppingListServices shoppingListServices, UserServices userServices, ItemServices itemServices) {
+        this.shoppingListServices = shoppingListServices;
+        this.userServices = userServices;
+        this.itemServices = itemServices;
+        this.logger = LoggerFactory.getLogger(SubUserServices.class);
+    }
 
     @Autowired
     private SubUserServices subUserServices;
@@ -46,7 +51,7 @@ public class ShoppingListController {
 
         if(!userServices.checkIfUserExists(email)) {
             response = new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         } else {
             response = new ResponseEntity<>(shoppingListServices.getShoppingListByUserEmail(email), HttpStatus.OK);
             logger.info("Retrieving all items in shoppinglist with email: " + email);
@@ -68,7 +73,7 @@ public class ShoppingListController {
         }
 
         if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -87,7 +92,8 @@ public class ShoppingListController {
         }
 
 
-        logger.info(response.getBody() + "");
+
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -100,13 +106,15 @@ public class ShoppingListController {
     public ResponseEntity<Object> deleteItemFromShoppingList(@RequestBody ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         ResponseEntity<Object> response = validateItemShoppingListDto(itemInShoppingListCreationDto);
 
-        if (response.getStatusCode() != HttpStatus.OK){
-            logger.info(response.getBody() + "");
-            return response;
+        if (response.getStatusCode() == HttpStatus.OK){
+
+            if(shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto)) {
+                response = new ResponseEntity<>("Item was updated", HttpStatus.OK);
+            } else {
+                response = new ResponseEntity<>("Could not delete item from shoppinglist", HttpStatus.NOT_FOUND);
+            }
         }
 
-        shoppingListServices.deleteItemFromShoppingList(itemInShoppingListCreationDto);
-        response = new ResponseEntity<>("Item deleted from shoppinglist", HttpStatus.OK);
         logger.info(response.getBody() + "");
         return response;
     }
@@ -165,6 +173,8 @@ public class ShoppingListController {
 
         if(!shoppingListServices.shoppingListExists(itemInShoppingListCreationDto.getShoppingListId())) {
             response = new ResponseEntity<>("User doesnt exist", HttpStatus.BAD_REQUEST);
+        } else if(!subUserServices.subUserExists(itemInShoppingListCreationDto.getSubUserId())) {
+            response = new ResponseEntity<>("Subuser doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(!itemServices.checkIfItemExists(itemInShoppingListCreationDto.getItemName())) {
             response = new ResponseEntity<>("Item doesnt exist", HttpStatus.BAD_REQUEST);
         } else if(itemInShoppingListCreationDto.getAmount() <= 0) {

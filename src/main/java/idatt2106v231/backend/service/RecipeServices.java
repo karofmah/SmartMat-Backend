@@ -7,8 +7,8 @@ import idatt2106v231.backend.repository.WeekMenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Class to manage Recipe objects.
@@ -16,48 +16,17 @@ import java.util.Optional;
 @Service
 public class RecipeServices {
 
-    private AiServices aiServices;
-    private RefrigeratorServices refrigeratorServices;
-    private WeekMenuRepository weekMenuRepository;
-    private UserRepository userRepository;
+    private final AiServices aiServices;
+    private final RefrigeratorServices refrigeratorServices;
+    private final WeekMenuRepository weekMenuRepository;
+    private final UserRepository userRepository;
 
-    /**
-     * Sets the AI Service for AI queries.
-     *
-     * @param aiServices the service to use.
-     */
     @Autowired
-    public void setAiServices(AiServices aiServices) {
+    public RecipeServices(AiServices aiServices, RefrigeratorServices refrigeratorServices, WeekMenuRepository weekMenuRepository,
+                          UserRepository userRepository) {
         this.aiServices = aiServices;
-    }
-
-    /**
-     * Sets the refrigerator service.
-     *
-     * @param refrigeratorServices the service to use
-     */
-    @Autowired
-    public void setRefrigeratorServices(RefrigeratorServices refrigeratorServices) {
         this.refrigeratorServices = refrigeratorServices;
-    }
-
-    /**
-     * Sets the week menu repository
-     *
-     * @param weekMenuRepository the repository to use
-     */
-    @Autowired
-    public void setWeekMenuRepository(WeekMenuRepository weekMenuRepository) {
         this.weekMenuRepository = weekMenuRepository;
-    }
-
-    /**
-     * Sets user repository
-     *
-     * @param userRepository the user repository
-     */
-    @Autowired
-    public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -70,17 +39,29 @@ public class RecipeServices {
     public String generateRecipe(int refrigeratorId) {
         try {
 
-            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+            List<ItemInRefrigeratorDto> ingredients = new ArrayList<>(
+                    refrigeratorServices.getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 5));
+
+            List<ItemInRefrigeratorDto> otherIngredients = new ArrayList<>(refrigeratorServices.getItemsInRefrigerator(refrigeratorId));
+
+            Random rand = new Random();
+            while (ingredients.size() < 5 && !otherIngredients.isEmpty()) {
+                int r = rand.nextInt(otherIngredients.size());
+                ingredients.add(otherIngredients.get(r));
+                otherIngredients.remove(r);
+            }
 
             StringBuilder query = new StringBuilder("A recipe that includes the ingredients ");
 
             for (ItemInRefrigeratorDto ingredient : ingredients) {
-                query.append(ingredient.getItem().getName()).append(" ");
+                query.append(ingredient.getItem().getName()).append(" ,");
             }
 
+            query.append("Use metric measurements.");
+
             return aiServices.getChatCompletion(query.toString());
-        } catch (IllegalArgumentException e){
-            return null;
+        } catch (Exception e){
+            return "ERROR: " + e.getMessage();
         }
     }
 
@@ -93,30 +74,39 @@ public class RecipeServices {
      */
     public String generateWeeklyMenu(String userEmail, int numPeople) {
         try {
-            String query = "I need a weekly menu (7 days) for " + numPeople + " people. " +
+            StringBuilder query = new StringBuilder("I need a weekly menu (7 days) for " + numPeople + " people. " +
                     "It should be structured like this: " +
                     "'Monday: dish name', then a list of ingredients," +
                     "then the directions. Add a combined shopping list at the end. Keep the recipes basic. " +
-                    "I have some ingredients in my fridge that I would like to use up: ";
-
+                    "I have some ingredients in my fridge that I would like to use up: ");
 
             int refrigeratorId = refrigeratorServices.getRefrigeratorByUserEmail(userEmail).getRefrigeratorId();
-            List<ItemInRefrigeratorDto> ingredients = refrigeratorServices.getItemsInRefrigerator(refrigeratorId);
+            List<ItemInRefrigeratorDto> ingredients = new ArrayList<>(
+                    refrigeratorServices.getTopItemsInRefrigeratorByExpirationDate(refrigeratorId, 7));
 
+            List<ItemInRefrigeratorDto> otherIngredients = new ArrayList<>(refrigeratorServices.getItemsInRefrigerator(refrigeratorId));
 
-            for (ItemInRefrigeratorDto ingredient : ingredients) {
-                query += ingredient.getItem().getName() + ", ";
+            Random rand = new Random();
+            while (ingredients.size() < 7 && !otherIngredients.isEmpty()) {
+                int r = rand.nextInt(otherIngredients.size());
+                ingredients.add(otherIngredients.get(r));
+                otherIngredients.remove(r);
             }
 
-            query += ". Do not include any of these ingredients more than in one day/meal. Use metric measurements.";
+            for (ItemInRefrigeratorDto ingredient : ingredients) {
+                query.append(ingredient.getItem().getName()).append(", ");
+            }
 
-            String menu = aiServices.getChatCompletion(query);
+            query.append("Do not include any of these ingredients more than in one day/meal. Use metric measurements.");
+
+            String menu = aiServices.getChatCompletion(query.toString());
+            if (menu.startsWith("ERROR: ")) throw new Exception();
 
             saveWeeklyMenu(userEmail, menu);
 
             return menu;
-        } catch (IllegalArgumentException e){
-            return null;
+        } catch (Exception e){
+            return "ERROR: " + e.getMessage();
         }
     }
 

@@ -22,19 +22,16 @@ import java.util.List;
 @CrossOrigin("http://localhost:8000/")
 public class SubUserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubUserServices.class);
+    private final Logger logger;
 
-    private SubUserServices subUserServices;
-    private UserServices userServices;
+    private final SubUserServices subUserServices;
+    private final UserServices userServices;
 
     @Autowired
-    public void setSubUserServices(SubUserServices subUserServices) {
+    public SubUserController(SubUserServices subUserServices, UserServices userServices) {
         this.subUserServices = subUserServices;
-    }
-
-    @Autowired
-    public void setUserServices(UserServices userServices) {
         this.userServices = userServices;
+        this.logger = LoggerFactory.getLogger(SubUserServices.class);
     }
 
     @GetMapping("/getUsersFromMaster")
@@ -48,14 +45,14 @@ public class SubUserController {
         ResponseEntity<Object> response;
         if(!userServices.checkIfUserExists(email)) {
             response = new ResponseEntity<>("Master user not found", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
         List<SubUserDto> subUsers = subUserServices.getSubUsersByMaster(email);
 
         if (subUsers == null){
             response = new ResponseEntity<>("Failed to retrieve subusers", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(subUsers, HttpStatus.OK);
@@ -76,14 +73,14 @@ public class SubUserController {
 
         if (!subUserServices.subUserExists(subUserId)) {
             response = new ResponseEntity<>("Subuser not found", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
         SubUserDto subUser = subUserServices.getSubUser(subUserId);
         if(subUser == null){
             response = new ResponseEntity<>("Failed to retrieve subuser", HttpStatus.INTERNAL_SERVER_ERROR);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
         }
         else {
             response = new ResponseEntity<>(subUser, HttpStatus.OK);
@@ -105,20 +102,20 @@ public class SubUserController {
         ResponseEntity<Object> response = validateDto(subDto);
 
         if(response.getStatusCode() != HttpStatus.OK) {
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
         if (subUserServices.subUserExists(subDto.getName(), subDto.getUserEmail())) {
             response = new ResponseEntity<>("Subuser already exists", HttpStatus.IM_USED);
         }
         else if (subUserServices.saveSubUser(subDto)){
-            response = new ResponseEntity<>("Subuser saved successfully", HttpStatus.OK);
+            response = new ResponseEntity<>("Subuser saved successfully", HttpStatus.CREATED);
         }
         else{
             response = new ResponseEntity<>("Failed to save subuser", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -134,7 +131,7 @@ public class SubUserController {
 
         if (!subUserServices.subUserExists(subUserId)) {
             response = new ResponseEntity<>("Subuser not found", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -144,7 +141,7 @@ public class SubUserController {
         else{
             response = new ResponseEntity<>("Failed to delete subuser", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -154,7 +151,7 @@ public class SubUserController {
 
         if (!subUserServices.subUserExists(subUser.getSubUserId())) {
             response = new ResponseEntity<>("Subuser not found", HttpStatus.NOT_FOUND);
-            logger.info(response.getBody() + "");
+            logger.info((String)response.getBody());
             return response;
         }
 
@@ -163,7 +160,7 @@ public class SubUserController {
         }else{
             response = new ResponseEntity<>("Pin code is incorrect",HttpStatus.NOT_FOUND);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 
@@ -191,7 +188,7 @@ public class SubUserController {
         else{
             response = new ResponseEntity<>("Failed to update subuser", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info(response.getBody() + "");
+        logger.info((String)response.getBody());
         return response;
     }
 

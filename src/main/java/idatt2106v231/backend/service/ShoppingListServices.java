@@ -9,6 +9,9 @@ import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Category;
 import idatt2106v231.backend.model.ItemShoppingList;
 import idatt2106v231.backend.repository.*;
+import idatt2106v231.backend.repository.ItemRepository;
+import idatt2106v231.backend.repository.ItemShoppingListRepository;
+import idatt2106v231.backend.repository.ShoppingListRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,29 +25,23 @@ public class ShoppingListServices {
 
     private final ItemRepository itemRepository;
 
-    //@Autowired
     private final ShoppingListRepository shoppingListRepository;
 
-    //@Autowired
     private final ItemShoppingListRepository itemShoppingListRepository;
 
     private final SubUserRepository subUserRepository;
 
-    private final AiServices aiServices;
-
     private final CategoryRepository categoryRepository;
+
+    private final AiServices aiServices;
 
     private final ItemServices itemServices;
 
     private final SubUserServices subUserServices;
 
     private final RefrigeratorServices refrigeratorServices;
-    private final ModelMapper mapper = new ModelMapper();
 
-    /*@Autowired
-    public void setItemRepository(ItemRepository itemRepository) {
-        this.itemRepository = itemRepository;
-    }*/
+    private final ModelMapper mapper;
 
     @Autowired
     public ShoppingListServices(ItemRepository itemRepository, ShoppingListRepository shoppingListRepository,
@@ -61,15 +58,11 @@ public class ShoppingListServices {
         this.itemServices = itemServices;
         this.subUserServices = subUserServices;
         this.refrigeratorServices = refrigeratorServices;
+        this.mapper = new ModelMapper();
 
         TypeMap<ItemShoppingList, ItemShoppingListDto> propertyMapper = mapper.createTypeMap(ItemShoppingList.class, ItemShoppingListDto.class);
         propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getSubUser().isAccessLevel(), ItemShoppingListDto::setSubUserAccessLevel));
-        TypeMap<ItemShoppingListDto, ItemShoppingList> propertyMapper2 = mapper.createTypeMap(ItemShoppingListDto.class, ItemShoppingList.class);
-        //propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getShoppingList().getShoppingListId(), ItemShoppingList::setShoppingList));
-        //propertyMapper2.addMappings(mapper -> mapper.map(obj -> this.itemRepository.findByName(obj.getItemName()).get(), ItemShoppingList::setItem));
-        //propertyMapper2.addMappings(mapper -> mapper.map(obj -> this.shoppingListRepository.findById(obj.getShoppingListId()).get(), ItemShoppingList::setShoppingList));
-        //propertyMapper2.addMappings(mapper -> mapper.map(obj -> Measurement.L, ItemShoppingList::setMeasurement));
-    }
+     }
 
 
 
@@ -96,11 +89,6 @@ public class ShoppingListServices {
         } catch(Exception e) {
             return null;
         }
-        /*List<ItemShoppingList> items = itemShoppingListRepository.findAllByShoppingListShoppingListId(shoppingListRepository.findDistinctByUserEmail(email).get().getShoppingListId());
-        List<ItemShoppingListDto> itemDtos = new ArrayList<>();
-
-        items.forEach(obj -> itemDtos.add(mapper.map(obj, ItemShoppingListDto.class)));
-        return itemDtos;*/
     }
 
     public boolean saveItemToShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
@@ -108,7 +96,7 @@ public class ShoppingListServices {
             var itemShoppingList = ItemShoppingList.builder()
                             .item(itemRepository.findByName(itemInShoppingListCreationDto.getItemName()).get())
                             .amount(itemInShoppingListCreationDto.getAmount())
-                            .measurement(Measurement.L) // TODO Add measurement support
+                            .measurementType(itemInShoppingListCreationDto.getMeasurementType())
                             .shoppingList(shoppingListRepository.findById(itemInShoppingListCreationDto.getShoppingListId()).get())
                             .subUser(subUserRepository.findById(itemInShoppingListCreationDto.getSubUserId()).get())
                             .build();
@@ -121,23 +109,17 @@ public class ShoppingListServices {
 
     public boolean deleteItemFromShoppingList(ItemInShoppingListCreationDto itemInShoppingListCreationDto) {
         try {
-            ItemShoppingList item = itemShoppingListRepository
-                    .findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(
-                            itemInShoppingListCreationDto.getItemName(),
-                            itemInShoppingListCreationDto.getShoppingListId(),
-                            subUserServices.getAccessLevel(itemInShoppingListCreationDto.getSubUserId()))
-                    .get();
-            itemShoppingListRepository.delete(item);
+
+            ItemShoppingList item = itemShoppingListRepository.findById(itemInShoppingListCreationDto.getItemShoppingListId()).get();
+
+            if(itemInShoppingListCreationDto.getAmount() >= item.getAmount()) {
+                itemShoppingListRepository.delete(item);
+            } else {
+                itemInShoppingListCreationDto.setAmount(-itemInShoppingListCreationDto.getAmount());
+                updateAmount(itemInShoppingListCreationDto);
+            }
             return true;
 
-            /*var itemRef = ItemShoppingList.builder()
-                    .item(itemRepository.findByName(itemShoppingListDto.getItemName()).get())
-                    .amount(itemShoppingListDto.getAmount())
-                    .measurement(Measurement.L)
-                    .shoppingList(shoppingListRepository.findById(itemShoppingListDto.getShoppingListId()).get())
-                    .build();
-            itemShoppingListRepository.delete(itemRef);
-            return true;*/
         } catch (Exception e) {
             return false;
         }
@@ -313,10 +295,11 @@ public class ShoppingListServices {
                     subUserServices.getAccessLevel(dto.getSubUserId()));
 
             var itemShoppingList = ItemShoppingList.builder()
+                    .itemShoppingListId(dto.getItemShoppingListId())
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
                     .amount(currentItem.getAmount() + dto.getAmount())
-                    .measurement(Measurement.L) // TODO Add measurement support
+                    .measurementType(dto.getMeasurementType()) // TODO Add measurement support
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())
                     .build();
