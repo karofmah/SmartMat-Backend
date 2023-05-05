@@ -137,6 +137,9 @@ public class ShoppingListServices {
      */
     public boolean addWeeklyMenuToShoppingList(WeeklyMenuShoppingListDto dto) {
 
+        Optional<Category> otherCategory = categoryRepository.findByDescription("Other");
+        int otherCategoryId = otherCategory.map(Category::getCategoryId).orElse(1);
+
         String list = translateRecipeListToCorrectFormat(dto.getIngredients());
 
         String[] lines = list.split("\n");
@@ -167,7 +170,7 @@ public class ShoppingListServices {
                 Optional<Category> categoryOptional = categoryRepository.findByDescription(category);
                 int categoryId;
 
-                categoryId = categoryOptional.map(Category::getCategoryId).orElse(1); // TODO Change 1 to "Other" category
+                categoryId = categoryOptional.map(Category::getCategoryId).orElse(otherCategoryId);
 
                 ItemDto itemDto = ItemDto.builder()
                         .categoryId(categoryId)
@@ -176,6 +179,7 @@ public class ShoppingListServices {
 
                 itemServices.saveItem(itemDto);
             }
+
 
 
             ItemInShoppingListCreationDto itemInShoppingListCreationDto = ItemInShoppingListCreationDto
