@@ -1,3 +1,4 @@
+/*
 package idatt2106v231.backend.config;
 
 import idatt2106v231.backend.enums.Measurement;
@@ -56,7 +57,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        /*setUsers();
+        setUsers();
         setRefrigerators();
         setShoppingLists();
         setWeekMenu();
@@ -65,7 +66,7 @@ public class DataLoader implements CommandLineRunner {
 
         setItemsInRefrigerator();
         setItemsInShoppingList();
-        setItemExpirationDate(); */
+        setItemExpirationDate();
     }
 
     public void setUsers() {
@@ -905,3 +906,4 @@ public class DataLoader implements CommandLineRunner {
 
     }
 }
+*/
