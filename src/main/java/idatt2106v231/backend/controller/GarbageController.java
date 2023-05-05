@@ -45,15 +45,21 @@ public class GarbageController {
 
         ResponseEntity <Object> response=validateGarbage(refrigeratorId, year);
 
-        if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateTotalAmount(refrigeratorId, year) != -1){
-                response = new ResponseEntity<>(garbageServices.calculateTotalAmount(refrigeratorId, year), HttpStatus.OK);
-            }
-            else {
-                response = new ResponseEntity<>("Total amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        if(!response.getStatusCode().equals(HttpStatus.OK)) {
+            logger.info((String)response.getBody());
+
+            return response;
         }
-        logger.info((String)response.getBody());
+
+        if (garbageServices.calculateTotalAmount(refrigeratorId, year) != -1){
+            response = new ResponseEntity<>(garbageServices.calculateTotalAmount(refrigeratorId, year), HttpStatus.OK);
+            logger.info("Calculated amount of garbage");
+        }
+        else {
+            response = new ResponseEntity<>("Total amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info((String)response.getBody());
+        }
+
         return response;
     }
 
@@ -70,16 +76,22 @@ public class GarbageController {
 
         ResponseEntity <Object> response=validateGarbage(refrigeratorId, year);
 
-        if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year) != null) {
-                response = new ResponseEntity<>(
-                        garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+        if(!response.getStatusCode().equals(HttpStatus.OK)) {
+            logger.info((String)response.getBody());
 
-            } else {
-                response = new ResponseEntity<>("Could not calculate amount of garbage each month",HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            return response;
         }
-        logger.info((String)response.getBody());
+
+        if (garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year) != null) {
+            response = new ResponseEntity<>(
+                    garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+
+            logger.info("Calculated amount of garbage");
+        } else {
+            response = new ResponseEntity<>("Could not calculate amount of garbage each month",HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info((String)response.getBody());
+        }
+
         return response;
     }
 
@@ -96,16 +108,22 @@ public class GarbageController {
 
         ResponseEntity <Object> response=validateGarbage(refrigeratorId, year);
 
-        if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateAverageAmount(refrigeratorId, year) != -1) {
-                response = new ResponseEntity<>(
-                        garbageServices.calculateAverageAmount(refrigeratorId, year), HttpStatus.OK);
+        if(!response.getStatusCode().equals(HttpStatus.OK)) {
+            logger.info((String)response.getBody());
 
-            } else {
-                response = new ResponseEntity<>("Average amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            return response;
         }
-        logger.info((String)response.getBody());
+
+        if (garbageServices.calculateAverageAmount(refrigeratorId, year) != -1) {
+            response = new ResponseEntity<>(
+                    garbageServices.calculateAverageAmount(refrigeratorId, year), HttpStatus.OK);
+            logger.info("Calculated amount of garbage");
+
+        } else {
+            response = new ResponseEntity<>("Average amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info((String)response.getBody());
+        }
+
         return response;
     }
 
@@ -122,16 +140,23 @@ public class GarbageController {
 
         ResponseEntity <Object> response = validateGarbage(refrigeratorId, year);
 
-        if(response.getStatusCode().equals(HttpStatus.OK)){
-            if (garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year) != null) {
-                response = new ResponseEntity<>(
-                        garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+        if(!response.getStatusCode().equals(HttpStatus.OK)) {
+            logger.info((String)response.getBody());
 
-            } else {
-                response = new ResponseEntity<>("Average amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            return response;
         }
-        logger.info((String)response.getBody());
+
+        if (garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year) != null) {
+            response = new ResponseEntity<>(
+                    garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+            logger.info("Calculated amount of garbage");
+
+        } else {
+            response = new ResponseEntity<>("Average amount of garbage can not be calculated", HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.info((String)response.getBody());
+
+        }
+
         return response;
     }
 

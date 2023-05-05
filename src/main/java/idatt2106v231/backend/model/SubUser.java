@@ -35,8 +35,10 @@ public class SubUser {
     private int pinCode;
 
     @Column
+    @NotNull
     private String name;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "masterUserId", referencedColumnName = "email")
     private User user;
