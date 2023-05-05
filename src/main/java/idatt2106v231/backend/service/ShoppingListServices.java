@@ -299,7 +299,8 @@ public class ShoppingListServices {
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
                     .amount(currentItem.getAmount() + dto.getAmount())
-                    .measurementType(dto.getMeasurementType()) // TODO Add measurement support
+                    //TODO FIKSE TESTER OBS OBS!!!!!
+                    .measurementType(dto.getMeasurementType())
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())
                     .build();

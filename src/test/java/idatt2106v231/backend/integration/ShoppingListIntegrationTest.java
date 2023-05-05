@@ -264,6 +264,7 @@ public class ShoppingListIntegrationTest {
 
             ShoppingListDto shoppinglist = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
             assertEquals(3, shoppinglist.getItems().size());
+            assertEquals(1, shoppinglist.getItems().get(0).getItemShoppingListId());
         }
 
         @Test
