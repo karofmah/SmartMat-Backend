@@ -225,7 +225,7 @@ public class DataLoader implements CommandLineRunner {
         List<Refrigerator> refrigerators = refRepo.findAll();
 
         for (int i = 2020; i<2024; i++){
-            for (int j = 1; j<12; j++){
+            for (int j = 1; j<=12; j++){
                 for (Refrigerator refrigerator: refrigerators) {
                     Garbage garbage = Garbage.builder()
                             .refrigerator(refrigerator)
