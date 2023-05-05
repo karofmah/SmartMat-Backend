@@ -27,6 +27,7 @@ public class MeasurementServices {
             String query = "How much does one " + name + " weigh in gram roughly? Answer with one word as a number.";
 
             String response = aiServices.getChatCompletion(query).trim();
+            if (response.startsWith("ERROR: ")) throw new Exception();
 
             StringBuilder sb = new StringBuilder();
 

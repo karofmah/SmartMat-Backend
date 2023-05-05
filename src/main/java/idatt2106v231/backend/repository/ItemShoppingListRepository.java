@@ -11,10 +11,6 @@ import java.util.Optional;
 
 public interface ItemShoppingListRepository extends JpaRepository<ItemShoppingList, Integer> {
 
-    List<ItemShoppingList> findAllByShoppingListShoppingListId(int id);
-
-    Optional<ItemShoppingList> findByItemNameAndShoppingList_ShoppingListId(String name, int shoppingListId);
-
     Optional<ItemShoppingList> findByItemNameAndShoppingList_ShoppingListIdAndSubUserAccessLevel(
             String name, int shoppingListId, boolean subUserAccessLevel);
 }
