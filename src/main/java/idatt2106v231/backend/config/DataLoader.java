@@ -1,5 +1,4 @@
-
-/*package idatt2106v231.backend.config;
+package idatt2106v231.backend.config;
 
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.enums.Role;
@@ -57,7 +56,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        setUsers();
+        /*  setUsers();
         setRefrigerators();
         setShoppingLists();
         setWeekMenu();
@@ -67,6 +66,8 @@ public class DataLoader implements CommandLineRunner {
         setItemsInRefrigerator();
         setItemsInShoppingList();
         setItemExpirationDate();
+
+       */
     }
 
     public void setUsers() {
@@ -466,54 +467,6 @@ public class DataLoader implements CommandLineRunner {
                 subUser21, subUser22, subUser23, subUser24,
                 subUser25, subUser26, subUser27, subUser28,
                 subUser29, subUser30));
-    }
-
-    public void setCategories(){
-        Category category1 = Category.builder()
-                .description("Meieri")
-                .build();
-
-        Category category2 = Category.builder()
-                .description("Tørrvare")
-                .build();
-
-        Category category3 = Category.builder()
-                .description("Kjøtt")
-                .build();
-
-        catRepo.save(category1);
-        catRepo.save(category2);
-        catRepo.save(category3);
-    }
-
-    public void setItems(){
-        List<Category> categories = catRepo.findAll();
-        Item item1 = Item.builder()
-                .name("ost")
-                .category(categories.get(0))
-                .build();
-        Item item2 = Item.builder()
-                .name("spaghetti")
-                .category(categories.get(1))
-                .build();
-        Item item3 = Item.builder()
-                .name("karbonade")
-                .category(categories.get(2))
-                .build();
-        Item item4 = Item.builder()
-                .name("melk")
-                .category(categories.get(0))
-                .build();
-        Item item5 = Item.builder()
-                .name("vanilje yoghurt")
-                .category(categories.get(0))
-                .build();
-
-        itemRepo.save(item1);
-        itemRepo.save(item2);
-        itemRepo.save(item3);
-        itemRepo.save(item4);
-        itemRepo.save(item5);
     }
 
     public void setItemsInRefrigerator(){
@@ -924,4 +877,3 @@ public class DataLoader implements CommandLineRunner {
 
     }
 }
-*/
