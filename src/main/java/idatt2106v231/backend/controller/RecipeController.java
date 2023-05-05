@@ -4,6 +4,9 @@ package idatt2106v231.backend.controller;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
 import idatt2106v231.backend.service.AiServices;
 import idatt2106v231.backend.service.RecipeServices;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import idatt2106v231.backend.service.RefrigeratorServices;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +38,14 @@ public class RecipeController {
     }
 
     @GetMapping("/generateRecipe")
-    public ResponseEntity<Object> generateRecipe(@RequestParam int refrigeratorId) {
+    @Operation(summary = "Generate new recipe")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Recipe generated"),
+            @ApiResponse(responseCode = "500", description = "Failed to generate recipe")
+    })
+    public ResponseEntity<String> generateRecipe(@RequestParam int refrigeratorId) {
 
-        ResponseEntity<Object> response;
+        ResponseEntity<String> response;
 
         if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
@@ -58,6 +66,11 @@ public class RecipeController {
     }
 
     @GetMapping("/getWeeklyMenu/{userEmail}")
+    @Operation(summary = "Retrieve a users weekly menu")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Weekly menu retrieved"),
+            @ApiResponse(responseCode = "500", description = "Failed to retrieve weekly menu")
+    })
     public ResponseEntity<Object> getWeeklyMenu(@PathVariable("userEmail") String userEmail) {
 
         ResponseEntity<Object> response;
@@ -80,6 +93,11 @@ public class RecipeController {
         return response;
     }
 
+    @Operation(summary = "Generate weekly menu")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Weekly menu generated"),
+            @ApiResponse(responseCode = "500", description = "Failed to generate weekly menu")
+    })
     @GetMapping("/generateWeeklyMenu/{userEmail}")
     public ResponseEntity<Object> generateWeeklyMenu(@PathVariable("userEmail") String userEmail, @RequestParam int numPeople) {
 

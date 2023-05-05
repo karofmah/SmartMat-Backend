@@ -25,6 +25,7 @@ public class ItemController {
     private final Logger logger;
 
     private final ItemServices services;
+
     private final CategoryServices categoryServices;
 
     @Autowired
@@ -49,7 +50,7 @@ public class ItemController {
         if(response.getStatusCode().equals(HttpStatus.OK)){
             if (services.saveItem(item)){
                 response = new ResponseEntity<>("Item saved to database", HttpStatus.CREATED);
-            }else{
+            } else {
                 response =  new ResponseEntity<>("Failed to save item", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
@@ -89,12 +90,14 @@ public class ItemController {
     })
     public ResponseEntity<Object> getItemByName(@RequestParam("name") String name) {
         ResponseEntity<Object> response;
+
         if (!services.checkIfItemExists(name)){
             response = new ResponseEntity<>("Item does not exists", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
         }
         else {
             response = getItem(services.getItemByName(name));
+
         }
         return response;
     }
@@ -108,23 +111,13 @@ public class ItemController {
     })
     public ResponseEntity<Object> getItemById(@PathVariable("id") Integer id) {
         ResponseEntity<Object> response;
+
         if (!services.checkIfItemExists(id)){
             response = new ResponseEntity<>("Item does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
-        }else {
-            response = getItem(services.getItemById(id));
-        }
-        return response;
-    }
-
-    private ResponseEntity<Object> getItem(ItemDto item) {
-        ResponseEntity<Object> response;
-        if (item == null) {
-            response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.NOT_FOUND);
-            logger.info((String)response.getBody());
         } else {
-            response = new ResponseEntity<>(item, HttpStatus.OK);
-            logger.info("Item retrieved");
+            response = getItem(services.getItemById(id));
+
         }
         return response;
     }
@@ -186,6 +179,30 @@ public class ItemController {
         return response;
     }
 
+    /**
+     *
+     * Method to return correct item. Logs correct message.
+     * @param item To validate and return
+     * @return Correct responseentity based on the item, and the item if it passes the test
+     */
+    private ResponseEntity<Object> getItem(ItemDto item) {
+        ResponseEntity<Object> response;
+        if (item == null) {
+            response = new ResponseEntity<>("Failed to retrieve item", HttpStatus.NOT_FOUND);
+            logger.info((String)response.getBody());
+        } else {
+            response = new ResponseEntity<>(item, HttpStatus.OK);
+            logger.info("Item retrieved");
+        }
+        return response;
+    }
+
+    /**
+     *
+     * Method to validate the input
+     * @param dto Dto object containing data to be validated
+     * @return Different HTTP status messages based on the validity of the data
+     */
     private ResponseEntity<Object> validateItemDto(ItemDto dto){
         ResponseEntity<Object> response = new ResponseEntity<>(HttpStatus.OK);
 
