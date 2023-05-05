@@ -120,7 +120,7 @@ public class RecipeIntegrationTest {
         @Test
         @WithMockUser("USER")
         @DisplayName("Test generating weekly menu with a user that does not exist")
-        public void generateWeeklyMenuUserDoesNotExist() throws Exception {
+        public void generateWeeklyMenuUserIsNotFound() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/recipes/generateWeeklyMenu/notExisting@ntnu.no?numPeople=1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isNotFound())
@@ -132,7 +132,7 @@ public class RecipeIntegrationTest {
         @Test
         @WithMockUser("USER")
         @DisplayName("Test generating weekly menu with invalid number of people")
-        public void generateWeeklyMenuNumberOfPeopleIsInvalid() throws Exception {
+        public void generateWeeklyMenuIsBadRequest() throws Exception {
             MvcResult result = mockMvc.perform(get("/api/recipes/generateWeeklyMenu/test1@ntnu.no?numPeople=-1")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest())

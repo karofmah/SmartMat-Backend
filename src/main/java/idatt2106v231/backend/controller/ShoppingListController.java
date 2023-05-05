@@ -89,7 +89,7 @@ public class ShoppingListController {
             response = new ResponseEntity<>("Updated amount of the item", HttpStatus.OK);
         } else {
             shoppingListServices.saveItemToShoppingList(itemInShoppingListCreationDto);
-            response = new ResponseEntity<>("Item saved to shopping list", HttpStatus.OK);
+            response = new ResponseEntity<>("Item saved to shopping list", HttpStatus.CREATED);
         }
 
         logger.info((String)response.getBody());
