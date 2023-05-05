@@ -46,7 +46,8 @@ public class GarbageServices {
      */
     public boolean addToGarbage(ItemInRefrigeratorRemovalDto dto){
         try {
-            ItemRefrigerator itemRef = itemExpRepo.findById(dto.getItemExpirationDateId()).get().getItemRefrigerator();
+            ItemExpirationDate itemExp = itemExpRepo.findById(dto.getItemExpirationDateId()).get();
+            ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
             Garbage gar;
 
             double amount = measurementServices
@@ -56,6 +57,10 @@ public class GarbageServices {
                             Measurement.KG,
                             itemRef.getItem().getName()
                     );
+
+            if(amount > itemExp.getAmount()){
+                amount = itemExp.getAmount();
+            }
 
             Optional<Garbage> garbage = garbRepo
                     .findByRefrigeratorRefrigeratorIdAndDate(
