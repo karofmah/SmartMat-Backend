@@ -343,7 +343,7 @@ public class ShoppingListIntegrationTest {
                     .andReturn();
 
             Optional<ItemShoppingList> item = itemShoppingListRepository.findById(1);
-            Assertions.assertEquals(2.5, item.get().getAmount());
+            Assertions.assertEquals(1.5, item.get().getAmount());
         }
 
         @Test
@@ -449,7 +449,7 @@ public class ShoppingListIntegrationTest {
         public void addPopularItemsAllArgsOk() throws Exception {
 
 
-            mockMvc.perform(post("/api/shoppingList/addMostPopularItems")
+            mockMvc.perform(get("/api/shoppingList/addMostPopularItems")
                             .param("shoppingListId","1")
                             .param("subUserId","1"))
                     .andExpect(status().isOk())

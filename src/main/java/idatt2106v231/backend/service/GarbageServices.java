@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Optional;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -29,15 +30,12 @@ public class GarbageServices {
 
     private final MeasurementServices measurementServices;
 
-    private final ModelMapper mapper;
-
     @Autowired
     public GarbageServices(GarbageRepository garbRepo, ItemExpirationDateRepository itemExpRepo,
                            MeasurementServices measurementServices) {
         this.garbRepo = garbRepo;
         this.itemExpRepo = itemExpRepo;
         this.measurementServices = measurementServices;
-        this.mapper = new ModelMapper();
     }
 
     /**
@@ -85,12 +83,19 @@ public class GarbageServices {
 
     public double calculateTotalAmount(int id, int year){
         try {
-            List<Garbage> garbageList =
-                    garbRepo.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(id, YearMonth.of(year, 1),YearMonth.of(year,12));
+            List<Garbage> garbageList = garbRepo
+                    .findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(
+                            id,
+                            YearMonth.of(year, 1),
+                            YearMonth.of(year,12)
+                    );
+
             double totalAmount = 0;
+
             for (Garbage garbage : garbageList) {
                 totalAmount += garbage.getAmount();
             }
+
             return totalAmount;
         } catch (Exception e){
             return -1;
@@ -114,21 +119,33 @@ public class GarbageServices {
     public double calculateAverageAmount(int id, int year){
         try {
             List<Garbage> garbageList =
-                    garbRepo.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
-            double totalAmount = 0;
-            double[] totalAmountList=new double [garbageList.size()];
-            int size = 0;
-            for (Garbage garbage : garbageList) {
-                totalAmountList[garbage.getRefrigerator().getRefrigeratorId()]+=garbage.getAmount();
-            }
-            for (double amount:totalAmountList) {
-                if(amount > 0){
-                    size++;
-                }
-                totalAmount += amount;
+                    garbRepo.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(
+                            id,
+                            YearMonth.of(year,1),
+                            YearMonth.of(year,12)
+                    );
+
+            if (garbageList.isEmpty()){
+                return 0;
             }
 
-            return totalAmount / size;
+            HashMap<Integer, Double> map = new HashMap<>();
+
+            for (Garbage garbage : garbageList) {
+                int key = garbage.getRefrigerator().getRefrigeratorId();
+
+                if (!map.containsKey(key)){
+                    map.put(key, garbage.getAmount());
+                }
+                else {
+                    double updatedValue = map.get(key) + garbage.getAmount();
+                    map.put(key, updatedValue);
+                }
+            }
+
+            double totalAmount = map.values().stream().mapToDouble(Double::doubleValue).sum();
+
+            return totalAmount / map.size();
         } catch (Exception e){
             return -1;
         }
@@ -137,7 +154,12 @@ public class GarbageServices {
     public double[] calculateAverageAmountEachMonth(int id, int year){
         try {
             List<Garbage> garbageList =
-                    garbRepo.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
+                    garbRepo.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(
+                            id,
+                            YearMonth.of(year,1),
+                            YearMonth.of(year,12)
+                    );
+
             double[] totalAmountEachMonth = new double[12];
             double[] averageAmountEachMonth = new double[12];
             double[] sizeArray = new double[12];
@@ -154,7 +176,7 @@ public class GarbageServices {
             //Fill array lists with all refrigerator ID
             //divided into months (one list per month)
             for (Garbage garbage : garbageList) {
-                totalAmountEachMonth[garbage.getDate().getMonthValue()-1]+=garbage.getAmount();
+                totalAmountEachMonth[garbage.getDate().getMonthValue()-1] += garbage.getAmount();
                 idsEachMonth[garbage.getDate().getMonthValue()-1].add(garbage.getRefrigerator().getRefrigeratorId());
             }
 
@@ -177,7 +199,29 @@ public class GarbageServices {
             return null;
         }
     }
-    public boolean refrigeratorIsEmpty(int id) {
+
+    /**
+     * Checks if a refrigerator has registered garbage
+     *
+     * @param id the refrigerator id
+     * @return true is a refrigerator has garbage
+     */
+    public boolean hasGarbage(int id) {
         return garbRepo.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
+    }
+
+    /**
+     * Checks if a refrigerator has registered garbage in a specified year
+     *
+     * @param id the refrigerator id
+     * @param year the year
+     * @return true is a refrigerator has garbage
+     */
+    public boolean hasGarbageByYear(int id, int year) {
+        return garbRepo.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(
+                id,
+                YearMonth.of(year, 1),
+                YearMonth.of(year, 12)
+        ).isEmpty();
     }
 }

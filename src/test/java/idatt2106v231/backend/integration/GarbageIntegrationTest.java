@@ -210,7 +210,7 @@ public class GarbageIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals("Refrigerator does not have garbage", responseString);
+            Assertions.assertEquals("Refrigerator does not have garbage this year", responseString);
         }
 
         @Test
