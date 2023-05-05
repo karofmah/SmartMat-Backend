@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -55,30 +56,36 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        setGarbage();
+/*
 
-        /*setCategories();
+
         setUsers();
         setRefrigerators();
         setShoppingLists();
         setWeekMenu();
         setSubUsers();
+
+        setCategories();
         setItems();
         setItemsInRefrigerator();
         setItemsInShoppingList();
-        setGarbage();
-        setItemExpirationDate();*/
+        setItemExpirationDate();
+
+ */
 
     }
 
     public void setUsers() {
+
         var user1 = User.builder()
-                .email("henrik100@stud.ntnu.no")
+                .email("andersandersen@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .firstName("Henrik")
-                .lastName("Grendal")
-                .phoneNumber(99887766)
-                .age(58)
-                .household(8)
+                .firstName("Anders")
+                .lastName("Andersen")
+                .phoneNumber(77777777)
+                .age(41)
+                .household(3)
                 .role(Role.USER)
                 .build();
 
@@ -105,61 +112,17 @@ public class DataLoader implements CommandLineRunner {
                 .build();
 
         var user4 = User.builder()
-                .email("pål.einar@stud.ntnu.no")
+                .email("henrik100@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .firstName("Pål Einar")
-                .lastName("Borgen")
-                .phoneNumber(98765432)
-                .age(30)
-                .household(1)
+                .firstName("Henrik")
+                .lastName("Grendal")
+                .phoneNumber(99887766)
+                .age(58)
+                .household(8)
                 .role(Role.USER)
                 .build();
 
         var user5 = User.builder()
-                .email("stig1978@stud.ntnu.no")
-                .password(passwordEncoder.encode("password"))
-                .firstName("Stig")
-                .lastName("Lokøy")
-                .phoneNumber(12341234)
-                .age(62)
-                .household(5)
-                .role(Role.USER)
-                .build();
-
-        var user6 = User.builder()
-                .email("marie1986@stud.ntnu.no")
-                .password(passwordEncoder.encode("password"))
-                .firstName("Marie")
-                .lastName("Andersen")
-                .phoneNumber(99999999)
-                .age(35)
-                .household(3)
-                .role(Role.USER)
-                .build();
-
-        var user7 = User.builder()
-                .email("per.pettersen@stud.ntnu.no")
-                .password(passwordEncoder.encode("password"))
-                .firstName("Per")
-                .lastName("Pettersen")
-                .phoneNumber(11111111)
-                .age(45)
-                .household(2)
-                .role(Role.USER)
-                .build();
-
-        var user8 = User.builder()
-                .email("lise-sivertsen@stud.ntnu.no")
-                .password(passwordEncoder.encode("password"))
-                .firstName("Lise")
-                .lastName("Sivertsen")
-                .phoneNumber(55555555)
-                .age(28)
-                .household(1)
-                .role(Role.USER)
-                .build();
-
-        var user9 = User.builder()
                 .email("kari-hansen@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
                 .firstName("Kari")
@@ -170,14 +133,58 @@ public class DataLoader implements CommandLineRunner {
                 .role(Role.USER)
                 .build();
 
-        var user10 = User.builder()
-                .email("andersandersen@stud.ntnu.no")
+        var user6 = User.builder()
+                .email("lise-sivertsen@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .firstName("Anders")
+                .firstName("Lise")
+                .lastName("Sivertsen")
+                .phoneNumber(55555555)
+                .age(28)
+                .household(1)
+                .role(Role.USER)
+                .build();
+
+        var user7 = User.builder()
+                .email("marie1986@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Marie")
                 .lastName("Andersen")
-                .phoneNumber(77777777)
-                .age(41)
+                .phoneNumber(99999999)
+                .age(35)
                 .household(3)
+                .role(Role.USER)
+                .build();
+
+        var user8 = User.builder()
+                .email("pål.einar@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Pål Einar")
+                .lastName("Borgen")
+                .phoneNumber(98765432)
+                .age(30)
+                .household(1)
+                .role(Role.USER)
+                .build();
+
+        var user9 = User.builder()
+                .email("per.pettersen@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Per")
+                .lastName("Pettersen")
+                .phoneNumber(11111111)
+                .age(45)
+                .household(2)
+                .role(Role.USER)
+                .build();
+
+        var user10 = User.builder()
+                .email("stig1978@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Stig")
+                .lastName("Lokøy")
+                .phoneNumber(12341234)
+                .age(62)
+                .household(5)
                 .role(Role.USER)
                 .build();
 
@@ -220,18 +227,23 @@ public class DataLoader implements CommandLineRunner {
     }
 
     public void setGarbage(){
+        Random random = new Random();
         List<Refrigerator> refrigerators = refRepo.findAll();
 
-        for (int i = 1; i<12; i++){
-            for (Refrigerator refrigerator: refrigerators) {
-                Garbage garbage = Garbage.builder()
-                        .refrigerator(refrigerator)
-                        .amount(15 + i*2)
-                        .date(YearMonth.of(2023,i))
-                        .build();
-                garbageRepo.save(garbage);
+        for (int i = 2020; i<2024; i++){
+            for (int j = 1; j<12; j++){
+                for (Refrigerator refrigerator: refrigerators) {
+                    Garbage garbage = Garbage.builder()
+                            .refrigerator(refrigerator)
+                            .amount(random.nextInt(70) + 30)
+                            .date(YearMonth.of(i,j))
+                            .build();
+                    garbageRepo.save(garbage);
+                }
             }
         }
+
+
     }
 
     public void setSubUsers(){
@@ -247,6 +259,7 @@ public class DataLoader implements CommandLineRunner {
         var subUser2 = SubUser.builder()
                 .accessLevel(true)
                 .name("Ida")
+                .pinCode(1234)
                 .user(userList.get(0))
                 .build();
 
@@ -254,61 +267,58 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(false)
                 .name("Helene")
                 .user(userList.get(0))
-                .pinCode(2222)
                 .build();
 
         var subUser4 = SubUser.builder()
                 .accessLevel(true)
                 .name("Frida")
                 .user(userList.get(1))
+                .pinCode(1234)
                 .build();
 
         var subUser5 = SubUser.builder()
                 .accessLevel(false)
                 .name("Tim")
                 .user(userList.get(1))
-                .pinCode(9999)
                 .build();
 
         var subUser6 = SubUser.builder()
                 .accessLevel(false)
                 .name("Ella")
                 .user(userList.get(1))
-                .pinCode(9876)
                 .build();
-
 
         var subUser7 = SubUser.builder()
                 .accessLevel(true)
                 .name("Henriette")
                 .user(userList.get(2))
+                .pinCode(1234)
                 .build();
 
         var subUser8 = SubUser.builder()
                 .accessLevel(false)
                 .name("Ingrid")
                 .user(userList.get(2))
-                .pinCode(5678)
                 .build();
 
         var subUser9 = SubUser.builder()
                 .accessLevel(true)
                 .name("Marius")
                 .user(userList.get(2))
-                .pinCode(1111)
+                .pinCode(1234)
                 .build();
 
         var subUser10 = SubUser.builder()
                 .accessLevel(true)
                 .name("Pål Einar")
                 .user(userList.get(3))
+                .pinCode(1234)
                 .build();
 
         var subUser11 = SubUser.builder()
                 .accessLevel(false)
                 .name("Tore")
                 .user(userList.get(3))
-                .pinCode(3333)
                 .build();
 
         var subUser12 = SubUser.builder()
@@ -321,13 +331,13 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Stig")
                 .user(userList.get(4))
+                .pinCode(1234)
                 .build();
 
         var subUser14 = SubUser.builder()
                 .accessLevel(false)
                 .name("Per")
                 .user(userList.get(4))
-                .pinCode(5555)
                 .build();
 
         var subUser15 = SubUser.builder()
@@ -340,7 +350,7 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Marie")
                 .user(userList.get(5))
-                .pinCode(4321)
+                .pinCode(1234)
                 .build();
 
         var subUser17 = SubUser.builder()
@@ -353,13 +363,14 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Espen")
                 .user(userList.get(5))
+                .pinCode(1234)
                 .build();
 
         var subUser19 = SubUser.builder()
                 .accessLevel(true)
                 .name("Per")
                 .user(userList.get(6))
-                .pinCode(2468)
+                .pinCode(1234)
                 .build();
 
         var subUser20 = SubUser.builder()
@@ -369,23 +380,23 @@ public class DataLoader implements CommandLineRunner {
                 .build();
 
         var subUser21 = SubUser.builder()
-                .accessLevel(false)
+                .accessLevel(true)
                 .name("Anna")
                 .user(userList.get(6))
-                .pinCode(3333)
+                .pinCode(1234)
                 .build();
 
         var subUser22 = SubUser.builder()
                 .accessLevel(true)
                 .name("Lise")
                 .user(userList.get(7))
+                .pinCode(1234)
                 .build();
 
         var subUser23 = SubUser.builder()
                 .accessLevel(false)
                 .name("Trine")
                 .user(userList.get(7))
-                .pinCode(4444)
                 .build();
 
         var subUser24 = SubUser.builder()
@@ -398,33 +409,34 @@ public class DataLoader implements CommandLineRunner {
                 .accessLevel(true)
                 .name("Kari")
                 .user(userList.get(8))
-                .pinCode(5555)
+                .pinCode(1234)
                 .build();
 
         var subUser26 = SubUser.builder()
                 .accessLevel(true)
                 .name("Hanne")
                 .user(userList.get(8))
+                .pinCode(1234)
                 .build();
 
         var subUser27 = SubUser.builder()
                 .accessLevel(true)
                 .name("Erik")
                 .user(userList.get(8))
-                .pinCode(6666)
+                .pinCode(1234)
                 .build();
 
         var subUser28 = SubUser.builder()
                 .accessLevel(true)
                 .name("Anders")
                 .user(userList.get(9))
+                .pinCode(1234)
                 .build();
 
         var subUser29 = SubUser.builder()
                 .accessLevel(false)
                 .name("Svein")
                 .user(userList.get(9))
-                .pinCode(7777)
                 .build();
 
         var subUser30 = SubUser.builder()
