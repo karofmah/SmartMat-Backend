@@ -276,5 +276,4 @@ public class RefrigeratorController {
         }
         return response;
     }
-
 }

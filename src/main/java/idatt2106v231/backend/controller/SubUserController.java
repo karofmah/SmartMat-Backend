@@ -109,7 +109,7 @@ public class SubUserController {
             response = new ResponseEntity<>("Sub user already exists", HttpStatus.IM_USED);
         }
         else if (subUserServices.saveSubUser(subDto)){
-            response = new ResponseEntity<>("Sub user saved successfully", HttpStatus.OK);
+            response = new ResponseEntity<>("Sub user saved successfully", HttpStatus.CREATED);
         }
         else{
             response = new ResponseEntity<>("Failed to save sub user", HttpStatus.INTERNAL_SERVER_ERROR);

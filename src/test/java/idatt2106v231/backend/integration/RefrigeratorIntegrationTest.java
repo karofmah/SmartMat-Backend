@@ -3,9 +3,7 @@
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import idatt2106v231.backend.BackendApplication;
-import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
-import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
-import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
+import idatt2106v231.backend.dto.refrigerator.*;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.*;
 import idatt2106v231.backend.repository.*;
@@ -66,10 +64,12 @@ public class RefrigeratorIntegrationTest {
     private RefrigeratorRepository refRepo;
 
     @Autowired
-    private ItemExpirationDateRepository itemExpirationDateRepository;
+    private ItemExpirationDateRepository itemExpDateRepo;
 
     @Autowired
     private GarbageRepository garbageRepo;
+
+    private SimpleDateFormat format;
 
 
     @BeforeAll
@@ -111,7 +111,7 @@ public class RefrigeratorIntegrationTest {
                 .build();
 
         Item item3 = Item.builder()
-                .name("test12")
+                .name("pasta")
                 .category(category)
                 .build();
 
@@ -119,7 +119,7 @@ public class RefrigeratorIntegrationTest {
                 .user(user1)
                 .build();
 
-        Refrigerator refrigerator2=Refrigerator.builder()
+        Refrigerator refrigerator2 = Refrigerator.builder()
                 .refrigeratorId(2)
                 .user(user2)
                 .build();
@@ -130,19 +130,19 @@ public class RefrigeratorIntegrationTest {
                 .refrigerator(refrigerator)
                 .build();
 
-        ItemRefrigerator itemRefrigerator2_1=ItemRefrigerator.builder()
+        ItemRefrigerator itemRefrigerator2_1 = ItemRefrigerator.builder()
                 .item(item1)
                 .measurementType(Measurement.L)
                 .refrigerator(refrigerator2)
                 .build();
 
-        ItemRefrigerator itemRefrigerator2_2=ItemRefrigerator.builder()
+        ItemRefrigerator itemRefrigerator2_2 = ItemRefrigerator.builder()
                 .item(item2)
                 .measurementType(Measurement.L)
                 .refrigerator(refrigerator2)
                 .build();
 
-        ItemRefrigerator itemRefrigerator2_3=ItemRefrigerator.builder()
+        ItemRefrigerator itemRefrigerator2_3 = ItemRefrigerator.builder()
                 .item(item3)
                 .measurementType(Measurement.L)
                 .refrigerator(refrigerator2)
@@ -152,11 +152,13 @@ public class RefrigeratorIntegrationTest {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
         calendar.add(Calendar.DAY_OF_YEAR, 1);
-        Date date2 = calendar.getTime();
+        Date date1 = calendar.getTime();
+
         calendar.add(Calendar.DAY_OF_YEAR, 4);
-        Date date3 = calendar.getTime();
+        Date date2 = calendar.getTime();
+
         calendar.add(Calendar.DAY_OF_YEAR, 10);
-        Date date4 = calendar.getTime();
+        Date date3 = calendar.getTime();
 
         ItemExpirationDate itemExpirationDate1 = ItemExpirationDate.builder()
                 .itemExpirationDateId(1)
@@ -165,27 +167,38 @@ public class RefrigeratorIntegrationTest {
                 .itemRefrigerator(itemRefrigerator1)
                 .build();
 
-        ItemExpirationDate itemExpirationDate2_1 = ItemExpirationDate.builder()
+        ItemExpirationDate itemExpirationDate2 = ItemExpirationDate.builder()
+                .itemExpirationDateId(2)
                 .amount(2.0)
-                .date(format.parse(format.format(date2)))
+                .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
+                .itemRefrigerator(itemRefrigerator1)
+                .build();
+
+        ItemExpirationDate itemExpirationDate2_1 = ItemExpirationDate.builder()
+                .itemExpirationDateId(3)
+                .amount(2.0)
+                .date(format.parse(format.format(date1)))
                 .itemRefrigerator(itemRefrigerator2_1)
                 .build();
 
         ItemExpirationDate itemExpirationDate2_2 = ItemExpirationDate.builder()
+                .itemExpirationDateId(4)
                 .amount(2.0)
-                .date(format.parse(format.format(date3)))
+                .date(format.parse(format.format(date2)))
                 .itemRefrigerator(itemRefrigerator2_2)
                 .build();
 
         ItemExpirationDate itemExpirationDate2_3 = ItemExpirationDate.builder()
+                .itemExpirationDateId(5)
                 .amount(2.0)
-                .date(format.parse(format.format(date4)))
+                .date(format.parse(format.format(date3)))
                 .itemRefrigerator(itemRefrigerator2_3)
                 .build();
 
         ItemExpirationDate itemExpirationDate2_4 = ItemExpirationDate.builder()
+                .itemExpirationDateId(6)
                 .amount(2.0)
-                .date(format.parse(format.format(date4)))
+                .date(format.parse(format.format(date3)))
                 .itemRefrigerator(itemRefrigerator2_3)
                 .build();
 
@@ -211,50 +224,74 @@ public class RefrigeratorIntegrationTest {
         itemRefRepo.save(itemRefrigerator2_2);
         itemRefRepo.save(itemRefrigerator2_3);
 
-        itemExpirationDateRepository.save(itemExpirationDate1);
-        itemExpirationDateRepository.save(itemExpirationDate2_1);
-        itemExpirationDateRepository.save(itemExpirationDate2_2);
-        itemExpirationDateRepository.save(itemExpirationDate2_3);
-        itemExpirationDateRepository.save(itemExpirationDate2_4);
+        itemExpDateRepo.save(itemExpirationDate1);
+        itemExpDateRepo.save(itemExpirationDate2);
+        itemExpDateRepo.save(itemExpirationDate2_1);
+        itemExpDateRepo.save(itemExpirationDate2_2);
+        itemExpDateRepo.save(itemExpirationDate2_3);
+        itemExpDateRepo.save(itemExpirationDate2_4);
 
         garbageRepo.save(garbage);
     }
 
     @Nested
-    class UpdateDate {
+    class UpdateItemInRefrigerator {
 
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test updating item date all args ok")
         public void updateItemDateAllArgsOk() throws Exception {
+            format = new SimpleDateFormat("yyyy-MM-dd");
 
-            MvcResult result = mockMvc.perform(put("/api/refrigerators/updateDateInItem?itemExpirationDateId=5&newDate=2023-08-01")
-                            .contentType(MediaType.APPLICATION_JSON))
+            EditItemInRefrigeratorDto updatedInfo = EditItemInRefrigeratorDto.builder()
+                    .itemExpirationDateId(1)
+                    .date(format.parse("2024-05-01"))
+                    .amount(2.0)
+                    .measurementType(Measurement.L)
+                    .build();
+
+            String content = objectMapper.writeValueAsString(updatedInfo);
+
+            MvcResult result = mockMvc.perform(put("/api/refrigerators/updateItemInRefrigerator")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(content))
                     .andExpect(status().isOk())
                     .andReturn();
 
-            Optional<ItemExpirationDate> itemExpirationDate = itemExpirationDateRepository.findById(5);
+            String response = result.getResponse().getContentAsString();
+            Optional<ItemExpirationDate> updatedItem = itemExpDateRepo.findById(1);
 
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date targetDate = simpleDateFormat.parse("2023-08-01");
 
-            Assertions.assertTrue(itemExpirationDate.isPresent());
-            Assertions.assertEquals(targetDate, itemExpirationDate.get().getDate());
+            Assertions.assertTrue(updatedItem.isPresent());
+            Assertions.assertEquals(format.parse("2024-05-01"), updatedItem.get().getDate());
+            Assertions.assertEquals("Item is updated", response);
         }
 
         @Test
         @WithMockUser(username = "USER")
         @DisplayName("Test updating item date when new date is in the past")
         public void updateItemDateNewDateIsInThePast() throws Exception {
+            format = new SimpleDateFormat("yyyy-MM-dd");
 
-            MvcResult result = mockMvc.perform(put("/api/refrigerators/updateDateInItem?itemExpirationDateId=5&newDate=2023-01-01")
-                            .contentType(MediaType.APPLICATION_JSON))
+            EditItemInRefrigeratorDto updatedInfo = EditItemInRefrigeratorDto.builder()
+                    .itemExpirationDateId(2)
+                    .date(format.parse("2022-05-01"))
+                    .amount(2.0)
+                    .measurementType(Measurement.L)
+                    .build();
+
+            String content = objectMapper.writeValueAsString(updatedInfo);
+
+            MvcResult result = mockMvc.perform(put("/api/refrigerators/updateItemInRefrigerator")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(content))
                     .andExpect(status().isBadRequest())
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-
-            Assertions.assertEquals("Date is in the past", responseString);
+            Assertions.assertEquals("New date is in the past", responseString);
         }
     }
 
@@ -266,10 +303,6 @@ public class RefrigeratorIntegrationTest {
         @WithMockUser(username = "USER")
         @DisplayName("Test getting an Refrigerator that exists in database")
         public void getItemsInRefrigeratorIsOk() throws Exception {
-
-
-
-
             MvcResult result = mockMvc.perform(get("/api/refrigerators/getRefrigeratorByUser?userEmail=test1@ntnu.no")
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -305,6 +338,7 @@ public class RefrigeratorIntegrationTest {
         @WithMockUser("USER")
         @DisplayName("Get correct items from refrigerator based on expiration date")
         public void getItemsFromRefrigeratorByExpirationDate() throws Exception {
+            format = new SimpleDateFormat("yyyy-MM-dd");
 
             MvcResult result = mockMvc.perform(get("/api/refrigerators/getItemInRefrigeratorByExpirationDate/2")
                             .contentType(MediaType.APPLICATION_JSON))
@@ -312,19 +346,18 @@ public class RefrigeratorIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            List<ItemInRefrigeratorDto> retrievedItemsRefrigerator = objectMapper.readValue(responseString, new TypeReference<>() {
-            });
+            List<ItemInRefrigeratorDto> retrievedItemsRefrigerator = objectMapper.readValue(responseString, new TypeReference<>() {});
+
 
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             calendar.add(Calendar.DAY_OF_YEAR, 1);
             Date date1 = calendar.getTime();
             calendar.add(Calendar.DAY_OF_YEAR, 4);
             Date date2 = calendar.getTime();
 
             Assertions.assertEquals( 2, retrievedItemsRefrigerator.size());
-            Assertions.assertEquals(format.format(date1), format.format(retrievedItemsRefrigerator.get(0).getDate()));
-            Assertions.assertEquals(format.format(date2), format.format(retrievedItemsRefrigerator.get(1).getDate()));
+            Assertions.assertEquals(format.format(date1), format.format(retrievedItemsRefrigerator.get(0).getItemsInRefrigerator().get(0).getDate()));
+            Assertions.assertEquals(format.format(date2), format.format(retrievedItemsRefrigerator.get(1).getItemsInRefrigerator().get(0).getDate()));
         }
 
         @Test
@@ -339,11 +372,9 @@ public class RefrigeratorIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            System.out.println("Response: " + responseString);
             Assertions.assertEquals("Refrigerator does not exist", responseString);
         }
     }
-
 
     @Nested
     class AddItemToRefrigerator {
@@ -352,20 +383,19 @@ public class RefrigeratorIntegrationTest {
         @WithMockUser("USER")
         @DisplayName("Testing the endpoint for adding item to refrigerator")
         public void addItemToRefrigeratorIsCreated() throws Exception {
-            EditItemInRefrigeratorDto newItem = EditItemInRefrigeratorDto.builder()
+            ItemInRefrigeratorCreationDto newItem = ItemInRefrigeratorCreationDto.builder()
                     .itemName("orange juice")
-                    .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
                     .refrigeratorId(1)
                     .amount(1)
                     .measurementType(Measurement.L)
                     .build();
 
-            String newRefrigeratorJson = objectMapper.writeValueAsString(newItem);
+            String contentJson = objectMapper.writeValueAsString(newItem);
 
             MvcResult result = mockMvc.perform(post("/api/refrigerators/addItemInRefrigerator")
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(newRefrigeratorJson))
+                            .content(contentJson))
                     .andExpect(status().isCreated())
                     .andReturn();
 
@@ -378,7 +408,7 @@ public class RefrigeratorIntegrationTest {
             Assertions.assertTrue(itemOptional.isPresent());
             ItemRefrigerator retrievedItem = itemOptional.get();
 
-            Assertions.assertEquals("Item is added to refrigerator", responseString);
+            Assertions.assertEquals("New item is added to database", responseString);
             Assertions.assertEquals(newItem.getItemName(), retrievedItem.getItem().getName());
         }
 
@@ -387,35 +417,31 @@ public class RefrigeratorIntegrationTest {
         @WithMockUser("USER")
         @DisplayName("Testing the endpoint for adding item to refrigerator when item already exists in that refrigerator")
         public void addItemToRefrigeratorIsOk() throws Exception {
-            EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
-                    .itemName("milk")
-                    .refrigeratorId(1)
-                    .date(new SimpleDateFormat("yyyy-MM-dd").parse("2023-05-01"))
-                    .amount(1.5)
-                    .measurementType(Measurement.L)
+
+            ItemInRefrigeratorCreationDto existingItem = ItemInRefrigeratorCreationDto.builder()
+                    .itemName("pasta")
+                    .refrigeratorId(2)
+                    .amount(4)
+                    .measurementType(Measurement.DL)
                     .build();
 
-            String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
+            int sizeBefore = itemRefRepo.findById(3).get().getItemExpirationDates().size();
+
+            String contentJson = objectMapper.writeValueAsString(existingItem);
 
             MvcResult result = mockMvc.perform(post("/api/refrigerators/addItemInRefrigerator")
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(existingRefrigeratorJson))
-                    .andExpect(status().isOk())
+                            .content(contentJson))
+                    .andExpect(status().isCreated())
                     .andReturn();
 
+
             String responseString = result.getResponse().getContentAsString();
+            int sizeAfter = itemRefRepo.findById(1).get().getItemExpirationDates().size();
 
-            Optional<ItemRefrigerator> itemInRefrigerator=itemRefRepo
-                    .findById(1);
-
-            Optional<ItemExpirationDate> itemExpirationDate = itemExpirationDateRepository
-                    .findById(1);
-
-            Assertions.assertTrue(itemExpirationDate.isPresent());
-            Assertions.assertTrue(itemInRefrigerator.isPresent());
-            Assertions.assertEquals("Item is updated", responseString);
-            Assertions.assertEquals(3.5, itemExpirationDate.get().getAmount());
+            Assertions.assertEquals(sizeBefore + 1, sizeAfter);
+            Assertions.assertEquals("New item is added to database", responseString);
         }
 
         @Nested
@@ -427,19 +453,19 @@ public class RefrigeratorIntegrationTest {
             @DisplayName("Testing the endpoint for adding an item to refrigerator when item does not exist")
             public void addItemToRefrigeratorItemIsNotFound() throws Exception {
 
-                EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
+                ItemInRefrigeratorCreationDto notExistingItem = ItemInRefrigeratorCreationDto.builder()
                         .itemName("cheese")
                         .refrigeratorId(1)
                         .amount(1)
-                        .measurementType(Measurement.G)
+                        .measurementType(Measurement.KG)
                         .build();
 
-                String existingRefrigeratorJson = objectMapper.writeValueAsString(existingItem);
+                String contentJson = objectMapper.writeValueAsString(notExistingItem);
 
                 MvcResult result = mockMvc.perform(post("/api/refrigerators/addItemInRefrigerator")
                                 .accept(MediaType.APPLICATION_JSON)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(existingRefrigeratorJson))
+                                .content(contentJson))
                         .andExpect(status().isNotFound())
                         .andReturn();
 
@@ -452,7 +478,7 @@ public class RefrigeratorIntegrationTest {
             @WithMockUser("USER")
             @DisplayName("Testing the endpoint for adding an item to refrigerator when refrigerator does not exist ")
             public void addItemToRefrigeratorRefrigeratorIsNotFound() throws Exception {
-                EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
+                ItemInRefrigeratorCreationDto existingItem = ItemInRefrigeratorCreationDto.builder()
                         .itemName("test10")
                         .refrigeratorId(30)
                         .amount(1)
@@ -477,7 +503,7 @@ public class RefrigeratorIntegrationTest {
         @WithMockUser("USER")
         @DisplayName("Testing the endpoint for saving an item to refrigerator when item is not valid")
         public void addItemToRefrigeratorIsBadRequest() throws Exception {
-            EditItemInRefrigeratorDto existingItem = EditItemInRefrigeratorDto.builder()
+            ItemInRefrigeratorCreationDto existingItem = ItemInRefrigeratorCreationDto.builder()
                     .itemName("")
                     .refrigeratorId(30)
                     .amount(1)
@@ -506,17 +532,17 @@ public class RefrigeratorIntegrationTest {
         @Transactional
         @DisplayName("Test removal of item from refrigerator")
         public void removeItemFromRefrigeratorIsOk() throws Exception {
-            EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
-                    .itemName("milk")
-                    .refrigeratorId(1)
-                    .amount(2)
-                    .measurementType(Measurement.L)
+            ItemInRefrigeratorRemovalDto itemToRemove = ItemInRefrigeratorRemovalDto.builder()
+                    .itemExpirationDateId(1)
+                    .amount(2.0)
+                    .garbage(false)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
-            int size = itemRefRepo.findAll().size();
 
-            MvcResult result=mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
+            int size = itemExpDateRepo.findAll().size();
+
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(itemToRemoveJson))
@@ -525,8 +551,8 @@ public class RefrigeratorIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(size-1, itemRefRepo.findAll().size());
-            Assertions.assertEquals("Item is removed from refrigerator",responseString);
+            Assertions.assertEquals(size-1, itemExpDateRepo.findAll().size());
+            Assertions.assertEquals("Item is removed from refrigerator", responseString);
         }
 
         @Test
@@ -534,20 +560,18 @@ public class RefrigeratorIntegrationTest {
         @Transactional
         @DisplayName("Test removal of item from refrigerator and throw total amount in garbage")
         public void removeItemFromRefrigeratorAndThrowInGarbageIsOk() throws Exception {
-
-            int itemInRefrigeratorSize = itemRefRepo.findAll().size();
-            int garbageSize = garbageRepo.findAll().size();
-
-            EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
-                    .itemName("milk")
-                    .refrigeratorId(1)
+            ItemInRefrigeratorRemovalDto itemToRemove = ItemInRefrigeratorRemovalDto.builder()
+                    .itemExpirationDateId(2)
                     .amount(2)
-                    .measurementType(Measurement.L)
+                    .garbage(true)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
-            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=true")
+            int itemInRefrigeratorSize = itemExpDateRepo.findAll().size();
+            int garbageSize = garbageRepo.findAll().size();
+
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(itemToRemoveJson))
@@ -556,29 +580,25 @@ public class RefrigeratorIntegrationTest {
 
             String responseString = result.getResponse().getContentAsString();
 
-            Assertions.assertEquals(itemInRefrigeratorSize-1, itemRefRepo.findAll().size());
+            Assertions.assertEquals(itemInRefrigeratorSize-1, itemExpDateRepo.findAll().size());
             Assertions.assertEquals(garbageSize + 1, garbageRepo.findAll().size());
             Assertions.assertEquals(2, garbageRepo.findByRefrigeratorRefrigeratorIdAndDate(1, YearMonth.now()).get().getAmount());
-            Assertions.assertEquals("Item is removed from refrigerator and thrown in garbage",responseString);
+            Assertions.assertEquals("Item is removed from refrigerator and thrown in garbage", responseString);
         }
         @Test
         @WithMockUser(username = "USER")
         @Transactional
         @DisplayName("Test removal of an amount of an item that is less than total from refrigerator")
         public void removeAmountOfItemFromRefrigeratorIsOk() throws Exception {
-
-            double totalAmount=itemExpirationDateRepository.findById(1).get().getAmount();
-
-            EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
-                    .itemName("milk")
-                    .refrigeratorId(1)
+            ItemInRefrigeratorRemovalDto itemToRemove = ItemInRefrigeratorRemovalDto.builder()
+                    .itemExpirationDateId(3)
                     .amount(0.5)
-                    .measurementType(Measurement.L)
+                    .garbage(false)
                     .build();
 
             String itemToRemoveJson = objectMapper.writeValueAsString(itemToRemove);
 
-            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem?isGarbage=false")
+            MvcResult result = mockMvc.perform((MockMvcRequestBuilders.delete("/api/refrigerators/removeItem")
                             .accept(MediaType.APPLICATION_JSON))
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(itemToRemoveJson))
@@ -586,8 +606,11 @@ public class RefrigeratorIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
+            Optional<ItemExpirationDate> itemExpirationDate = itemExpDateRepo.findById(3);
 
-            Assertions.assertEquals(1.5 , itemExpirationDateRepository.findById(1).get().getAmount());
+
+            Assertions.assertEquals(1.5 , itemExpDateRepo.findById(3).get().getAmount());
+            Assertions.assertTrue(itemExpirationDate.isPresent());
             Assertions.assertEquals("Item is removed from refrigerator",responseString);
         }
 
@@ -598,7 +621,7 @@ public class RefrigeratorIntegrationTest {
         public void removeItemFromRefrigeratorIsNotFound() throws Exception {
             int size = itemRefRepo.findAll().size();
 
-            EditItemInRefrigeratorDto itemToRemove = EditItemInRefrigeratorDto.builder()
+            ItemInRefrigeratorCreationDto itemToRemove = ItemInRefrigeratorCreationDto.builder()
                     .itemName("orange juice")
                     .refrigeratorId(1)
                     .amount(1)
