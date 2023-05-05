@@ -179,7 +179,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Subuser not found",responseString);
+            Assertions.assertEquals("Sub user not found",responseString);
         }
     }
 
@@ -207,7 +207,7 @@ public class SubUserIntegrationTest {
             String responseString = result.getResponse().getContentAsString();
 
             Assertions.assertTrue(subUserRepository.findByUserEmailAndName("test1@ntnu.no","testSubUser").isPresent());
-            Assertions.assertEquals("Subuser saved successfully",responseString);
+            Assertions.assertEquals("Sub user saved successfully",responseString);
         }
 
         @Test
@@ -228,7 +228,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Masteruser not found",responseString);
+            Assertions.assertEquals("Master user not found",responseString);
         }
 
         @Test
@@ -251,7 +251,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Subuser already exists",responseString);
+            Assertions.assertEquals("Sub user already exists",responseString);
         }
 
         @Test
@@ -310,7 +310,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Subuser deleted",responseString);
+            Assertions.assertEquals("Sub user deleted",responseString);
         }
 
         @Test
@@ -324,7 +324,7 @@ public class SubUserIntegrationTest {
                     .andReturn();
 
             String responseString = result.getResponse().getContentAsString();
-            Assertions.assertEquals("Subuser not found",responseString);
+            Assertions.assertEquals("Sub user not found",responseString);
         }
     }
 

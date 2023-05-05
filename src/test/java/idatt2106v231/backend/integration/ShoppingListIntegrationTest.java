@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -327,7 +329,7 @@ public class ShoppingListIntegrationTest {
             var itemInShoppingListCreationDto = ItemInShoppingListCreationDto.builder()
                     .shoppingListId(1)
                     .itemName("Cheese")
-                    .amount(1)
+                    .amount(1.5)
                     .measurementType(Measurement.G)
                     .subUserId(1)
                     .build();
@@ -339,6 +341,9 @@ public class ShoppingListIntegrationTest {
                             .content(shoppingListJson))
                     .andExpect(status().isOk())
                     .andReturn();
+
+            Optional<ItemShoppingList> item = itemShoppingListRepository.findById(1);
+            Assertions.assertEquals(2.5, item.get().getAmount());
         }
 
         @Test
