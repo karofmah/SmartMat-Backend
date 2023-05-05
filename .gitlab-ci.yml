@@ -30,9 +30,9 @@ pages:
     - echo "Building Javadoc and Jacoco"
     - mvn clean package
     - mvn javadoc:javadoc
-    - mkdir .jacoco
-    - cp -rf target/site/jacoco/* .jacoco
-    - mv -f .jacoco public
+    - mkdir jacoco
+    - cp -rf target/site/jacoco/* jacoco
+    - mv -f jacoco public
   artifacts:
     paths:
       - public
