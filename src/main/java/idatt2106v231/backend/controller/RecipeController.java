@@ -45,7 +45,7 @@ public class RecipeController {
     })
     public ResponseEntity<String> generateRecipe(@RequestParam int refrigeratorId) {
 
-        ResponseEntity<Object> response;
+        ResponseEntity<String> response;
 
         if (!refrigeratorServices.refrigeratorExists(refrigeratorId)){
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);

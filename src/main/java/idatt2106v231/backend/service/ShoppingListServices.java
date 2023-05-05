@@ -139,12 +139,8 @@ public class ShoppingListServices {
 
         String list = translateRecipeListToCorrectFormat(dto.getIngredients());
 
-        System.out.println(list); // TODO Remove debug printing
-
-
         String[] lines = list.split("\n");
         for (String line : lines) {
-            System.out.println(line); // TODO Remove debug printing
             String[] parts = line.split(";");
             String name = "";
             String category = "";
@@ -299,7 +295,6 @@ public class ShoppingListServices {
                     .itemShoppingListId(currentItem.getItemShoppingListId())
                     .item(itemRepository.findByName(dto.getItemName()).get())
                     .amount(currentItem.getAmount() + dto.getAmount())
-                    //TODO FIKSE TESTER OBS OBS!!!!!
                     .measurementType(dto.getMeasurementType())
                     .shoppingList(shoppingListRepository.findById(dto.getShoppingListId()).get())
                     .subUser(subUserRepository.findById(dto.getSubUserId()).get())
