@@ -2,11 +2,14 @@ package idatt2106v231.backend.service;
 
 import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.model.Item;
+import idatt2106v231.backend.model.ItemRefrigerator;
+import idatt2106v231.backend.repository.CategoryRepository;
 import idatt2106v231.backend.repository.ItemRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,14 +20,17 @@ public class ItemServices {
 
     private final ItemRepository itemRepo;
 
+    private final CategoryRepository categoryRepository;
+
     private final ModelMapper mapper;
 
     /**
      * Constructor which sets the Item repository to use for database access.
      */
     @Autowired
-    public ItemServices(ItemRepository itemRepo) {
+    public ItemServices(ItemRepository itemRepo, CategoryRepository categoryRepository) {
         this.itemRepo = itemRepo;
+        this.categoryRepository = categoryRepository;
         this.mapper = new ModelMapper();
     }
 
@@ -36,7 +42,12 @@ public class ItemServices {
      */
     public boolean saveItem(ItemDto item) {
         try {
-            Item it = mapper.map(item, Item.class);
+            Item it = Item.builder()
+                    .name(item.getName())
+                    .category(categoryRepository.findById(item.getCategoryId()).get())
+                    .itemInRefrigerators(new ArrayList<>())
+                    .itemInShoppingList(new ArrayList<>())
+                    .build();
             itemRepo.save(it);
             return true;
         } catch (Exception e) {
