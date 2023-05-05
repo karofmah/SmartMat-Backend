@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -54,48 +56,30 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
-        /*setCategories();
-        setUsers();
+        /*setUsers();
         setRefrigerators();
         setShoppingLists();
         setWeekMenu();
+        setGarbage();
         setSubUsers();
+
+        setCategories();
         setItems();
         setItemsInRefrigerator();
         setItemsInShoppingList();
-        setGarbage();
-        setItemExpirationDate();*/
-
-    }
-
-    public void setCategories(){
-        Category category1 = Category.builder()
-                .description("Meieri")
-                .build();
-
-        Category category2 = Category.builder()
-                .description("Tørrvare")
-                .build();
-
-        Category category3 = Category.builder()
-                .description("Kjøtt")
-                .build();
-
-        catRepo.save(category1);
-        catRepo.save(category2);
-        catRepo.save(category3);
+        setItemExpirationDate(); */
     }
 
     public void setUsers() {
+
         var user1 = User.builder()
-                .email("henrik100@stud.ntnu.no")
+                .email("andersandersen@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
-                .firstName("Henrik")
-                .lastName("Grendal")
-                .phoneNumber(99887766)
-                .age(58)
-                .household(8)
+                .firstName("Anders")
+                .lastName("Andersen")
+                .phoneNumber(77777777)
+                .age(41)
+                .household(3)
                 .role(Role.USER)
                 .build();
 
@@ -122,6 +106,50 @@ public class DataLoader implements CommandLineRunner {
                 .build();
 
         var user4 = User.builder()
+                .email("henrik100@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Henrik")
+                .lastName("Grendal")
+                .phoneNumber(99887766)
+                .age(58)
+                .household(8)
+                .role(Role.USER)
+                .build();
+
+        var user5 = User.builder()
+                .email("kari-hansen@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Kari")
+                .lastName("Hansen")
+                .phoneNumber(44444444)
+                .age(52)
+                .household(2)
+                .role(Role.USER)
+                .build();
+
+        var user6 = User.builder()
+                .email("lise-sivertsen@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Lise")
+                .lastName("Sivertsen")
+                .phoneNumber(55555555)
+                .age(28)
+                .household(1)
+                .role(Role.USER)
+                .build();
+
+        var user7 = User.builder()
+                .email("marie1986@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Marie")
+                .lastName("Andersen")
+                .phoneNumber(99999999)
+                .age(35)
+                .household(3)
+                .role(Role.USER)
+                .build();
+
+        var user8 = User.builder()
                 .email("pål.einar@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
                 .firstName("Pål Einar")
@@ -132,7 +160,18 @@ public class DataLoader implements CommandLineRunner {
                 .role(Role.USER)
                 .build();
 
-        var user5 = User.builder()
+        var user9 = User.builder()
+                .email("per.pettersen@stud.ntnu.no")
+                .password(passwordEncoder.encode("password"))
+                .firstName("Per")
+                .lastName("Pettersen")
+                .phoneNumber(11111111)
+                .age(45)
+                .household(2)
+                .role(Role.USER)
+                .build();
+
+        var user10 = User.builder()
                 .email("stig1978@stud.ntnu.no")
                 .password(passwordEncoder.encode("password"))
                 .firstName("Stig")
@@ -143,11 +182,9 @@ public class DataLoader implements CommandLineRunner {
                 .role(Role.USER)
                 .build();
 
-        userRepo.save(user1);
-        userRepo.save(user2);
-        userRepo.save(user3);
-        userRepo.save(user4);
-        userRepo.save(user5);
+        userRepo.saveAll(Arrays.asList(user1, user2,
+                user3, user4, user5, user6,
+                user7, user8, user9, user10));
     }
 
     public void setRefrigerators(){
@@ -181,6 +218,255 @@ public class DataLoader implements CommandLineRunner {
                     .build();
             shoppingListRepo.save(shoppingList);
         }
+    }
+
+    public void setGarbage(){
+        Random random = new Random();
+        List<Refrigerator> refrigerators = refRepo.findAll();
+
+        for (int i = 2020; i<2024; i++){
+            for (int j = 1; j<=12; j++){
+                for (Refrigerator refrigerator: refrigerators) {
+                    Garbage garbage = Garbage.builder()
+                            .refrigerator(refrigerator)
+                            .amount(random.nextInt(70) + 30)
+                            .date(YearMonth.of(i,j))
+                            .build();
+                    garbageRepo.save(garbage);
+                }
+            }
+        }
+
+
+    }
+
+    public void setSubUsers(){
+        List<User> userList = userRepo.findAll();
+
+        var subUser1 = SubUser.builder()
+                .accessLevel(true)
+                .name("Henrik")
+                .user(userList.get(0))
+                .pinCode(1234)
+                .build();
+
+        var subUser2 = SubUser.builder()
+                .accessLevel(true)
+                .name("Ida")
+                .pinCode(1234)
+                .user(userList.get(0))
+                .build();
+
+        var subUser3 = SubUser.builder()
+                .accessLevel(false)
+                .name("Helene")
+                .user(userList.get(0))
+                .build();
+
+        var subUser4 = SubUser.builder()
+                .accessLevel(true)
+                .name("Frida")
+                .user(userList.get(1))
+                .pinCode(1234)
+                .build();
+
+        var subUser5 = SubUser.builder()
+                .accessLevel(false)
+                .name("Tim")
+                .user(userList.get(1))
+                .build();
+
+        var subUser6 = SubUser.builder()
+                .accessLevel(false)
+                .name("Ella")
+                .user(userList.get(1))
+                .build();
+
+        var subUser7 = SubUser.builder()
+                .accessLevel(true)
+                .name("Henriette")
+                .user(userList.get(2))
+                .pinCode(1234)
+                .build();
+
+        var subUser8 = SubUser.builder()
+                .accessLevel(false)
+                .name("Ingrid")
+                .user(userList.get(2))
+                .build();
+
+        var subUser9 = SubUser.builder()
+                .accessLevel(true)
+                .name("Marius")
+                .user(userList.get(2))
+                .pinCode(1234)
+                .build();
+
+        var subUser10 = SubUser.builder()
+                .accessLevel(true)
+                .name("Pål Einar")
+                .user(userList.get(3))
+                .pinCode(1234)
+                .build();
+
+        var subUser11 = SubUser.builder()
+                .accessLevel(false)
+                .name("Tore")
+                .user(userList.get(3))
+                .build();
+
+        var subUser12 = SubUser.builder()
+                .accessLevel(false)
+                .name("Hans")
+                .user(userList.get(3))
+                .build();
+
+        var subUser13 = SubUser.builder()
+                .accessLevel(true)
+                .name("Stig")
+                .user(userList.get(4))
+                .pinCode(1234)
+                .build();
+
+        var subUser14 = SubUser.builder()
+                .accessLevel(false)
+                .name("Per")
+                .user(userList.get(4))
+                .build();
+
+        var subUser15 = SubUser.builder()
+                .accessLevel(false)
+                .name("Marie")
+                .user(userList.get(4))
+                .build();
+
+        var subUser16 = SubUser.builder()
+                .accessLevel(true)
+                .name("Marie")
+                .user(userList.get(5))
+                .pinCode(1234)
+                .build();
+
+        var subUser17 = SubUser.builder()
+                .accessLevel(false)
+                .name("Kine")
+                .user(userList.get(5))
+                .build();
+
+        var subUser18 = SubUser.builder()
+                .accessLevel(true)
+                .name("Espen")
+                .user(userList.get(5))
+                .pinCode(1234)
+                .build();
+
+        var subUser19 = SubUser.builder()
+                .accessLevel(true)
+                .name("Per")
+                .user(userList.get(6))
+                .pinCode(1234)
+                .build();
+
+        var subUser20 = SubUser.builder()
+                .accessLevel(false)
+                .name("Ole")
+                .user(userList.get(6))
+                .build();
+
+        var subUser21 = SubUser.builder()
+                .accessLevel(true)
+                .name("Anna")
+                .user(userList.get(6))
+                .pinCode(1234)
+                .build();
+
+        var subUser22 = SubUser.builder()
+                .accessLevel(true)
+                .name("Lise")
+                .user(userList.get(7))
+                .pinCode(1234)
+                .build();
+
+        var subUser23 = SubUser.builder()
+                .accessLevel(false)
+                .name("Trine")
+                .user(userList.get(7))
+                .build();
+
+        var subUser24 = SubUser.builder()
+                .accessLevel(false)
+                .name("Kjell")
+                .user(userList.get(7))
+                .build();
+
+        var subUser25 = SubUser.builder()
+                .accessLevel(true)
+                .name("Kari")
+                .user(userList.get(8))
+                .pinCode(1234)
+                .build();
+
+        var subUser26 = SubUser.builder()
+                .accessLevel(true)
+                .name("Hanne")
+                .user(userList.get(8))
+                .pinCode(1234)
+                .build();
+
+        var subUser27 = SubUser.builder()
+                .accessLevel(true)
+                .name("Erik")
+                .user(userList.get(8))
+                .pinCode(1234)
+                .build();
+
+        var subUser28 = SubUser.builder()
+                .accessLevel(true)
+                .name("Anders")
+                .user(userList.get(9))
+                .pinCode(1234)
+                .build();
+
+        var subUser29 = SubUser.builder()
+                .accessLevel(false)
+                .name("Svein")
+                .user(userList.get(9))
+                .build();
+
+        var subUser30 = SubUser.builder()
+                .accessLevel(false)
+                .name("Anne")
+                .user(userList.get(9))
+                .build();
+
+
+        subUserRepo.saveAll(Arrays.asList(subUser1,
+                subUser2, subUser3, subUser4, subUser5,
+                subUser5, subUser6,subUser7, subUser8,
+                subUser9, subUser10, subUser11, subUser12,
+                subUser13, subUser14, subUser15, subUser16,
+                subUser17, subUser18, subUser19, subUser20,
+                subUser21, subUser22, subUser23, subUser24,
+                subUser25, subUser26, subUser27, subUser28,
+                subUser29, subUser30));
+    }
+
+    public void setCategories(){
+        Category category1 = Category.builder()
+                .description("Meieri")
+                .build();
+
+        Category category2 = Category.builder()
+                .description("Tørrvare")
+                .build();
+
+        Category category3 = Category.builder()
+                .description("Kjøtt")
+                .build();
+
+        catRepo.save(category1);
+        catRepo.save(category2);
+        catRepo.save(category3);
     }
 
     public void setItems(){
@@ -492,71 +778,6 @@ public class DataLoader implements CommandLineRunner {
         itemShoppingListRepo.save(itemShoppingList5);
         itemShoppingListRepo.save(itemShoppingList6);
         itemShoppingListRepo.save(itemShoppingList7);
-
-    }
-
-    public void setSubUsers(){
-        List<User> userList = userRepo.findAll();
-
-        var subUser1 = SubUser.builder()
-                .accessLevel(true)
-                .name("Torstein")
-                .user(userList.get(0))
-                .pinCode(1234)
-                .build();
-
-        var subUser2 = SubUser.builder()
-                .accessLevel(false)
-                .name("Ida")
-                .user(userList.get(0))
-                .build();
-
-        var subUser3 = SubUser.builder()
-                .accessLevel(true)
-                .name("Helene")
-                .user(userList.get(1))
-                .pinCode(2222)
-                .build();
-
-        var subUser4 = SubUser.builder()
-                .accessLevel(false)
-                .name("Nils")
-                .user(userList.get(2))
-                .build();
-
-        var subUser5 = SubUser.builder()
-                .accessLevel(true)
-                .name("Tim")
-                .user(userList.get(4))
-                .pinCode(9999)
-                .build();
-
-        var subUser6 = SubUser.builder()
-                .accessLevel(true)
-                .name("Ella")
-                .user(userList.get(4))
-                .pinCode(9876)
-                .build();
-
-        subUserRepo.save(subUser1);
-        subUserRepo.save(subUser2);
-        subUserRepo.save(subUser3);
-        subUserRepo.save(subUser4);
-        subUserRepo.save(subUser5);
-        subUserRepo.save(subUser6);
-    }
-
-    public void setGarbage(){
-        List<Refrigerator> refrigerators = refRepo.findAll();
-
-        for (Refrigerator refrigerator: refrigerators) {
-            Garbage garbage = Garbage.builder()
-                    .refrigerator(refrigerator)
-                    .amount(50)
-                    .date(YearMonth.now())
-                    .build();
-            garbageRepo.save(garbage);
-        }
 
     }
 }
