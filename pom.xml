@@ -182,7 +182,7 @@
                 <configuration>
                     <show>protected</show>
                     <windowtitle>My API Documentation</windowtitle>
-                    <reportOutputDirectory>public</reportOutputDirectory>
+                    <reportOutputDirectory>public/javadoc</reportOutputDirectory>
                     <destDir>/</destDir>
                 </configuration>
             </plugin>

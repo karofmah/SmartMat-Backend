@@ -23,13 +23,19 @@ test:
     - echo "Running tests"
     - mvn clean test
 
+
 pages:
   stage: package
   script:
-    - echo "Building Javadoc"
+    - echo "Building Javadoc and Jacoco"
+    - mvn clean package
     - mvn javadoc:javadoc
+    - mkdir .jacoco
+    - cp -rf target/site/jacoco/* .jacoco
+    - mv -f .jacoco public
   artifacts:
     paths:
       - public
+
   only:
     - web
