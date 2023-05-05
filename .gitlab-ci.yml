@@ -30,6 +30,6 @@ pages:
     - mvn javadoc:javadoc
   artifacts:
     paths:
-      - public/apidocs
+      - public
   only:
     - web
