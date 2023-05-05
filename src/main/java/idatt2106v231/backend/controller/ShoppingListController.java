@@ -78,6 +78,7 @@ public class ShoppingListController {
         }
 
 
+        //Updates the amount instead of creating new row if the item already exists in the db
         if (shoppingListServices.itemExistsWithAccessLevel(
                 itemInShoppingListCreationDto.getShoppingListId(),
                 itemInShoppingListCreationDto.getItemName(),

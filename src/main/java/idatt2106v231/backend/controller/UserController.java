@@ -2,7 +2,6 @@ package idatt2106v231.backend.controller;
 
 import idatt2106v231.backend.dto.user.UserDto;
 import idatt2106v231.backend.dto.user.UserUpdateDto;
-import idatt2106v231.backend.repository.UserRepository;
 import idatt2106v231.backend.service.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,14 +38,14 @@ public class UserController {
     public ResponseEntity<Object> getUser(@RequestParam String email){
         ResponseEntity<Object> response;
         if (!userServices.checkIfUserExists(email)){
-           response = new ResponseEntity<>("User does not exist",HttpStatus.NOT_FOUND);
+           response = new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
            logger.info((String)response.getBody());
            return response;
         }
 
         UserDto user = userServices.getUser(email);
         if(user == null){
-            response = new ResponseEntity<>("User not retrieved",HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new ResponseEntity<>("User not retrieved", HttpStatus.INTERNAL_SERVER_ERROR);
             logger.info((String)response.getBody());
             return response;
         }

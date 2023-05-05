@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemShoppingListDto {
-    //private String user;
     private ItemDto item;
     private int amount;
     private Measurement measurementType;
     private boolean subUserAccessLevel;
+    private int itemShoppingListId;
     private int subUserId;
 }
