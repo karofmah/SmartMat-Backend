@@ -4,11 +4,8 @@ import idatt2106v231.backend.dto.subuser.SubUserCreationDto;
 import idatt2106v231.backend.dto.subuser.SubUserDto;
 import idatt2106v231.backend.dto.subuser.SubUserValidationDto;
 import idatt2106v231.backend.model.SubUser;
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.SubUserRepository;
-import idatt2106v231.backend.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,33 +20,51 @@ public class SubUserServices {
 
     private final SubUserRepository subUserRepo;
 
-    private final UserRepository userRepo;
-
     private final ModelMapper mapper;
 
+    /**
+     * Constructor which sets the repositories to use for database access.
+     */
     @Autowired
-    public SubUserServices(SubUserRepository subUserRepository, UserRepository userRepository) {
+    public SubUserServices(SubUserRepository subUserRepository) {
         this.subUserRepo = subUserRepository;
-        this.userRepo = userRepository;
         this.mapper = new ModelMapper();
-        TypeMap<SubUser, SubUserDto> propertyMapper = mapper.createTypeMap(SubUser.class, SubUserDto.class);
-       // propertyMapper.addMappings(mapper -> mapper.map(obj -> obj.getUser().getEmail(), SubUserDto::setMasterUser));
-
     }
 
-    public List<SubUserDto> getSubUsersByMaster(String email) { //sjekk
-        return subUserRepo.findAllByUserEmail(email).stream()
-                .map(obj -> mapper.map(obj, SubUserDto.class)).toList();
+    /**
+     * Method to get sub-users by email.
+     *
+     * @param email email
+     * @return the sub-users as dto objects
+     */
+    public List<SubUserDto> getSubUsersByMaster(String email) {
+        return subUserRepo
+                .findAllByUserEmail(email)
+                .stream()
+                .map(obj -> mapper.map(obj, SubUserDto.class))
+                .toList();
     }
 
-    public SubUserDto getSubUser(int subUserId) { //sjekk
+    /**
+     * Method to get sub-user by id.
+     *
+     * @param subUserId the id
+     * @return the sub-user as a dto object
+     */
+    public SubUserDto getSubUser(int subUserId) {
         Optional<SubUser> subUser = subUserRepo.findById(subUserId);
         return mapper.map(subUser.get(), SubUserDto.class);
     }
 
-    public boolean saveSubUser(SubUserCreationDto subUserCreationDto) {
+    /**
+     * Method to save a new sub-user.
+     *
+     * @param dto the new subuser
+     * @return true if the sub-user is saved.
+     */
+    public boolean saveSubUser(SubUserCreationDto dto) {
         try {
-            SubUser subUser = mapper.map(subUserCreationDto, SubUser.class);
+            SubUser subUser = mapper.map(dto, SubUser.class);
             subUserRepo.save(subUser);
             return true;
         } catch (Exception e) {
@@ -57,6 +72,12 @@ public class SubUserServices {
         }
     }
 
+    /**
+     * Method to delete a sub-user.
+     *
+     * @param subUserId the subuser id
+     * @return true if the sub-user is deleted.
+     */
     public boolean deleteSubUser(int subUserId) {
         try {
             subUserRepo.deleteById(subUserId);
@@ -66,10 +87,16 @@ public class SubUserServices {
         }
     }
 
-    public boolean updateSubUser(SubUserDto subDto) {
+    /**
+     * Method to update a sub-user.
+     *
+     * @param dto the new information about the sub-user
+     * @return true if the sub-user is updated.
+     */
+    public boolean updateSubUser(SubUserDto dto) {
         try {
-            SubUser subUser = mapper.map(subDto, SubUser.class);
-            subUser.setUser(subUserRepo.findById(subDto.getSubUserId()).get().getUser());
+            SubUser subUser = mapper.map(dto, SubUser.class);
+            subUser.setUser(subUserRepo.findById(dto.getSubUserId()).get().getUser());
             subUserRepo.save(subUser);
             return true;
         } catch (Exception e) {
@@ -77,32 +104,51 @@ public class SubUserServices {
         }
     }
 
-    public boolean pinCodeValid(SubUserValidationDto subDto){
+    /**
+     * Method to validate pincode. Checks if the pincode from client matches subuser´s pincode
+     *
+     * @param dto the pincode with subuser
+     * @return true if the pincode is correct
+     */
+    public boolean pinCodeValid(SubUserValidationDto dto){
         try{
-            SubUser subUser = subUserRepo.findById(subDto.getSubUserId()).get();
-            return subUser.getPinCode() == subDto.getPinCode();
+            SubUser subUser = subUserRepo.findById(dto.getSubUserId()).get();
+            return subUser.getPinCode() == dto.getPinCode();
         }catch (Exception e){
             return false;
         }
     }
 
-    public boolean subUserExists(String name, String email) {
-        return subUserRepo.findByUserEmailAndName(email, name).isPresent();
-    }
-
-    public boolean subUserExists(int subUserId) {
-        return subUserRepo.existsBySubUserId(subUserId);
+    /**
+     * Method to check is a sub-user exist.
+     *
+     * @param email the master email
+     * @param name the subuser name
+     * @return true if the sub-user is exists.
+     */
+    public boolean subUserExists(String email, String name) {
+        return subUserRepo.existsByUserEmailAndName(email ,name);
     }
 
     /**
-     * Gets the master user of a sub user
+     * Method to check is a sub-user not exist in database.
+     *
+     * @param subUserId the subuser id
+     * @return true if the sub-user is exists.
+     */
+    public boolean subUserNotExists(int subUserId) {
+        return !subUserRepo.existsBySubUserId(subUserId);
+    }
+
+    /**
+     * Gets the email of a sub user
      *
      * @param subUserId the sub user ID
      * @return the master user
      */
-    public User getMasterUser(int subUserId) {
+    public String getMasterUserEmail(int subUserId) {
         Optional<SubUser> subUser = subUserRepo.findById(subUserId);
-        return subUser.map(SubUser::getUser).orElse(null);
+        return subUser.map(user -> user.getUser().getEmail()).orElse(null);
     }
 
     /**

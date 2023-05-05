@@ -41,16 +41,18 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateTotalAmountByIdYear(@PathVariable int refrigeratorId, @RequestParam int year) {
-        ResponseEntity <Object> response = validateGarbage(refrigeratorId, year);
+    public ResponseEntity<Object> calculateTotalAmountByYearAndRefrigerator(@PathVariable int refrigeratorId, @RequestParam int year) {
+        ResponseEntity<Object> response = validateGarbage(refrigeratorId, year);
 
         if(!response.getStatusCode().equals(HttpStatus.OK)) {
             logger.info((String)response.getBody());
             return response;
         }
 
-        if (garbageServices.calculateTotalAmount(refrigeratorId, year) != -1){
-            response = new ResponseEntity<>(garbageServices.calculateTotalAmount(refrigeratorId, year), HttpStatus.OK);
+        double totalAmountByYear = garbageServices.calculateTotalAmountByYearAndRefrigerator(refrigeratorId, year);
+
+        if (totalAmountByYear != -1){
+            response = new ResponseEntity<>(totalAmountByYear, HttpStatus.OK);
             logger.info("Calculated amount of garbage");
         }
         else {
@@ -70,7 +72,7 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateAmountEachMonth(@PathVariable int refrigeratorId, @RequestParam int year) {
+    public ResponseEntity<Object> calculateAmountEachMonthByYearAndRefrigerator(@PathVariable int refrigeratorId, @RequestParam int year) {
         ResponseEntity <Object> response = validateGarbage(refrigeratorId, year);
 
         if(!response.getStatusCode().equals(HttpStatus.OK)) {
@@ -78,8 +80,8 @@ public class GarbageController {
             return response;
         }
 
-        if (garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year) != null) {
-            response = new ResponseEntity<>(garbageServices.calculateTotalAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+        if (garbageServices.calculateTotalAmountEachMonthByYearAndRefrigerator(refrigeratorId, year) != null) {
+            response = new ResponseEntity<>(garbageServices.calculateTotalAmountEachMonthByYearAndRefrigerator(refrigeratorId, year), HttpStatus.OK);
             logger.info("Calculated amount of garbage");
         }
         else {
@@ -99,14 +101,14 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateAverageAmountYear(@PathVariable int refrigeratorId, @RequestParam int year) {
+    public ResponseEntity<Object> calculateAverageAmountByYearWithoutRefrigerator(@PathVariable int refrigeratorId, @RequestParam int year) {
         ResponseEntity <Object> response;
 
         if(year <= 0){
             response =  new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
-        else if (garbageServices.calculateAverageAmount(refrigeratorId, year) != -1) {
-            response = new ResponseEntity<>(garbageServices.calculateAverageAmount(refrigeratorId, year), HttpStatus.OK);
+        else if (garbageServices.calculateAverageAmountByYearWithoutRefrigerator(refrigeratorId, year) != -1) {
+            response = new ResponseEntity<>(garbageServices.calculateAverageAmountByYearWithoutRefrigerator(refrigeratorId, year), HttpStatus.OK);
             logger.info("Calculated amount of garbage");
         }
         else {
@@ -126,15 +128,15 @@ public class GarbageController {
             @ApiResponse(responseCode = "500", description = "Amount can not be calculated"),
             @ApiResponse(responseCode = "400", description = "Data is not specified")
     })
-    public ResponseEntity<Object> calculateAverageEachMonth(@PathVariable int refrigeratorId, @RequestParam int year) {
+    public ResponseEntity<Object> calculateAverageEachMonthByYearWithoutRefrigerator(@PathVariable int refrigeratorId, @RequestParam int year) {
         ResponseEntity <Object> response;
 
         if(year <= 0){
             response =  new ResponseEntity<>("Data is not valid", HttpStatus.BAD_REQUEST);
         }
 
-        else if (garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year) != null) {
-            response = new ResponseEntity<>(garbageServices.calculateAverageAmountEachMonth(refrigeratorId, year), HttpStatus.OK);
+        else if (garbageServices.calculateAverageAmountEachMonthByYearAndRefrigerator(refrigeratorId, year) != null) {
+            response = new ResponseEntity<>(garbageServices.calculateAverageAmountEachMonthByYearAndRefrigerator(refrigeratorId, year), HttpStatus.OK);
             logger.info("Calculated amount of garbage");
         }
         else {
@@ -158,7 +160,7 @@ public class GarbageController {
         if(refrigeratorId <= 0 || year <= 0){
             response =  new ResponseEntity<>("Data is not specified", HttpStatus.BAD_REQUEST);
         }
-        else if (!refrigeratorServices.refrigeratorExists(refrigeratorId)) {
+        else if (refrigeratorServices.refrigeratorNotExists(refrigeratorId)) {
             response = new ResponseEntity<>("Refrigerator does not exist", HttpStatus.NOT_FOUND);
         }
         else if (garbageServices.hasGarbageByYear(refrigeratorId, year)){

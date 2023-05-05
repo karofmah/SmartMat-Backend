@@ -1,6 +1,5 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.model.User;
 import idatt2106v231.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,13 +7,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository repository;
 
+    /**
+     * Constructor which sets User repository to use for database access.
+     */
     @Autowired
     public CustomUserDetailsService(UserRepository repository) {
         this.repository = repository;

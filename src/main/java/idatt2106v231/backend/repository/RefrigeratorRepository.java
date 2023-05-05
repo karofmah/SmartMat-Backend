@@ -13,4 +13,6 @@ public interface RefrigeratorRepository extends CrudRepository<Refrigerator, Int
     Optional<Refrigerator> findByUserEmail(String userEmail);
 
     List<Refrigerator> findAll();
+
+    boolean existsByRefrigeratorId(int id);
 }

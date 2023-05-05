@@ -1,6 +1,5 @@
 package idatt2106v231.backend.service;
 
-import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorRemovalDto;
 import idatt2106v231.backend.enums.Measurement;
 import idatt2106v231.backend.model.Garbage;
@@ -8,8 +7,6 @@ import idatt2106v231.backend.model.ItemExpirationDate;
 import idatt2106v231.backend.model.ItemRefrigerator;
 import idatt2106v231.backend.repository.GarbageRepository;
 import idatt2106v231.backend.repository.ItemExpirationDateRepository;
-import idatt2106v231.backend.repository.ItemRefrigeratorRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +27,9 @@ public class GarbageServices {
 
     private final MeasurementServices measurementServices;
 
+    /**
+     * Constructor which sets the repositories to use for database access.
+     */
     @Autowired
     public GarbageServices(GarbageRepository garbRepo, ItemExpirationDateRepository itemExpRepo,
                            MeasurementServices measurementServices) {
@@ -39,7 +39,7 @@ public class GarbageServices {
     }
 
     /**
-     * Method to add garbage table in the database.
+     * Method to add garbage to the database.
      *
      * @param dto the garbage
      * @return true if the item is added to garbage
@@ -86,32 +86,54 @@ public class GarbageServices {
         }
     }
 
-    public double calculateTotalAmount(int id, int year){
+    /**
+     * Method to get calculated amount of garbage thrown in a year by a refrigerator.
+     *
+     * @param refrigeratorId the refrigerator id
+     * @param year the year
+     * @return the amount
+     */
+    public double calculateTotalAmountByYearAndRefrigerator(int refrigeratorId, int year){
         try {
-            List<Garbage> garbageList = garbRepo
+            Optional<Double> totalAmount = garbRepo
                     .findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(
-                            id,
+                            refrigeratorId,
                             YearMonth.of(year, 1),
                             YearMonth.of(year,12)
-                    );
+                    )
+                    .stream()
+                    .map(Garbage::getAmount)
+                    .reduce(Double::sum)
+                    ;
 
-            double totalAmount = 0;
-
-            for (Garbage garbage : garbageList) {
-                totalAmount += garbage.getAmount();
+            if (totalAmount.isPresent()){
+                return totalAmount.get();
             }
 
-            return totalAmount;
+            return 0;
         } catch (Exception e){
             return -1;
         }
     }
 
-    public double[] calculateTotalAmountEachMonth(int id, int year){
+    /**
+     * Method to get a list of calculated amount of garbage thrown each month in a year by a refrigerator.
+     *
+     * @param refrigeratorId the refrigerator id
+     * @param year the year
+     * @return the amount
+     */
+    public double[] calculateTotalAmountEachMonthByYearAndRefrigerator(int refrigeratorId, int year){
         try {
-            List<Garbage> garbageList =
-                    garbRepo.findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(id,YearMonth.of(year,1),YearMonth.of(year,12));
+            List<Garbage> garbageList = garbRepo
+                    .findAllByRefrigeratorRefrigeratorIdAndDateIsBetween(
+                            refrigeratorId,
+                            YearMonth.of(year,1),
+                            YearMonth.of(year,12)
+                    );
+
             double[] amountEachMonth = new double[12];
+
             for (Garbage garbage : garbageList) {
                 amountEachMonth[garbage.getDate().getMonthValue()-1] += garbage.getAmount();
             }
@@ -121,11 +143,19 @@ public class GarbageServices {
         }
     }
 
-    public double calculateAverageAmount(int id, int year){
+
+    /**
+     * Method to get average amount of garbage thrown in a year without a refrigerator.
+     *
+     * @param refrigeratorId the refrigerator refrigeratorId
+     * @param year the year
+     * @return the amount
+     */
+    public double calculateAverageAmountByYearWithoutRefrigerator(int refrigeratorId, int year){
         try {
             List<Garbage> garbageList =
                     garbRepo.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(
-                            id,
+                            refrigeratorId,
                             YearMonth.of(year,1),
                             YearMonth.of(year,12)
                     );
@@ -133,6 +163,7 @@ public class GarbageServices {
             if (garbageList.isEmpty()){
                 return 0;
             }
+
 
             HashMap<Integer, Double> map = new HashMap<>();
 
@@ -148,7 +179,10 @@ public class GarbageServices {
                 }
             }
 
-            double totalAmount = map.values().stream().mapToDouble(Double::doubleValue).sum();
+            double totalAmount = map.values()
+                    .stream()
+                    .mapToDouble(Double::doubleValue)
+                    .sum();
 
             return totalAmount / map.size();
         } catch (Exception e){
@@ -156,11 +190,18 @@ public class GarbageServices {
         }
     }
 
-    public double[] calculateAverageAmountEachMonth(int id, int year){
+    /**
+     * Method to get average amount of garbage thrown each month in a year without a refrigerator.
+     *
+     * @param refrigeratorId the refrigerator refrigeratorId
+     * @param year the year
+     * @return the amount
+     */
+    public double[] calculateAverageAmountEachMonthByYearAndRefrigerator(int refrigeratorId, int year){
         try {
             List<Garbage> garbageList =
                     garbRepo.findAllByRefrigeratorRefrigeratorIdNotAndDateIsBetween(
-                            id,
+                            refrigeratorId,
                             YearMonth.of(year,1),
                             YearMonth.of(year,12)
                     );
@@ -213,7 +254,7 @@ public class GarbageServices {
      */
     public boolean hasGarbage(int id) {
         return garbRepo.findAllByRefrigeratorRefrigeratorId(id).isEmpty();
-    }
+    } //TODO brukes denne?
 
     /**
      * Checks if a refrigerator has registered garbage in a specified year

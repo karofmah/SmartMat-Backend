@@ -20,6 +20,9 @@ public class CategoryServices {
 
     private final ModelMapper mapper;
 
+    /**
+     * Constructor which sets the Category repository to use for database access.
+     */
     @Autowired
     public CategoryServices(CategoryRepository catRepo) {
         this.catRepo = catRepo;
@@ -58,7 +61,7 @@ public class CategoryServices {
     }
 
     /**
-     * Method to get a category
+     * Method to get a category.
      *
      * @param categoryId the category id
      * @return the category as a dto object
@@ -90,13 +93,13 @@ public class CategoryServices {
     }
 
     /**
-     * Method to assert a category exists by id
+     * Method to assert a category exists by id.
      *
      * @param categoryId the category id
      * @return true if the category exists
      */
-    public boolean categoryExist(int categoryId){
-        return catRepo.findById(categoryId).isPresent();
+    public boolean categoryNotExist(int categoryId){
+        return catRepo.existsCategoriesByCategoryId(categoryId);
     }
 
     /**
@@ -106,6 +109,6 @@ public class CategoryServices {
      * @return true if the category exists
      */
     public boolean categoryExist(String description){
-        return catRepo.findByDescription(description).isPresent();
+        return catRepo.existsCategoriesByDescription(description);
     }
 }

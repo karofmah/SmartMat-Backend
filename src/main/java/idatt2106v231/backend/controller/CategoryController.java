@@ -64,7 +64,7 @@ public class CategoryController {
     })
     public ResponseEntity<Object> deleteCategory(@PathVariable("categoryId") int categoryId) {
         ResponseEntity<Object> response;
-        if (!categoryServices.categoryExist(categoryId)){
+        if (categoryServices.categoryNotExist(categoryId)){
             response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
         }
         else if (categoryServices.deleteCategory(categoryId)){
@@ -87,7 +87,7 @@ public class CategoryController {
     public ResponseEntity<Object> getCategoryById(@PathVariable("categoryId") Integer categoryId) {
         ResponseEntity<Object> response;
 
-        if (!categoryServices.categoryExist(categoryId)){
+        if (categoryServices.categoryNotExist(categoryId)){
             response = new ResponseEntity<>("Category does not exist", HttpStatus.NOT_FOUND);
             logger.info((String)response.getBody());
             return response;

@@ -23,7 +23,7 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int itemId;
 
-    @Column
+    @Column(unique = true)
     @NotNull
     private String name;
 

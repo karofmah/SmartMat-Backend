@@ -4,7 +4,6 @@ import idatt2106v231.backend.dto.item.ItemDto;
 import idatt2106v231.backend.dto.refrigerator.EditItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.ItemInRefrigeratorDto;
 import idatt2106v231.backend.dto.refrigerator.RefrigeratorDto;
-import idatt2106v231.backend.model.Item;
 import idatt2106v231.backend.dto.refrigerator.*;
 import idatt2106v231.backend.model.ItemExpirationDate;
 import idatt2106v231.backend.model.ItemRefrigerator;
@@ -35,6 +34,9 @@ public class RefrigeratorServices {
 
     private final ModelMapper mapper;
 
+    /**
+     * Constructor which sets the repositories to use for database access and services.
+     */
     @Autowired
     public RefrigeratorServices(RefrigeratorRepository refRepo, ItemRepository itemRepo,
                                 ItemRefrigeratorRepository itemRefRepo, MeasurementServices measurementServices,
@@ -47,7 +49,6 @@ public class RefrigeratorServices {
         this.mapper = new ModelMapper();
     }
 
-
     /**
      * Method to get a refrigerator by user.
      *
@@ -56,7 +57,8 @@ public class RefrigeratorServices {
      */
     public RefrigeratorDto getRefrigeratorByUserEmail(String userEmail) {
         try {
-            int refrigeratorId = refRepo.findByUserEmail(userEmail)
+            int refrigeratorId = refRepo
+                    .findByUserEmail(userEmail)
                     .get()
                     .getRefrigeratorId();
 
@@ -77,7 +79,8 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigerator(int refrigeratorId) {
         try {
-            List<ItemInRefrigeratorDto> list = refRepo.findById(refrigeratorId)
+            List<ItemInRefrigeratorDto> list = refRepo
+                    .findById(refrigeratorId)
                     .get()
                     .getItemsInRefrigerator()
                     .stream()
@@ -100,7 +103,8 @@ public class RefrigeratorServices {
      */
     public List<ItemExpirationDateDto> getItemExpirationInRefrigerator(int itemRefrigeratorId) {
         try {
-            List<ItemExpirationDateDto> list = itemRefRepo.findById(itemRefrigeratorId)
+            List<ItemExpirationDateDto> list = itemRefRepo
+                    .findById(itemRefrigeratorId)
                     .get()
                     .getItemExpirationDates()
                     .stream()
@@ -121,7 +125,8 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByCategory(int refrigeratorId, int categoryId) {
         try {
-            List<ItemInRefrigeratorDto> list = refRepo.findById(refrigeratorId)
+            List<ItemInRefrigeratorDto> list = refRepo
+                    .findById(refrigeratorId)
                     .get()
                     .getItemsInRefrigerator()
                     .stream()
@@ -145,7 +150,11 @@ public class RefrigeratorServices {
      */
     public List<ItemInRefrigeratorDto> getItemsInRefrigeratorByExpirationDate(Date start, Date end, int refrigeratorId) {
         try {
-            List<ItemExpirationDateDto> itemWhichExpires = itemExpRepo.findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(refrigeratorId, start, end)
+            List<ItemExpirationDateDto> itemWhichExpires = itemExpRepo
+                    .findAllByItemRefrigerator_RefrigeratorRefrigeratorIdAndDateGreaterThanAndDateLessThanEqual(
+                            refrigeratorId,
+                            start,
+                            end)
                     .stream()
                     .map(obj -> mapper.map(obj, ItemExpirationDateDto.class))
                     .toList();
@@ -160,7 +169,9 @@ public class RefrigeratorServices {
                                 .toList())
             );
 
-            return list.stream().filter(obj -> !obj.getItemsInRefrigerator().isEmpty()).toList();
+            return list.stream()
+                    .filter(obj -> !obj.getItemsInRefrigerator().isEmpty())
+                    .toList();
         } catch(Exception e) {
             return null;
         }
@@ -190,7 +201,9 @@ public class RefrigeratorServices {
                             .toList())
             );
 
-            return list.stream().filter(obj -> !obj.getItemsInRefrigerator().isEmpty()).toList();
+            return list.stream()
+                    .filter(obj -> !obj.getItemsInRefrigerator().isEmpty())
+                    .toList();
         } catch(Exception e) {
             return null;
         }
@@ -227,7 +240,7 @@ public class RefrigeratorServices {
 
     /**
      * Method to add an item to a refrigerator which already contains said item.
-     * Creates a new row in ItemExpirationDate table, but uses the pre-exisiting
+     * Creates a new row in ItemExpirationDate table, but uses the pre-existing
      * id in ItemRefrigerator
      *
      * @param itemRefDto the item object to add to the database
@@ -272,7 +285,10 @@ public class RefrigeratorServices {
      */
     public boolean deleteItemFromRefrigerator(ItemInRefrigeratorRemovalDto itemRefDto){
         try {
-            ItemExpirationDate itemExp = itemExpRepo.findById(itemRefDto.getItemExpirationDateId()).get();
+            ItemExpirationDate itemExp = itemExpRepo
+                    .findById(itemRefDto.getItemExpirationDateId())
+                    .get();
+
             ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
 
             if (itemRefDto.getAmount() >= itemExp.getAmount()){
@@ -294,14 +310,17 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Method to add an amount of a pre-exisisting item to a refrigerator.
+     * Method to add an amount of a pre-existing item to a refrigerator.
      *
      * @param itemRefDto the itemRefrigerator object with updated information
      * @return true if the item is updated
      */
     public boolean updateItemInRefrigerator(EditItemInRefrigeratorDto itemRefDto){
         try {
-            ItemExpirationDate itemExp = itemExpRepo.findById(itemRefDto.getItemExpirationDateId()).get();
+            ItemExpirationDate itemExp = itemExpRepo
+                    .findById(itemRefDto.getItemExpirationDateId())
+                    .get();
+
             ItemRefrigerator itemRef = itemExp.getItemRefrigerator();
 
             double amount = measurementServices
@@ -323,13 +342,13 @@ public class RefrigeratorServices {
     }
 
     /**
-     * Checks if the refrigerator exists by id.
+     * Checks if the refrigerator not exist in database by id.
      *
      * @param refrigeratorId the refrigerators id
      * @return true if the refrigerator exists
      */
-    public boolean refrigeratorExists(int refrigeratorId){
-        return refRepo.findById(refrigeratorId).isPresent();
+    public boolean refrigeratorNotExists(int refrigeratorId){
+        return !refRepo.existsByRefrigeratorId(refrigeratorId);
     }
 
     /**
@@ -349,8 +368,8 @@ public class RefrigeratorServices {
      * @param itemExpirationDateId id of the item to check
      * @return true or false based on its existence
      */
-    public boolean itemExpirationDateExists(int itemExpirationDateId) {
-        return itemExpRepo.findById(itemExpirationDateId).isPresent();
+    public boolean itemExpirationDateNotExists(int itemExpirationDateId) {
+        return !itemExpRepo.existsByItemExpirationDateId(itemExpirationDateId);
     }
 
     /**
@@ -360,18 +379,18 @@ public class RefrigeratorServices {
      * @return the items
      */
     public List<ItemDto> getNMostPopularItems(int n) {
-
-        List<Item> allItems = itemRefRepo.findAll().stream().map(ItemRefrigerator::getItem).toList();
-
-        List<Item> test = allItems.stream().collect(Collectors.groupingBy(i -> i,
-                        Collectors.counting()))
-                .entrySet().stream()
+        return itemRefRepo
+                .findAll()
+                .stream()
+                .map(ItemRefrigerator::getItem)
+                .collect(Collectors.groupingBy(i -> i, Collectors.counting()))
+                .entrySet()
+                .stream()
                 .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                 .map(Map.Entry::getKey)
                 .limit(n)
+                .map(obj -> mapper.map(obj, ItemDto.class))
                 .toList();
-        test.forEach(s -> System.out.println(s.getName()));
-        return test.stream().map(obj -> mapper.map(obj, ItemDto.class)).toList();
     }
 
     private Date parseDate(String date){
