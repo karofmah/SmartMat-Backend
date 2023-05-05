@@ -184,7 +184,7 @@ public class GarbageServices {
                     .mapToDouble(Double::doubleValue)
                     .sum();
 
-            double averageAmount = totalAmount / map.size()
+            double averageAmount = totalAmount / map.size();
 
             return Math.round(averageAmount * 100.0) / 100.0;
         } catch (Exception e){
