@@ -117,9 +117,10 @@ To run backend, you need some prerequisite programs.
 You need both Java and Maven downloaded and installed.
 
 - You can download Java [here](https://www.oracle.com/java/technologies/downloads/#java17)
-- And Maven [here](https://maven.apache.org/download.cgi) <br> <br>
-Once these are installed you are ready to begin. 
-To ensure you have maven correctly installed run:
+- And Maven [here](https://maven.apache.org/download.cgi)
+
+
+Once these are installed you are ready to begin. To ensure you have maven correctly installed run:
 
     mvn --version
 
