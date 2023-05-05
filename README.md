@@ -5,7 +5,7 @@ Smartmat is a simple app for organising your refrigerator and shopping list, wit
 
 
 ### Table of contents
--[Intended audience] (###Intended audience (intended audience))
+-[Intended audience] (###Intended audience)
 -[Database] (###Database (database))
 -[Frameworks used]
 -[Application used]
@@ -18,7 +18,7 @@ Smartmat is a simple app for organising your refrigerator and shopping list, wit
 
 <br>
 
-### Intended audience (intended audience)
+### Intended audience
 The intended audience for this application are primarily private households wanting to control their food waste. Smartmat also focuses on households with smaller children, as they can recieve an account with limited functionality. Currently the application is only available in English, but future versions aim to add support for multiple languages.
 
 <br>
