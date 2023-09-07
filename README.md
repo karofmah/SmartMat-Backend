@@ -136,6 +136,11 @@ After that, the package must be installed into the local repository, using the c
 
     mvn install 
 
+In the application-central.properties class, you can specify which database to use with the project (url, username and password). To get access to the centralized IDI MySQL database, please reach me at karo.f.mahmoud@gmail.com
+
+![application-central.properties](./readmeImages/applicationPropertiesCentral.png)
+<br><br>
+
 To run the application, maneuver to root directory containing the pom.xml file and run:
 
     mvn spring-boot:run
