@@ -126,7 +126,7 @@ Once these are installed you are ready to begin. To ensure you have maven correc
 
 If this returns the version of Maven you just installed, run the following command to clone the project:
 
-    git clone https://gitlab.stud.idi.ntnu.no/idatt2106-v23-1/backend.git
+    git clone https://github.com/karofmah/SmartMat-Backend.git
 
 You might have to type in your personal password when cloning. When the project has been cloned down, the pom.xml dependencies must be downloaded using the command:
 
@@ -171,10 +171,10 @@ Now that npm is installed, Vue.js can be downloaded through the use of the comma
 
     npm install vue
 
-After installing Vue, the frontend project can be opened. Clone the project from our [Gitlab repo](https://gitlab.stud.idi.ntnu.no/idatt2106-v23-1/frontend)
+After installing Vue, the frontend project can be opened. Clone the project from our [Github repo](https://github.com/karofmah/SmartMat-Frontend)
 either by clicking the link or executing the following command in a folder of your choice:
 
-    git clone https://gitlab.stud.idi.ntnu.no/idatt2106-v23-1/frontend.git
+    git clone https://github.com/karofmah/SmartMat-Frontend.git
 
 After cloning the project, open it either in your preferred IDE or in a terminal.
 To download all dependencies, run the command:
